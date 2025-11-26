@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>{{ storefront.name }}</h1>
+
+  {% if storefront.headline %}
+    <h2>{{ storefront.headline }}</h2>
+  {% endif %}
+
+  {% if storefront.description %}
+    <p>{{ storefront.description }}</p>
+  {% else %}
+    <p>This storefront has not added a full description yet.</p>
+  {% endif %}
+
+  <p><em>Powered by MintKit Hub</em></p>
+{% endblock %}
