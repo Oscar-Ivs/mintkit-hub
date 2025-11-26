@@ -1,4 +1,9 @@
-  <img src="docs/Logo_small.webp" alt="MintKit Hub Logo" width="260">
+<p align="center">
+  <img src="docs/Logo_small.webp" alt="MintKit Logo" width="260">
+</p>
+
+<h1 align="center">MintKit Hub</h1>
+
 
 ## 1. Project Overview & Business Goals
 
