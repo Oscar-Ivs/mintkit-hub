@@ -29,9 +29,9 @@ ALLOWED_HOSTS = []
 
 # Authentication redirects
 
-LOGIN_REDIRECT_URL = 'home'    # where to go after successful login
-LOGOUT_REDIRECT_URL = 'home'   # where to go after logout
-LOGIN_URL = 'login'            # named URL used by @login_required
+LOGIN_REDIRECT_URL = 'dashboard'    # where to go after successful login
+LOGOUT_REDIRECT_URL = 'home'        # where to go after logout
+LOGIN_URL = 'login'                 # named URL used by @login_required
 
 
 # Application definition
@@ -45,9 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
 # Project apps
-
     'core',
-    'accounts',
+    'accounts.apps.AccountsConfig',
     'storefronts',
     'subscriptions',
 ]

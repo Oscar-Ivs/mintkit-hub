@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Dashboard</h1>
+
+  <p>Welcome, {{ request.user.username }}.</p>
+
+  <h2>Your business profile</h2>
+  <ul>
+      <li><strong>Business name:</strong> {{ profile.business_name|default:"Not set yet" }}</li>
+      <li><strong>Contact email:</strong> {{ profile.contact_email|default:"Not set yet" }}</li>
+      <li><strong>Member since:</strong> {{ profile.created_at|date:"Y-m-d H:i" }}</li>
+  </ul>
+
+  <p>(Later we will add forms here so you can edit this information and manage your storefront and subscription.)</p>
+{% endblock %}

@@ -2,6 +2,8 @@ from django.contrib.auth import logout
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from .models import Profile
 
 
 def register(request):
@@ -30,3 +32,16 @@ def logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
     return redirect('home')
+
+@login_required
+def dashboard(request):
+    """
+    Basic dashboard for logged-in business owners.
+    Shows linked Profile information.
+    """
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+
+    context = {
+        'profile': profile,
+    }
+    return render(request, 'accounts/dashboard.html', context)
