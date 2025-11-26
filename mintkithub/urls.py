@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),  # auth routes
     path('', include('core.urls')),              # homepage & general pages
+    path('storefront/', include('storefronts.urls')),  # storefront related pages
 ]
