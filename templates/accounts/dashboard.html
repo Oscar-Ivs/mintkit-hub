@@ -12,5 +12,30 @@
       <li><strong>Member since:</strong> {{ profile.created_at|date:"Y-m-d H:i" }}</li>
   </ul>
 
-  <p>(Later we will add forms here so you can edit this information and manage your storefront and subscription.)</p>
+  <h2>Your storefront</h2>
+  <p>
+      <a href="{% url 'my_storefront' %}">Manage my storefront</a>
+  </p>
+
+  {% if profile.storefront %}
+    {% with sf=profile.storefront %}
+      <p>
+          Status:
+          {% if sf.is_active %}
+            <strong>Active</strong>
+          {% else %}
+            <strong>Inactive</strong>
+          {% endif %}
+          <br>
+          Public URL:
+          <a href="{% url 'storefront_detail' sf.slug %}">
+              {{ sf.get_public_url_path }}
+          </a>
+      </p>
+    {% endwith %}
+  {% else %}
+    <p>You have not created a storefront yet.</p>
+  {% endif %}
+
+  <p>(Later we will add subscription status and MintKit access here.)</p>
 {% endblock %}
