@@ -33,9 +33,11 @@ For a typical business owner:
    `https://mintkit.co.uk/storefront/beauty-salon/`
 
 4. From their **dashboard** they start a **Stripe subscription** (with trial options).  
-5. Once subscribed (or during a free trial), the dashboard shows a button to **open the MintKit app**  
-   (for example `studio.mintkit.co.uk`) where they create and manage digital gift cards, tickets and vouchers.  
+5. Once subscribed (or during a free trial), a dedicated **“Studio” tab** becomes useful.  
+   On that Studio page they can open the external MintKit app (for example `studio.mintkit.co.uk`)  
+   where they create and manage digital gift cards, tickets and vouchers.  
 6. Customers visit the public storefront to learn about the business and follow links to purchase those digital products.
+
 
 This repository contains only the **Django / Python Hub part** that will be graded for the Code Institute project.
 
@@ -83,7 +85,7 @@ MintKit Hub focuses on making the experience simple for a busy non-technical bus
 - As a business owner, I want to create and edit my storefront details (name, description, contact info, logo) so that my customers see accurate, professional information about my business.
 - As a business owner, I want to subscribe to MintKit Hub using Stripe so that I can unlock access to the MintKit app and its digital product tools.
 - As a business owner, I want to see my current subscription status (plan, renewal date, active/inactive) on my dashboard so that I know whether I still have access to MintKit features.
-- As a business owner, I want a clear link from my dashboard to open the MintKit app so that I can quickly start creating or managing gift cards, tickets, and vouchers.
+- As a business owner, I want a dedicated **Studio** tab so that I always know where to go to open the MintKit app and manage my digital products.
 
 #### Customer
 
@@ -322,15 +324,15 @@ These are ideas for future development and are not required for the initial Code
   - whether the user is in a **free trial**, and  
   - whether their subscription is currently **active**.
 
-### External MintKit app integration
+#### 5. External MintKit App Access
 
-- The MintKit app (for creating gift cards, tickets and vouchers) is hosted separately  
-  e.g. at `studio.mintkit.co.uk`.  
-- MintKit Hub does **not** contain that code; it simply controls access and provides the link.  
-- The dashboard logic decides when to show the “Open MintKit app” button, based on:
-  - trial status, and  
-  - Stripe subscription status.  
-- For this project, the external app is treated as a **third-party service** (out of scope for unit tests and for this repo’s code review).
+- A dedicated **Studio tab/page** available to logged-in business owners.
+- The Studio page:
+  - shows an **“Open MintKit Studio”** button when the user has trial or subscription access.
+  - shows a clear message (and no active button) when the trial has ended and there is no active subscription.
+- The “Open MintKit Studio” button links to the external MintKit app (e.g. `studio.mintkit.co.uk`) where gift cards, tickets, and vouchers are managed.
+- (Optional for this project) Store a simple integration record (`MintKitAccess` model) to track that the user has been connected.
+
 
 
 ### Development & Tooling
