@@ -10,17 +10,47 @@
 <details>
   <summary>Click to expand <b>Project overview & goals</b></summary>
 
-MintKit Hub is a Django-based web platform that helps small businesses create a simple online presence and connect to a separate MintKit application where they can design and manage digital gift cards, event tickets, and vouchers.
+### What is MintKit Hub?
 
-This repository contains the **Django / Python** part of the overall idea and is the part that will be graded for the Code Institute Full Stack Frameworks project. MintKit Hub handles user accounts, storefront management, Stripe subscriptions and a dashboard. Once subscribed, business owners can get full access to the MintKit app (e.g. at studio.mintkit.co.uk) from a link on their dashboard.
+MintKit Hub is a Django-based website for **small service businesses** (salons, gyms, tutors, therapists, etc.).
+
+It does three main things:
+
+1. Lets a business owner **create an account** and basic **profile**  
+2. Gives them tools to build a simple **public storefront page** (name, description, active/inactive)  
+3. Handles **subscriptions via Stripe** so they can access a separate MintKit app where digital gift cards, event tickets and vouchers are created and managed.
+
+The MintKit app itself lives at a separate URL (for example `studio.mintkit.co.uk`) and is treated as a **third-party integration** for this project. MintKit Hub only controls access and provides the link.
+
+### How it works – simple flow
+
+For a typical business owner:
+
+1. They visit **MintKit Hub**, register and log in.  
+2. They fill in their **business profile** and create their **storefront** (e.g. “Beauty Salon”).  
+3. They can preview and activate their storefront, which becomes publicly visible at a URL like:
+
+   `https://mintkit.co.uk/storefront/beauty-salon/`
+
+4. From their **dashboard** they start a **Stripe subscription** (with trial options).  
+5. Once subscribed (or during a free trial), the dashboard shows a button to **open the MintKit app**  
+   (for example `studio.mintkit.co.uk`) where they create and manage digital gift cards, tickets and vouchers.  
+6. Customers visit the public storefront to learn about the business and follow links to purchase those digital products.
+
+This repository contains only the **Django / Python Hub part** that will be graded for the Code Institute project.
 
 ### Business Goals
 
-- Provide small service businesses (e.g. salons, gyms, tutors) with an easy way to set up a simple branded storefront.
-- Offer a subscription-based access model (via Stripe) so businesses can unlock tools for managing digital gift cards, tickets, and vouchers in the external MintKit app.
-- Give business owners a clean dashboard where they can see their subscription status and basic information about their storefront.
-- Demonstrate a secure, maintainable Django application with clear separation between the core platform (this project) and the third-party MintKit integration.
-- Lay the groundwork for future enhancements such as richer analytics, more storefront customization options, and deeper integration with the external MintKit service.
+- Provide small service businesses with an easy way to set up a **simple branded storefront page**.  
+- Offer a **subscription-based access model** (via Stripe) so businesses can unlock digital gift card / ticket / voucher tools in the external MintKit app.  
+- Give business owners a clean **dashboard** where they can see:
+  - basic profile information  
+  - storefront status  
+  - trial / subscription status  
+- Demonstrate a secure, maintainable Django application with clear separation between:
+  - the core platform (this repository), and  
+  - the third-party MintKit integration.  
+- Lay the groundwork for future enhancements such as richer analytics, storefront themes and deeper, more automated integration with MintKit.
 
 </details>
 
@@ -31,15 +61,19 @@ This repository contains the **Django / Python** part of the overall idea and is
 <details>
   <summary>Click to expand <b>UX summary & user stories</b></summary>
 
-### UX Overview
+### Target audience
 
-The UX focus of MintKit Hub is to make it easy for small business owners to set up a simple online presence, manage their subscription, and then seamlessly access the external MintKit app. Customers should be able to understand what a business offers and, in future iterations, purchase digital products without confusion.
+The primary users are:
 
-### Target Audience
+- **Small business owners** who want a simple online presence and the ability to sell digital gift cards, tickets or vouchers without building a full website from scratch.
+- **Their customers**, who only see the public storefront pages and follow links to buy or redeem digital products.
+- **The site owner / admin** (me, as project owner) who manages plans, subscriptions and occasionally updates storefront content via Django admin.
 
-- **Business Owners** – small service-based businesses (e.g. beauty salons, gyms, tutors, local event organisers) who want a simple way to present their brand and access tools for managing digital gift cards, tickets, and vouchers.
-- **Customers** – people visiting a business’s storefront to learn about services and, in future, buy digital products.
-- **Site Admin** – the platform owner/administrator who manages the overall system and can monitor or support business users.
+MintKit Hub focuses on making the experience simple for a busy non-technical business owner:
+- clear navigation (Home → Dashboard → Storefront → Subscription)
+- forms that only ask for essential information
+- clear feedback about whether their storefront is public and whether they currently have access to the MintKit app.
+
 
 ### Key User Stories
 
@@ -261,10 +295,10 @@ These are ideas for future development and are not required for the initial Code
 </details>
 
 
-## 5. Technologies Used
+## 5. Technologies & Integrations (including Stripe & MintKit)
 
 <details>
-  <summary>Click to expand <b>Technologies used</b></summary>
+  <summary>Click to expand <b>Technologies & Integrations</b></summary>
 
 ### Core Technologies
 
@@ -280,10 +314,24 @@ These are ideas for future development and are not required for the initial Code
 - **(Planned) PostgreSQL** – database engine for production deployment (to be confirmed with hosting platform).
 - **Django ORM** – used to define models and manage database queries.
 
-### Payments & External Services
+### Stripe payments
 
-- **Stripe** – handles subscription payments for business owners using Stripe Checkout and Stripe’s test mode during development.
-- **External MintKit App** – a separate third-party application (e.g. hosted at `studio.mintkit.co.uk`) that business owners access after subscribing. It is **integrated**, but not part of this Django codebase.
+- **Stripe Checkout** is used to handle subscription payments securely.  
+- MintKit Hub never stores card data; it creates a **Checkout Session** and lets Stripe handle the card details.  
+- The app stores only the minimum necessary Stripe IDs (customer, subscription, status) to know:
+  - whether the user is in a **free trial**, and  
+  - whether their subscription is currently **active**.
+
+### External MintKit app integration
+
+- The MintKit app (for creating gift cards, tickets and vouchers) is hosted separately  
+  e.g. at `studio.mintkit.co.uk`.  
+- MintKit Hub does **not** contain that code; it simply controls access and provides the link.  
+- The dashboard logic decides when to show the “Open MintKit app” button, based on:
+  - trial status, and  
+  - Stripe subscription status.  
+- For this project, the external app is treated as a **third-party service** (out of scope for unit tests and for this repo’s code review).
+
 
 ### Development & Tooling
 
@@ -313,6 +361,8 @@ MintKit Hub relies on a few external services and scripts:
 - **(Planned) Analytics / Monitoring (optional)**  
   If added later (e.g. simple visit tracking or error monitoring), the chosen service and integration details will be documented here.
 
+For a more detailed description of how Stripe and the external MintKit app fit together,
+see `docs/STRIPE_MINTKIT_INTEGRATION.md`.
 
 </details>
 
@@ -335,7 +385,7 @@ These steps describe how to get MintKit Hub running locally for development.
 2. **Create and activate a virtual environment**
 
 python -m venv venv
-## Windows
+
 venv\Scripts\activate
 
 3. **Install dependencies**
@@ -564,179 +614,18 @@ This section collects recurring issues encountered during development and deploy
 </details>
 
 
-## 10. Stripe Integration & External MintKit App
+## 10. Further Documentation (for assessors)
 
 <details>
-  <summary>Click to expand <b>Stripe & MintKit integration details</b></summary>
+  <summary>Click to expand <b>Further Documentation</b></summary>
 
-### Overview
+- **CI Assessment Criteria Mapping**  
+  A detailed mapping between the Code Institute learning outcomes and MintKit Hub is provided in:  
+  `docs/CI_CRITERIA.md`  
 
-MintKit Hub uses **Stripe** to manage subscription payments for business owners.  
-Access to the external **MintKit app** (e.g. at `studio.mintkit.co.uk`) is controlled by:
-
-- A **time-limited trial period**, and  
-- The **status of the user’s Stripe subscription**.
-
-The external MintKit app itself is treated as a **third-party service** and is **not part of this Django codebase**. This repository focuses on authentication, storefronts, subscription logic, and access control.
-
----
-
-### Stripe Subscription Flow (High Level)
-
-1. **Choose a plan**  
-   - The business owner sees one or more `SubscriptionPlan` options (e.g. Basic / Pro).
-
-2. **Start Stripe Checkout**  
-   - From the dashboard, the user selects a plan and clicks a “Subscribe” button.
-   - The Django backend creates a Stripe Checkout Session (in test mode during development).
-   - The user is redirected to the Stripe-hosted payment page.
-
-3. **Payment / Stripe trial period**  
-   - Stripe handles card details securely (MintKit Hub never stores card numbers).
-   - The chosen plan may include an initial **free month** configured in Stripe.
-   - On success, Stripe redirects back to a success page; on cancel, back to a cancel page.
-
-4. **Update subscription status**  
-   - MintKit Hub stores the relevant Stripe IDs on the `Subscription` model (e.g. `stripe_customer_id`, `stripe_subscription_id`, `status`).
-   - The dashboard uses this data to show whether the subscription is active and whether the user should have access to the MintKit app.
-
-(If webhooks are implemented, they will be used to keep the subscription `status` in sync with Stripe events such as payment succeeded, cancelled, or expired.)
-
----
-
-### Trial & Access Logic
-
-MintKit Hub supports a generous trial approach designed to encourage experimentation:
-
-- **Initial application trial (before Stripe subscription)**  
-  - New business owners receive a time-limited **free trial** (for example, 14 days) during which they can still access the MintKit app via MintKit Hub without paying.
-  - A field such as `trial_ends_at` on the `Profile` model is used to control this.
-
-- **Stripe subscription with free period**  
-  - When the user decides to subscribe, the Stripe plan is configured with an initial **free month**, so the first billing date is in the future.
-  - The `Subscription` model stores the Stripe status and any relevant dates (e.g. start date, next billing date).
-
-- **Access rules on the dashboard**
-
-  The dashboard will typically behave as follows:
-
-  - **State A – Trial active, no subscription yet**  
-    - Show trial countdown (e.g. “You have X days left of your free trial”).  
-    - Show **MintKit access button**.  
-    - Encourage upgrade (e.g. “Subscribe now and get your first month free via Stripe.”).
-
-  - **State B – Subscription active**  
-    - Show current plan and next charge/renewal date.  
-    - Show **MintKit access button**.  
-    - Provide a link to manage the subscription (e.g. via Stripe customer portal or support).
-
-  - **State C – Trial expired and no active subscription**  
-    - Explain that the trial has ended.  
-    - Hide the MintKit access button.  
-    - Show a clear call-to-action to start a Stripe subscription.
-
-These rules ensure that the UI clearly communicates whether the user currently has access to MintKit or needs to subscribe.
-
----
-
-### External MintKit App Integration
-
-- The MintKit app is hosted separately (for example at `studio.mintkit.co.uk`) and is considered a **third-party** application.
-- MintKit Hub does **not** contain the MintKit app source code; it only controls access and provides links.
-- When a user is allowed access (trial or subscription state):
-
-  - The dashboard displays a button such as **“Open MintKit App”**.
-  - Clicking the button redirects the user to the external MintKit URL.
-  - Optionally, a simple integration model (`MintKitAccess`) can store an `external_identifier` or timestamp for when the user last accessed MintKit.
-
-For the purposes of the Code Institute project, this integration is treated as:
-
-- A clear example of **using a third-party service** alongside Django and Stripe.
-- Out of scope for Django unit testing (MintKit’s internal behaviour is not tested here).
-- Clearly separated in documentation so it is understood what belongs to this repo and what does not.
-
----
-
-### Security & Data Handling Notes
-
-- All payment card data is handled directly by **Stripe**. MintKit Hub never stores card numbers or CVV codes.
-- Only the minimum necessary Stripe identifiers are stored in the database (e.g. customer ID, subscription ID, status).
-- Any future enhancement such as signed URLs, tokens, or SSO for MintKit access will be documented separately, but are not strictly required for this project.
-
+- **Wireframes & screenshots**  
+  Once the UI is more polished, this folder will also contain:
+  - page wireframes (home page, dashboard, storefront)
+  - a small set of screenshots from the deployed site  
+  to help assessors quickly understand the layout and flows.
 </details>
-
-
-## 11. CI Assessment Criteria Mapping
-
-<details>
-  <summary>Click to expand <b>CI assessment criteria mapping</b></summary>
-
-This section provides a high-level mapping between the Code Institute **Full Stack Frameworks with Django** unit learning outcomes and how MintKit Hub addresses them. It is designed as a quick reference for assessors; further detail is available in the relevant README sections and docs.
-
----
-
-### Learning Outcome 1  
-Design, develop and implement a Full Stack Django application with a relational database, multiple apps, and an interactive front end.   
-
-| Area / Criteria (summary) | How MintKit Hub addresses it |
-|---------------------------|------------------------------|
-| 1.1 Full Stack Django app with relational DB & multiple apps | Django project with separate apps such as `accounts`, `storefronts`, `subscriptions`, and `core`, all backed by a relational database (SQLite locally, Postgres on Heroku). |
-| 1.2 Front-end design, UX & accessibility | Responsive templates using HTML, CSS and Bootstrap, with clear navigation (main menu, dashboard, storefront pages) and UX built around real user stories (business owner, customer, admin). |
-| 1.3 Implementation of full stack features | Authentication, dashboard, storefront management, subscription logic, and integration with an external MintKit app provide an interactive full stack experience. |
-| 1.4 Forms with validation | Django forms for registration/login, profile editing, and storefront creation/editing include validation and user feedback messages. |
-| 1.5–1.8 Django structure, URLs & navigation | Django file structure follows conventions; URLs are defined consistently per app; a main navigation menu and shared base template are used across the site. |
-| 1.9–1.10 Python logic & clean code | Business logic (trial status, subscription checks, storefront visibility rules) is implemented in views/models, using conditionals and loops where appropriate, with attention to clean, readable code. |
-| 1.11 Testing procedures | Manual testing of key flows plus documented procedures in `docs/TESTING.md` (functional, UX, responsiveness, data behaviour), summarised in README Section 7. |
-
----
-
-### Learning Outcome 2  
-Design and implement a relational data model, application features and business logic to manage relational data.   
-
-| Area / Criteria (summary) | How MintKit Hub addresses it |
-|---------------------------|------------------------------|
-| 2.1 Relational database schema | ERD designed with `User`, `Profile`, `Storefront`, `SubscriptionPlan`, `Subscription`, and `MintKitAccess` models and clear relationships, documented in Section 3 and `docs/ERD.md`. |
-| 2.2 Two or more custom models | Multiple original Django models (`Profile`, `Storefront`, `SubscriptionPlan`, `Subscription`, `MintKitAccess`) go beyond the built-in `User`. |
-| 2.3 Form for creating records | Storefront and profile forms allow users to create and update database records (in addition to auth forms). |
-| 2.4 CRUD functionality | Business owners can create, read, update and (where appropriate) delete data such as storefronts or profile details; admin can manage all core models via Django admin. |
-| Merit: describe schema in README | Section 3 and the ERD documentation describe the data model and relationships in a clear, structured way. |
-
----
-
-### Learning Outcome 3  
-Identify and apply authorisation, authentication and permission features.   
-
-| Area / Criteria (summary) | How MintKit Hub addresses it |
-|---------------------------|------------------------------|
-| 3.1 Authentication & reason for login | Django auth used for registration/login; users must log in to create/manage storefronts, view dashboards and manage subscriptions. |
-| 3.2 Login/register for anonymous users only | Registration and login pages are shown only to anonymous users; logged-in users are redirected appropriately. |
-| 3.3 Prevent direct datastore access | Views are protected so non-admin users can only access their own data via the code (e.g. only the owner can edit their storefront); Django admin is restricted to superusers. |
-| Permissions & roles | Dashboard and management views require authentication; public storefront pages are read-only and available to all, while internal management is restricted to owners/admin. |
-
----
-
-### Learning Outcome 4  
-Design, develop and integrate an e-commerce payment system (e.g. Stripe).   
-
-| Area / Criteria (summary) | How MintKit Hub addresses it |
-|---------------------------|------------------------------|
-| 4.1 Django app with e-commerce using Stripe | The `subscriptions` app integrates with Stripe Checkout to handle subscription-based payments for business owners. |
-| 4.2 Feedback on successful/failed purchases | Success and cancel pages (and dashboard messages) inform users whether the subscription process completed or was cancelled, with clear guidance on next steps. |
-| Trial + subscription logic | Trial period and Stripe subscription status determine access to MintKit; this business logic is visible and testable via the dashboard. |
-
----
-
-### Learning Outcome 5  
-Use git-based version control, document development, and deploy to a cloud hosting platform.   
-
-| Area / Criteria (summary) | How MintKit Hub addresses it |
-|---------------------------|------------------------------|
-| 5.1 Deployment | Final version deployed to Heroku with Postgres; deployment checked to match local development environment (Section 10 & `docs/DEPLOYMENT.md`). |
-| 5.2 Clean deployed code | Deployed code free of commented-out blocks and broken internal links; navigation and URLs checked in testing. |
-| 5.3 Security & settings | Sensitive data kept in environment variables (`SECRET_KEY`, Stripe keys, database URL); `DEBUG` off in production and `ALLOWED_HOSTS` configured. |
-| 5.4 Git-based version control | Development history documented through regular, descriptive Git commits on GitHub, showing the project’s evolution. |
-| 5.5–5.6 README & documentation | This README (plus `docs/` files) is structured, written in consistent Markdown, and documents purpose, UX, data schema, testing, and deployment, as required by the spec. |
-
-</details>
-
-
