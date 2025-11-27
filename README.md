@@ -362,7 +362,8 @@ MintKit Hub relies on a few external services and scripts:
   If added later (e.g. simple visit tracking or error monitoring), the chosen service and integration details will be documented here.
 
 For a more detailed description of how Stripe and the external MintKit app fit together,
-see `docs/STRIPE_MINTKIT_INTEGRATION.md`.
+see [docs/STRIPE_MINTKIT_INTEGRATION.md](docs/STRIPE_MINTKIT_INTEGRATION.md).
+
 
 </details>
 
@@ -621,7 +622,7 @@ This section collects recurring issues encountered during development and deploy
 
 - **CI Assessment Criteria Mapping**  
   A detailed mapping between the Code Institute learning outcomes and MintKit Hub is provided in:  
-  `docs/CI_CRITERIA.md`  
+  [docs/CI_CRITERIA.md](docs/CI_CRITERIA.md)  
 
 - **Wireframes & screenshots**  
   Once the UI is more polished, this folder will also contain:
