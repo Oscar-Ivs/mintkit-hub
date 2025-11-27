@@ -385,15 +385,19 @@ These steps describe how to get MintKit Hub running locally for development.
 
 2. **Create and activate a virtual environment**
 
-python -m venv venv
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate
 
-venv\Scripts\activate
 
 3. **Install dependencies**
 
 (A requirements.txt file will be added as the project develops.)
 
+```bash
 pip install -r requirements.txt
+python manage.py migrate
+```
 
 4. **Set environment variables**
 
