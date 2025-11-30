@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>{{ storefront.name }}</h1>
+<h1>{{ storefront.headline }}</h1>
 
-  {% if storefront.headline %}
-    <h2>{{ storefront.headline }}</h2>
-  {% endif %}
+{# Optional logo if you ever show it here #}
+{% if storefront.profile.logo %}
+  <p>
+    <img src="{{ storefront.profile.logo.url }}" alt="{{ storefront.profile.business_name }} logo">
+  </p>
+{% endif %}
 
-  {% if storefront.description %}
-    <p>{{ storefront.description }}</p>
-  {% else %}
-    <p>This storefront has not added a full description yet.</p>
-  {% endif %}
+<p>
+  {{ storefront.description|linebreaksbr }}
+</p>
 
-  <p><em>Powered by MintKit Hub</em></p>
+<h2>Contact</h2>
+<p>
+  {{ storefront.contact_details|linebreaksbr }}
+</p>
 {% endblock %}
