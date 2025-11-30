@@ -1,39 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <title>MintKit Hub</title>
+
+    <style>
+        /* Very simple styling for Django messages */
+        ul.messages {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem 0;
+        }
+        ul.messages li {
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.25rem;
+            border-radius: 4px;
+        }
+        /* Colours per message type */
+        ul.messages li.success {
+            background-color: #e6ffed;
+            color: #065f46;
+        }
+        ul.messages li.info {
+            background-color: #e0f2fe;
+            color: #075985;
+        }
+        ul.messages li.error,
+        ul.messages li.danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
 </head>
-
 <body>
-    <header>
-        <nav>
-            <a href="{% url 'home' %}">Home</a>
-
-            {% if user.is_authenticated %}
-            <span> | Logged in as {{ user.username }}</span>
+    <p>
+        <a href="{% url 'home' %}">Home</a>
+        {% if user.is_authenticated %}
+            | Logged in as {{ user.username }}
             <a href="{% url 'dashboard' %}">Dashboard</a>
             <a href="{% url 'logout' %}">Logout</a>
-            {% else %}
-            <span> | Guest</span>
+        {% else %}
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'register' %}">Register</a>
-            {% if messages %}
-            <ul>
-                {% for message in messages %}
-                <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
+        {% endif %}
+    </p>
 
-            {% endif %}
-        </nav>
-    </header>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+    {% block content %}
+    {% endblock %}
 </body>
-
 </html>

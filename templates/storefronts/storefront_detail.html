@@ -3,13 +3,15 @@
 {% block content %}
 <h1>{{ storefront.headline }}</h1>
 
-{# Optional logo if you ever show it here #}
+{# Optional logo from the business profile #}
 {% if storefront.profile.logo %}
   <p>
-    <img src="{{ storefront.profile.logo.url }}" alt="{{ storefront.profile.business_name }} logo">
+    <img src="{{ storefront.profile.logo.url }}"
+         alt="{{ storefront.profile.business_name }} logo">
   </p>
 {% endif %}
 
+{# Main description text #}
 <p>
   {{ storefront.description|linebreaksbr }}
 </p>

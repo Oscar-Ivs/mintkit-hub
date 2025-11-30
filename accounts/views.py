@@ -3,29 +3,28 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
-from .models import Profile
+
 from storefronts.models import Storefront
 from .forms import ProfileForm
-
 
 
 def register(request):
     """
     Simple registration view using Django's built-in UserCreationForm.
     """
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, "Your account has been created. You can now log in.")
-            return redirect('login')
+            return redirect("login")
     else:
         form = UserCreationForm()
 
     context = {
-        'form': form,
+        "form": form,
     }
-    return render(request, 'accounts/register.html', context)
+    return render(request, "accounts/register.html", context)
 
 
 def logout_view(request):
@@ -34,10 +33,14 @@ def logout_view(request):
     """
     logout(request)
     messages.info(request, "You have been logged out.")
-    return redirect('home')
+    return redirect("home")
+
 
 @login_required
 def dashboard(request):
+    """
+    Simple dashboard showing profile and storefront summary.
+    """
     profile = request.user.profile
     storefront = Storefront.objects.filter(profile=profile).first()
     context = {
@@ -45,6 +48,7 @@ def dashboard(request):
         "storefront": storefront,
     }
     return render(request, "accounts/dashboard.html", context)
+
 
 @login_required
 def edit_profile(request):
