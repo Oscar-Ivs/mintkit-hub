@@ -1,30 +1,31 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>My Storefront</h1>
+<h1>My Storefront</h1>
+
+<p>
+  Here you can set up your public storefront page that your customers will see.
+</p>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Save storefront</button>
+</form>
+
+{% if storefront.slug %}
+  <h2>Public URL</h2>
 
   <p>
-    Here you can set up your public storefront page that your customers will see.
+    {% if storefront.is_active %}
+      This storefront is currently <strong>active</strong> and publicly visible.<br>
+    {% else %}
+      This storefront is currently <strong>inactive</strong> and hidden from the public.<br>
+    {% endif %}
+    Public link:
+    <a href="{{ storefront.get_absolute_url }}">
+      {{ request.scheme }}://{{ request.get_host }}{{ storefront.get_absolute_url }}
+    </a>
   </p>
-
-  <form method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Save storefront</button>
-  </form>
-
-  {% if storefront.slug %}
-    <h2>Public URL</h2>
-    <p>
-        {% if storefront.is_active %}
-            This storefront is <strong>active</strong> and publicly visible.<br>
-        {% else %}
-            This storefront is currently <strong>inactive</strong> and hidden from the public.<br>
-        {% endif %}
-        Public link:
-        <a href="{% url 'storefront_detail' storefront.slug %}">
-            {{ storefront.get_public_url_path }}
-        </a>
-    </p>
-  {% endif %}
+{% endif %}
 {% endblock %}

@@ -1,41 +1,41 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Dashboard</h1>
+<h1>Dashboard</h1>
 
-  <p>Welcome, {{ request.user.username }}.</p>
+<p>Welcome, {{ user.first_name|default:user.username }}.</p>
 
-  <h2>Your business profile</h2>
-  <ul>
-      <li><strong>Business name:</strong> {{ profile.business_name|default:"Not set yet" }}</li>
-      <li><strong>Contact email:</strong> {{ profile.contact_email|default:"Not set yet" }}</li>
-      <li><strong>Member since:</strong> {{ profile.created_at|date:"Y-m-d H:i" }}</li>
-  </ul>
+<h2>Your business profile</h2>
+<ul>
+  <li><strong>Business name:</strong> {{ profile.business_name|default:"Not set yet" }}</li>
+  <li><strong>Contact email:</strong> {{ profile.contact_email|default:"Not set yet" }}</li>
+  <li><strong>Member since:</strong> {{ profile.created_at|date:"Y-m-d H:i" }}</li>
+</ul>
 
-  <h2>Your storefront</h2>
+<h2>Your storefront</h2>
+
+<p>
+  <a href="{% url 'my_storefront' %}">Manage my storefront</a>
+</p>
+
+{% if storefront %}
   <p>
-      <a href="{% url 'my_storefront' %}">Manage my storefront</a>
+    Status:
+    {% if storefront.is_active %}
+      <strong>Active</strong>
+    {% else %}
+      <strong>Inactive</strong>
+    {% endif %}
   </p>
+  <p>
+    Public URL:
+    <a href="{{ storefront.get_absolute_url }}">
+      {{ request.scheme }}://{{ request.get_host }}{{ storefront.get_absolute_url }}
+    </a>
+  </p>
+{% else %}
+  <p>You have not created a storefront yet.</p>
+{% endif %}
 
-  {% if profile.storefront %}
-    {% with sf=profile.storefront %}
-      <p>
-          Status:
-          {% if sf.is_active %}
-            <strong>Active</strong>
-          {% else %}
-            <strong>Inactive</strong>
-          {% endif %}
-          <br>
-          Public URL:
-          <a href="{% url 'storefront_detail' sf.slug %}">
-              {{ sf.get_public_url_path }}
-          </a>
-      </p>
-    {% endwith %}
-  {% else %}
-    <p>You have not created a storefront yet.</p>
-  {% endif %}
-
-  <p>(Later we will add subscription status and MintKit access here.)</p>
+<p>(Later we will add subscription status and MintKit access here.)</p>
 {% endblock %}

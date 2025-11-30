@@ -4,6 +4,8 @@ from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from .models import Profile
+from storefronts.models import Storefront
+
 
 
 def register(request):
@@ -35,13 +37,10 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    """
-    Basic dashboard for logged-in business owners.
-    Shows linked Profile information.
-    """
-    profile, _ = Profile.objects.get_or_create(user=request.user)
-
+    profile = request.user.profile
+    storefront = Storefront.objects.filter(profile=profile).first()
     context = {
-        'profile': profile,
+        "profile": profile,
+        "storefront": storefront,
     }
-    return render(request, 'accounts/dashboard.html', context)
+    return render(request, "accounts/dashboard.html", context)
