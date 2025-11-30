@@ -1,53 +1,67 @@
-from django.shortcuts import render, get_object_or_404, redirect
+# storefronts/views.py
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
 
-from accounts.models import Profile
-from .models import Storefront
 from .forms import StorefrontForm
+from .models import Storefront
 
 
 @login_required
 def my_storefront(request):
     """
-    Create or edit the logged-in user's storefront.
-    """
-    profile, _ = Profile.objects.get_or_create(user=request.user)
-    storefront, created = Storefront.objects.get_or_create(owner=profile)
+    Let the logged-in business owner create or edit *their* storefront.
 
-    if request.method == 'POST':
+    We link the storefront to request.user.profile (not a field called 'owner').
+    If a storefront doesn't exist yet, we create one on the fly and then show
+    the edit form.
+    """
+    # Every user should have a Profile because of the signal, but be defensive:
+    profile = request.user.profile
+
+    # Fetch existing storefront for this profile or create a new one
+    storefront, created = Storefront.objects.get_or_create(
+        profile=profile,
+        defaults={
+            "headline": profile.business_name
+            or f"{request.user.username}'s storefront",
+            "description": "",
+            "contact_details": profile.contact_email or "",
+            "is_active": False,
+        },
+    )
+
+    if request.method == "POST":
         form = StorefrontForm(request.POST, instance=storefront)
         if form.is_valid():
-            form.save()
-            return redirect('my_storefront')
+            # Keep the link to this profile enforced
+            sf = form.save(commit=False)
+            sf.profile = profile
+            sf.save()
+            messages.success(request, "Your storefront has been saved.")
+            return redirect("my_storefront")  # URL name used in dashboard link
     else:
         form = StorefrontForm(instance=storefront)
 
     context = {
-        'form': form,
-        'storefront': storefront,
-        'created': created,
+        "storefront": storefront,
+        "form": form,
+        "created": created,  # can be used in template to show 'first time' message
     }
-    return render(request, 'storefronts/my_storefront.html', context)
+    return render(request, "storefronts/my_storefront.html", context)
 
 
 def storefront_detail(request, slug):
     """
-    Public storefront page.
-    - Visible to everyone if is_active == True.
-    - Owner or staff can view even if inactive.
+    Public storefront page. Only show storefronts that are marked active.
     """
-    storefront = get_object_or_404(Storefront, slug=slug)
-
-    if not storefront.is_active:
-        # Allow owner or staff; otherwise 404
-        if not request.user.is_authenticated:
-            raise Http404("This storefront is not available.")
-        profile = getattr(request.user, 'profile', None)
-        if not (request.user.is_staff or (profile and storefront.owner == profile)):
-            raise Http404("This storefront is not available.")
-
-    context = {
-        'storefront': storefront,
-    }
-    return render(request, 'storefronts/storefront_detail.html', context)
+    storefront = get_object_or_404(
+        Storefront,
+        slug=slug,
+        is_active=True,
+    )
+    return render(
+        request,
+        "storefronts/storefront_detail.html",
+        {"storefront": storefront},
+    )
