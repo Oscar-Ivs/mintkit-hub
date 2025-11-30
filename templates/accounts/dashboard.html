@@ -16,6 +16,12 @@
   <a href="{% url 'edit_profile' %}">Edit business profile</a>
 </p>
 
+<h2>Your storefront</h2>
+
+<p>
+  {# This is the place to edit description + contact details #}
+  <a href="{% url 'my_storefront' %}">Manage my storefront</a>
+</p>
 
 {% if storefront %}
   <p>
