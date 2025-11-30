@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Edit business profile</h1>
+
+<p>
+  Update the details that will be used on your dashboard and storefront.
+</p>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Save profile</button>
+</form>
+
+<p>
+  <a href="{% url 'dashboard' %}">&larr; Back to dashboard</a>
+</p>
+{% endblock %}

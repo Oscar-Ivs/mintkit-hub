@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from .models import Profile
 from storefronts.models import Storefront
+from .forms import ProfileForm
 
 
 
@@ -44,3 +45,25 @@ def dashboard(request):
         "storefront": storefront,
     }
     return render(request, "accounts/dashboard.html", context)
+
+@login_required
+def edit_profile(request):
+    """
+    Allow the logged-in user to edit their business profile.
+    """
+    profile = request.user.profile  # created automatically by the signal
+
+    if request.method == "POST":
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your business profile has been updated.")
+            return redirect("dashboard")
+    else:
+        form = ProfileForm(instance=profile)
+
+    context = {
+        "form": form,
+        "profile": profile,
+    }
+    return render(request, "accounts/edit_profile.html", context)

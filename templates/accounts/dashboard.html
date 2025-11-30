@@ -12,11 +12,10 @@
   <li><strong>Member since:</strong> {{ profile.created_at|date:"Y-m-d H:i" }}</li>
 </ul>
 
-<h2>Your storefront</h2>
-
 <p>
-  <a href="{% url 'my_storefront' %}">Manage my storefront</a>
+  <a href="{% url 'edit_profile' %}">Edit business profile</a>
 </p>
+
 
 {% if storefront %}
   <p>
