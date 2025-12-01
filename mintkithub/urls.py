@@ -1,3 +1,4 @@
+# mintkithub/urls.py
 """
 URL configuration for mintkithub project.
 
@@ -24,6 +25,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),  # auth routes
     path('', include('core.urls')),              # homepage & general pages
     path('storefront/', include('storefronts.urls')),  # storefront related pages
+    path("subscriptions/", include("subscriptions.urls")),  # subscription management
 ]
 
 # Serve media files (like uploaded logos) in development
