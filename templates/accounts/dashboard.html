@@ -3,44 +3,97 @@
 {% block content %}
 <h1>Dashboard</h1>
 
-<p>Welcome, {{ user.first_name|default:user.username }}.</p>
+<p>Welcome, {{ request.user.first_name|default:request.user.username }}.</p>
 
+{# -------------------- Business profile -------------------- #}
 <h2>Your business profile</h2>
 <ul>
-  <li><strong>Business name:</strong> {{ profile.business_name|default:"Not set yet" }}</li>
-  <li><strong>Contact email:</strong> {{ profile.contact_email|default:"Not set yet" }}</li>
-  <li><strong>Member since:</strong> {{ profile.created_at|date:"Y-m-d H:i" }}</li>
+    <li>
+        <strong>Business name:</strong>
+        {{ profile.business_name|default:"Not set yet" }}
+    </li>
+    <li>
+        <strong>Contact email:</strong>
+        {{ profile.contact_email|default:"Not set yet" }}
+    </li>
+    <li>
+        <strong>Member since:</strong>
+        {{ profile.user.date_joined|date:"Y-m-d H:i" }}
+    </li>
 </ul>
 
 <p>
-  <a href="{% url 'edit_profile' %}">Edit business profile</a>
+    <a href="{% url 'edit_profile' %}">Edit business profile</a>
 </p>
 
-<h2>Your storefront</h2>
+{# -------------------- Subscription / trial info -------------------- #}
+<h2>Your subscription</h2>
 
-<p>
-  {# This is the place to edit description + contact details #}
-  <a href="{% url 'my_storefront' %}">Manage my storefront</a>
-</p>
+{% if subscription %}
+    <p><strong>Plan:</strong> {{ subscription.plan.name }}</p>
 
-{% if storefront %}
-  <p>
-    Status:
-    {% if storefront.is_active %}
-      <strong>Active</strong>
+    {% if subscription.status == "trial" %}
+        <p>
+            Status: Free trial
+            {% if subscription.current_period_end %}
+                - ends on
+                {{ subscription.current_period_end|date:"F j, Y" }}.
+            {% endif %}
+        </p>
     {% else %}
-      <strong>Inactive</strong>
+        <p>
+            Status: Active {{ subscription.plan.name }} subscription.
+        </p>
     {% endif %}
-  </p>
-  <p>
-    Public URL:
-    <a href="{{ storefront.get_absolute_url }}">
-      {{ request.scheme }}://{{ request.get_host }}{{ storefront.get_absolute_url }}
-    </a>
-  </p>
+
+    {# Later we can show limits (batches, cards) from subscription.plan here #}
+
 {% else %}
-  <p>You have not created a storefront yet.</p>
+    <p>
+        You don't have a subscription yet. You're currently on the default
+        free tier.
+    </p>
+    <p>
+        <a href="{% url 'pricing' %}">View pricing &amp; start a free trial →</a>
+    </p>
 {% endif %}
 
-<p>(Later we will add subscription status and MintKit access here.)</p>
+{# -------------------- Storefront block -------------------- #}
+<h2>Your storefront</h2>
+
+{% if storefront %}
+    <p>
+        Status:
+        {% if storefront.is_active %}
+            <strong>Active</strong>
+        {% else %}
+            <strong>Inactive</strong>
+        {% endif %}
+    </p>
+
+    <p>
+        Public URL:
+        {% if storefront.slug %}
+            {# Use the URL tag instead of calling request.build_absolute_uri(...) #}
+            <a href="{% url 'storefront_detail' storefront.slug %}">
+                {% url 'storefront_detail' storefront.slug %}
+            </a>
+        {% else %}
+            Not set yet.
+        {% endif %}
+    </p>
+
+    <p>
+        <a href="{% url 'my_storefront' %}">Manage my storefront →</a>
+    </p>
+{% else %}
+    <p>
+        You have not created a storefront yet.
+    </p>
+    <p>
+        <a href="{% url 'my_storefront' %}">Create my storefront →</a>
+    </p>
+{% endif %}
+
+
 {% endblock %}

@@ -3,6 +3,8 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from subscriptions.models import Subscription
+
 
 from .models import Profile
 from storefronts.models import Storefront
@@ -49,24 +51,30 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     """
-    Simple dashboard showing profile and storefront summary.
-    Ensures a Profile exists even for older users created before this logic.
-    """
-    profile, _ = Profile.objects.get_or_create(
-        user=request.user,
-        defaults={
-            "business_name": request.user.username,
-            "contact_email": getattr(request.user, "email", "") or "",
-        },
-    )
+    Main control panel for the logged-in user.
 
+    Shows:
+    - Business profile info
+    - Current storefront status
+    - Current subscription / trial info
+    """
+    profile = request.user.profile
     storefront = Storefront.objects.filter(profile=profile).first()
+
+    # Get the most recent subscription for this profile (if any)
+    subscription = (
+        Subscription.objects.filter(profile=profile)
+        .order_by("-started_at")
+        .first()
+    )
 
     context = {
         "profile": profile,
         "storefront": storefront,
+        "subscription": subscription,
     }
     return render(request, "accounts/dashboard.html", context)
+
 
 
 @login_required
