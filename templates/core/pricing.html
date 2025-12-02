@@ -1,18 +1,111 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <h1>Pricing</h1>
 
 <p>
-  This is a placeholder for your pricing plans.
+  MintKit Hub starts with a simple two–step model:
+  a short <strong>free trial</strong> so you can set everything up,
+  then an affordable <strong>Basic</strong> plan.  
+  A more advanced <strong>Pro</strong> tier is planned for the future.
 </p>
 
+<div class="card">
+  <h2>Plans at a glance</h2>
+
+  <div class="cards-grid">
+    <!-- Trial -->
+    <section class="plan">
+      <h3>Free Trial</h3>
+      <p class="price">£0 for 14 days</p>
+      <p class="fee-note">Platform fee: <strong>10%</strong> per paid transaction</p>
+
+      <ul>
+        <li>Full access to MintKit Hub dashboard.</li>
+        <li>Set up your business profile and storefront.</li>
+        <li>Connect Stripe (test mode for this project).</li>
+        <li>Try creating a small set of digital gift cards / tickets / vouchers.</li>
+        <li>Up to <strong>3 collections</strong> and roughly <strong>20 cards per batch</strong>.</li>
+      </ul>
+
+      {% if user.is_authenticated %}
+        <p class="cta">
+          <a href="{% url 'dashboard' %}">Continue in dashboard →</a>
+        </p>
+      {% else %}
+        <p class="cta">
+          <a href="{% url 'register' %}">Start free trial →</a>
+        </p>
+      {% endif %}
+    </section>
+
+    <!-- Basic -->
+    <section class="plan plan-highlight">
+      <h3>Basic</h3>
+      <p class="price">£6.99 / month</p>
+      <p class="fee-note">Platform fee: <strong>7.5%</strong> per paid transaction</p>
+
+      <ul>
+        <li>Everything in the Free Trial, plus:</li>
+        <li>Live (non-trial) access to MintKit Studio.</li>
+        <li>Higher minting allowance for real customers.</li>
+        <li>Up to <strong>5 collections</strong>.</li>
+        <li>Up to <strong>100 active cards</strong> in total
+            (for example 20 cards × 5 batches).</li>
+        <li>Email support with reasonable response time.</li>
+      </ul>
+
+      <p class="cta muted">
+        Stripe subscription flow will live here in the final version.
+      </p>
+    </section>
+
+    <!-- Pro (coming soon) -->
+    <section class="plan plan-soon">
+      <h3>Pro <span class="badge">Coming soon</span></h3>
+      <p class="price">Planned: £9.99 / month</p>
+      <p class="fee-note">Planned fee: <strong>5%</strong> per paid transaction</p>
+
+      <ul>
+        <li>Higher card limits (for example 250–500 active cards).</li>
+        <li>Larger batch sizes for busy businesses.</li>
+        <li>Priority support and faster response times.</li>
+        <li>Richer analytics on sales and redemptions.</li>
+        <li>Advanced tools such as promo codes and
+            more powerful voucher / access-card options.</li>
+      </ul>
+
+      <p class="cta muted">
+        Shown for roadmap purposes – not implemented in this project.
+      </p>
+    </section>
+  </div>
+</div>
+
+<h2>What every plan includes</h2>
 <ul>
-  <li><strong>Free / Trial:</strong> limited number of storefronts or orders.</li>
-  <li><strong>Pro:</strong> full access to MintKit Hub features.</li>
+  <li>One business profile and one primary storefront.</li>
+  <li>Clean public URL for your storefront.</li>
+  <li>Bridge to the external MintKit Studio where cards are designed and minted.</li>
+  <li>Core features focused on digital gift cards, tickets and vouchers.</li>
+</ul>
+
+<h2>Notes for this college project</h2>
+<p>
+  The limits and fees above are mainly to explain how MintKit Hub <em>could</em> work
+  as a real SaaS product. For the Code Institute submission the focus is on:
+</p>
+<ul>
+  <li>account &amp; profile management,</li>
+  <li>storefront creation and public view,</li>
+  <li>basic subscription structure and trial concept,</li>
+  <li>linking to the external MintKit Studio application.</li>
 </ul>
 
 <p>
-  This will be turned into a proper comparison table later.
+  Some behaviours (such as strict card limits and full Stripe billing logic)
+  are described here for context but are not fully enforced in this version.
 </p>
+
 {% endblock %}
