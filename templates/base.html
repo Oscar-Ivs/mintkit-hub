@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -148,7 +149,10 @@
     <header class="navbar">
         <nav class="top-nav">
             <div class="nav-left">
-                <a href="{% url 'home' %}" class="brand">MintKit Hub</a>
+                <a href="{% url 'home' %}" class="brand">
+                    <img src="{% static 'img/Logo_small.webp' %}" alt="MintKit Hub logo" height="40">
+                </a>
+
                 <a href="{% url 'home' %}">Home</a>
                 <a href="{% url 'about' %}">About</a>
                 <a href="{% url 'pricing' %}">Pricing</a>
