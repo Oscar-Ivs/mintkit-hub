@@ -1,16 +1,60 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>About MintKit Hub</h1>
+  <h1>About MintKit Hub</h1>
 
-<p>
-  MintKit Hub is designed for small businesses who want to sell
-  digital gift cards, vouchers, and event tickets without needing
-  to build complex software.
-</p>
+  <p>
+    MintKit Hub is your control centre for creating and managing
+    <strong>digital gift cards, tickets and vouchers</strong>.
+    It connects a familiar Web 2 experience (this dashboard) with
+    Web&nbsp;3 technology running on the blockchain.
+  </p>
 
-<p>
-  This page will later include a proper story: who you are, why you built it,
-  and how MintKit Studio on ICP powers the digital assets behind the scenes.
-</p>
+  <h2>Two parts, one platform</h2>
+
+  <h3>MintKit Hub (this site)</h3>
+  <ul>
+    <li>Sign up and manage your business profile.</li>
+    <li>Create and edit your public storefront page.</li>
+    <li>Configure which digital cards you want to offer.</li>
+    <li>Connect payments via Stripe.</li>
+    <li>View basic stats and manage your subscription.</li>
+  </ul>
+
+  <h3>MintKit Studio (on-chain Minting Studio)</h3>
+  <ul>
+    <li>Secure minting of your digital cards as NFTs/tokens.</li>
+    <li>Asset storage on the Internet Computer blockchain.</li>
+    <li>Admin tools for testing, previewing and managing cards.</li>
+    <li>Future features such as advanced analytics and VetKeys-style
+        offline redemption.</li>
+  </ul>
+
+  <h2>Who is MintKit for?</h2>
+  <p>MintKit is designed for small businesses and creators who want to offer
+     modern digital cards without building their own Web 3 stack:</p>
+  <ul>
+    <li>Hairdressers, beauty salons and barbers.</li>
+    <li>Cafés, restaurants and food trucks.</li>
+    <li>Gyms, sports clubs and community centres.</li>
+    <li>Event organisers and ticketed experiences.</li>
+    <li>Independent creators who sell access passes or digital rewards.</li>
+  </ul>
+
+  <h2>How it works in practice</h2>
+  <ol>
+    <li>You create a business profile and storefront here in MintKit Hub.</li>
+    <li>You define one or more digital cards (gift cards, tickets or vouchers).</li>
+    <li>Your customers buy cards via your storefront (Stripe payments).</li>
+    <li>Each card is linked to a secure asset minted via MintKit Studio.</li>
+    <li>The customer receives an email with a direct link to digital card & dynamic QR code.</li>
+  </ol>
+
+  <p>
+    For the college project, some parts are implemented as working stubs
+    (for example Stripe and advanced analytics). The core flows - business
+    profile, storefront management and the bridge to MintKit Studio - are
+    the focus of this version.
+  </p>
+
 {% endblock %}
