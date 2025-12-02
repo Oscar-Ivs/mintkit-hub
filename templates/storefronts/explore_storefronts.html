@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Explore storefronts</h1>
+  <p>
+    Browse public MintKit storefronts. These businesses have chosen to make
+    their page visible to everyone.
+  </p>
+
+  {% if storefronts %}
+    <div class="storefront-grid">
+      {% for sf in storefronts %}
+        <div class="storefront-card">
+          <h2>
+            <a href="{% url 'storefront_detail' sf.slug %}">
+              {{ sf.headline }}
+            </a>
+          </h2>
+
+          <p class="storefront-owner">
+            {{ sf.profile.business_name|default:sf.profile.user.username }}
+          </p>
+
+          <p class="storefront-description">
+            {{ sf.description|truncatewords:25 }}
+          </p>
+
+          <p>
+            <a href="{% url 'storefront_detail' sf.slug %}">
+              View storefront →
+            </a>
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No public storefronts yet. Once businesses activate
+       their pages, they will appear here.</p>
+  {% endif %}
+{% endblock %}

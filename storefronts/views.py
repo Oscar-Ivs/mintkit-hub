@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import StorefrontForm
 from .models import Storefront
+from django.shortcuts import render
 
 
 @login_required
@@ -65,3 +66,21 @@ def storefront_detail(request, slug):
         "storefronts/storefront_detail.html",
         {"storefront": storefront},
     )
+
+
+def explore_storefronts(request):
+    """
+    Public list of active storefronts.
+    Similar idea to BookBase Community: shows all public storefronts.
+    """
+    storefronts = (
+        Storefront.objects
+        .filter(is_active=True)
+        .select_related("profile__user")
+        .order_by("headline")
+    )
+
+    context = {
+        "storefronts": storefronts,
+    }
+    return render(request, "storefronts/explore_storefronts.html", context)
