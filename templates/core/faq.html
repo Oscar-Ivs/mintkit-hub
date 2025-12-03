@@ -1,17 +1,231 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>FAQ</h1>
+  <h1>Frequently Asked Questions</h1>
 
-<p>Some questions your users might have:</p>
+  <p>
+    This page answers common questions about how MintKit Hub and the MintKit Studio
+    app fit together - first in simple terms, then (optionally) with more technical
+    details for anyone who is curious.
+  </p>
 
-<ul>
-  <li><strong>Do my customers need a MintKit account?</strong> (Answer later.)</li>
-  <li><strong>How do I get paid?</strong> (Stripe integration section.)</li>
-  <li><strong>Can I customise my storefront?</strong> (Yes - via My Storefront.)</li>
-</ul>
+  <!-- 1. Getting started -->
+  <h2>Getting started</h2>
 
-<p>
-  This will be replaced with real content once the core features are final.
-</p>
+  <section class="faq-group">
+    <h3>Do my customers need a MintKit account?</h3>
+    <p>
+      <strong>Short answer:</strong>
+      No. Your customers only see your public storefront and the digital cards or
+      tickets they receive by email. They don't need to register or install an app.
+    </p>
+    <details class="faq-advanced">
+      <summary>Show technical details</summary>
+      <p>
+        When a customer buys a card or ticket, MintKit creates a unique, secret
+        link for that specific asset. That link is sent by email and can be opened
+        in a normal browser on phone or desktop. Under the hood, the card is
+        backed by a token/NFT on a blockchain, but the customer never has to deal
+        with seed phrases, wallets or exchanges.
+      </p>
+    </details>
+  </section>
+
+  <section class="faq-group">
+    <h3>What is the difference between MintKit Hub and MintKit Studio?</h3>
+    <p>
+      <strong>Short answer:</strong>
+      MintKit Hub (this website) is where you manage your account, subscription
+      and storefront. MintKit Studio is a separate app where the actual digital
+      gift cards, tickets and vouchers are created, minted and managed.
+    </p>
+    <details class="faq-advanced">
+      <summary>Show technical details</summary>
+      <p>
+        MintKit Hub is a classic Web 2 Django site (accounts, forms,
+        Stripe, storefront management). MintKit Studio runs on a blockchain
+        platform and handles the “heavy” cryptographic work - minting tokens,
+        storing card metadata and serving secure QR codes. Hub simply controls
+        who is allowed to open Studio and keeps a record of which business
+        profile is linked to which on-chain identity.
+      </p>
+    </details>
+  </section>
+
+  <!-- 2. Payments & pricing -->
+  <h2>Payments & pricing</h2>
+
+  <section class="faq-group">
+    <h3>How do I pay for MintKit?</h3>
+    <p>
+      <strong>Short answer:</strong>
+      You subscribe to a plan (after a free trial) using Stripe. Payments are
+      taken in normal currency.
+    </p>
+    <details class="faq-advanced">
+      <summary>Show technical details</summary>
+      <p>
+        Stripe handles all card details on its own hosted pages. MintKit Hub only
+        stores the minimum Stripe IDs needed to know which plan you are on and
+        whether your subscription is active. Blockchain transaction fees and
+        storage costs are bundled into MintKit's platform fee and are never billed
+        to you separately.
+      </p>
+    </details>
+  </section>
+
+  <section class="faq-group">
+    <h3>What happens when my free trial ends?</h3>
+    <p>
+      <strong>Short answer:</strong>
+      You can upgrade to a paid plan to keep full access. If you don't upgrade,
+      your storefront stays in place but access to MintKit Studio and minting
+      tools is limited or paused.
+    </p>
+    <details class="faq-advanced">
+      <summary>Show technical details</summary>
+      <p>
+        Internally, MintKit Hub stores the start and end date of your trial.
+        Once the trial passes and there is no active subscription, the
+        app will restrict user from editing/creating/minting or managing digital cards. Existing cards remain valid; you
+        simply cannot create new ones or manage existing ones until you re-activate a plan.
+      </p>
+    </details>
+  </section>
+
+  <!-- 3. Storefronts & customers -->
+  <h2>Storefronts & customers</h2>
+
+  <section class="faq-group">
+    <h3>Can I hide my storefront while I am still setting things up?</h3>
+    <p>
+      <strong>Short answer:</strong>
+      Yes. You can keep your storefront inactive so only you can see it. When you are ready you switch it to active and it becomes
+      publicly visible.
+    </p>
+  </section>
+
+  <section class="faq-group">
+    <h3>What happens when a customer buys a card or ticket?</h3>
+    <p>
+      <strong>Short answer:</strong>
+      The customer pays through Stripe, and then receives an email containing a
+      secure link and QR code for their digital card or ticket.
+    </p>
+    <details class="faq-advanced">
+      <summary>Show technical details</summary>
+      <p>
+        Depending on the chosen flow, cards can be pre-minted in batches or
+        minted “on claim” when a customer activates their purchase via email.
+        Either way, each card is represented by a unique on-chain token and
+        linked to a short, human-friendly web page that the customer uses in
+        everyday life.
+      </p>
+    </details>
+  </section>
+
+  <!-- 4. For the curious / technical -->
+  <h2>For the curious & technically minded</h2>
+
+  <section class="faq-group">
+    <h3>Why does MintKit use a blockchain at all?</h3>
+    <p>
+      <strong>Short answer:</strong>
+      To give your digital cards properties that normal databases can't easily
+      guarantee - uniqueness, tamper-resistance, and long-term verifiability -
+      while still keeping the experience simple for you and your customers.
+    </p>
+    <details class="faq-advanced">
+      <summary>Show technical details</summary>
+      <p>
+        MintKit Studio runs on a modern smart-contract platform based on the
+        Internet Computer (ICP) blockchain. Your project lives inside isolated
+        smart-contract containers (“canisters”) that are replicated across
+        multiple independent nodes in different data centres. There is no single
+        database or traditional web server that can be accidentally wiped.
+      </p>
+      <p>
+        Each card or ticket is effectively an NFT or token with structured
+        metadata (value, expiry, status, usage history). Smart-contract logic
+        enforces basic rules such as:
+      </p>
+      <ul>
+        <li>only one active owner at a time,</li>
+        <li>limited lifetime or expiry date,</li>
+        <li>single-use or multi-use access, and</li>
+        <li>optional transfer or resale limits (planned feature).</li>
+      </ul>
+    </details>
+  </section>
+
+  <section class="faq-group">
+    <h3>Can tickets be tied to a person, place or time?</h3>
+    <p>
+      <strong>Short answer:</strong>
+      The current project focuses on simple “show and scan” digital cards. The
+      roadmap includes tighter controls such as name-locking, time windows or
+      location hints for specific card types.
+    </p>
+    <details class="faq-advanced">
+      <summary>Show technical details</summary>
+      <p>
+        Because the underlying token logic is programmable, future versions can
+        support richer policies, for example:
+      </p>
+      <ul>
+        <li>
+          Linking a ticket to an email, phone number or verified identity
+          (so resale is limited or recorded).
+        </li>
+        <li>
+          Time-window access (valid only between specific dates or event times).
+        </li>
+        <li>
+          Geo-hints or venue-bound passes that are intended to be scanned only
+          in certain locations.
+        </li>
+        <li>
+          Rules around resale - for example, a maximum markup, or a limited
+          number of allowed transfers.
+        </li>
+      </ul>
+      <p>
+        These features build on the same cryptographic foundation without
+        changing the basic experience for the end user: they still just tap a
+        link or show a QR code.
+      </p>
+    </details>
+  </section>
+
+  <!-- 5. End-to-end explanation -->
+  <h2>How everything fits together (A-Z overview)</h2>
+
+  <details class="faq-advanced">
+    <summary>Click to see the full end-to-end flow</summary>
+    <ol>
+      <li>You register on <strong>MintKit Hub</strong> and create your profile.</li>
+      <li>You set up your <strong>storefront</strong> (name, description, logo, basic text).</li>
+      <li>You start a <strong>trial</strong> or subscription via Stripe.</li>
+      <li>From your dashboard you open <strong>MintKit Studio</strong>, which knows which
+          business profile and subscription plan you belong to.</li>
+      <li>In Studio you design your digital products - gift cards, tickets or vouchers -
+          and decide which ones should appear on your storefront.</li>
+      <li>
+        Customers visit your storefront, follow links to buy, pay via Stripe and
+        receive an email with a secure card/ticket link backed by a token on the
+        blockchain.
+      </li>
+      <li>
+        When the card is used or scanned, Studio checks the token's status and
+        business rules (valid, expired, already used, transferable, etc.) and
+        responds accordingly.
+      </li>
+      <li>
+        In future versions, Hub and Studio will exchange more data - for
+        example simple stats such as total cards minted, sold and redeemed -
+        so you can see a high-level view directly on your MintKit Hub dashboard.
+      </li>
+    </ol>
+  </details>
+
 {% endblock %}
