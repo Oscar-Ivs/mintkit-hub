@@ -2,122 +2,118 @@
 
 {% block content %}
 
-  <!-- HERO / INTRO -->
-  <section class="hero">
-    <h1>Digital gift cards, tickets & vouchers for real-world businesses</h1>
-    <p>
-      MintKit Hub gives you a clean storefront and a simple control centre for selling and managing
-      digital cards — without building a full e-commerce site or touching crypto.
-    </p>
+<!-- HERO / INTRO -->
+<section class="hero">
+  <h1>Digital gift cards, tickets & vouchers for real-world businesses</h1>
+  <p>
+    MintKit Hub gives you a clean storefront and a simple control centre for selling and managing
+    digital cards — without building a full e-commerce site or touching crypto.
+  </p>
+  <p class="hero-cta-text">
+    Create a free account to set up your first storefront and try MintKit Hub.
+  </p>
 
+  <p class="hero-cta-buttons">
     {% if user.is_authenticated %}
-      <p class="hero-cta-text">
-        You're logged in as <strong>{{ user.username }}</strong>.
-      </p>
-      <p class="hero-cta-buttons">
-        <a href="{% url 'dashboard' %}" class="btn btn-primary">Open dashboard</a>
-        <a href="{% url 'explore_storefronts' %}" class="btn btn-secondary">Explore storefronts</a>
-      </p>
+      {# Logged-in users go straight to their dashboard #}
+      <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to dashboard</a>
+      <a href="{% url 'explore_storefronts' %}" class="btn btn-secondary">Browse examples</a>
     {% else %}
-      <p class="hero-cta-text">
-        Create a free account to set up your first storefront and try MintKit Hub.
-      </p>
-      <p class="hero-cta-buttons">
-        <a href="{% url 'register' %}" class="btn btn-primary">Start free trial</a>
-        <a href="{% url 'explore_storefronts' %}" class="btn btn-secondary">Browse examples</a>
-      </p>
+      {# New visitors see a very “safe” CTA: no payment implied #}
+      <a href="{% url 'register' %}" class="btn btn-primary">Create free account</a>
+      <a href="{% url 'explore_storefronts' %}" class="btn btn-secondary">Browse examples</a>
     {% endif %}
-  </section>
+  </p>
+</section>
 
-  <!-- WHO IT'S FOR -->
-  <section class="home-section">
-    <h2>Why businesses use MintKit Hub</h2>
+<!-- WHO IT'S FOR -->
+<section class="home-section">
+  <h2>Why businesses use MintKit Hub</h2>
 
-    <h3>Built for real-world services <em>and</em> products</h3>
+  <h3>Built for real-world services <em>and</em> products</h3>
+  <p>
+    Hair &amp; beauty, gyms, trainers, tutors, local events, cafés, makers, small shops…
+    Anyone who sells time, sessions, experiences or physical products and wants
+    modern digital cards on top: gift cards, passes, memberships, tickets and vouchers.
+  </p>
+
+  <h3>Cards that behave like passes</h3>
+  <p>
+    Each digital card has a clear status (unused, redeemed, expired) and a QR code that can be
+    scanned at the door, at the till, or wherever you validate access.
+  </p>
+
+  <h3>Lightweight, not a full shop system</h3>
+  <p>
+    You don't need a huge e-commerce platform. MintKit Hub focuses on one thing:
+    selling and managing digital access in a clean way. Your existing website, socials or
+    offline marketing can simply link to your MintKit storefront.
+  </p>
+</section>
+
+<!-- FLOW OVERVIEW -->
+<section class="home-section">
+  <h2>What the flow looks like</h2>
+
+  <h3>1. Set up your profile</h3>
+  <p>
+    Create an account, add your business name, contact details and logo.
+    Your dashboard becomes the “control room” for everything else.
+  </p>
+
+  <h3>2. Publish your storefront</h3>
+  <p>
+    Add a short headline and description, decide if it's public, and share the link with your
+    customers. No full website rebuild needed.
+  </p>
+
+  <h3>3. Create and manage digital cards</h3>
+  <p>
+    Use MintKit Studio to design the actual gift cards, tickets and vouchers.
+    Customers buy them online; you scan and manage them from your own dashboard.
+  </p>
+
+  <p class="muted">
+    Want more detail? The About and FAQ pages go deeper into how everything fits together
+    and what is planned next.
+  </p>
+</section>
+
+<!-- NEXT STEPS -->
+<section class="home-section">
+  <h2>Choose your next step</h2>
+
+  {% if user.is_authenticated %}
+    <h3>Try it with your own data</h3>
     <p>
-      Hair &amp; beauty, gyms, trainers, tutors, local events, cafés, makers, small shops…  
-      Anyone who sells time, sessions, experiences or physical products and wants
-      modern digital cards on top: gift cards, passes, memberships, tickets and vouchers.
+      Open your dashboard, build a storefront and see how the flow feels with real-world cards.
     </p>
-
-    <h3>Cards that behave like passes</h3>
     <p>
-      Each digital card has a clear status (unused, redeemed, expired) and a QR code that can be
-      scanned at the door, at the till, or wherever you validate access.
+      <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to dashboard</a>
     </p>
-
-    <h3>Lightweight, not a full shop system</h3>
+  {% else %}
+    <h3>Create an account</h3>
     <p>
-      You don't need a huge e-commerce platform. MintKit Hub focuses on one thing:
-      selling and managing digital access in a clean way. Your existing website, socials or
-      offline marketing can simply link to your MintKit storefront.
+      Register for free, set up a storefront and test MintKit Hub with no pressure.
     </p>
-  </section>
-
-  <!-- FLOW OVERVIEW -->
-  <section class="home-section">
-    <h2>What the flow looks like</h2>
-
-    <h3>1. Set up your profile</h3>
     <p>
-      Create an account, add your business name, contact details and logo.
-      Your dashboard becomes the “control room” for everything else.
+      <a href="{% url 'register' %}" class="btn btn-primary">Create free account</a>
     </p>
+  {% endif %}
 
-    <h3>2. Publish your storefront</h3>
-    <p>
-      Add a short headline and description, decide if it's public, and share the link with your
-      customers. No full website rebuild needed.
-    </p>
+  <h3>Understand the plans</h3>
+  <p>
+    See how the free period and Basic / Pro tiers are structured, and how card limits and fees
+    work in practice.
+    <a href="{% url 'pricing' %}">View pricing</a>
+  </p>
 
-    <h3>3. Create and manage digital cards</h3>
-    <p>
-      Use MintKit Studio to design the actual gift cards, tickets and vouchers.
-      Customers buy them online; you scan and manage them from your own dashboard.
-    </p>
+  <h3>Explore what others are doing</h3>
+  <p>
+    Browse public MintKit storefronts for inspiration — and treat it as free advertising
+    for your own business once you switch your storefront to public.
+    <a href="{% url 'explore_storefronts' %}">Explore storefronts</a>
+  </p>
+</section>
 
-    <p class="muted">
-      Want more detail? The About and FAQ pages go deeper into how everything fits together
-      and what is planned next.
-    </p>
-  </section>
-
-  <!-- NEXT STEPS -->
-  <section class="home-section">
-    <h2>Choose your next step</h2>
-
-    {% if user.is_authenticated %}
-      <h3>Try it with your own data</h3>
-      <p>
-        Open your dashboard, build a storefront and see how the flow feels with real-world cards.
-      </p>
-      <p>
-        <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to dashboard</a>
-      </p>
-    {% else %}
-      <h3>Create an account</h3>
-      <p>
-        Register for free, set up a storefront and test MintKit Hub with no pressure.
-      </p>
-      <p>
-        <a href="{% url 'register' %}" class="btn btn-primary">Start free trial</a>
-      </p>
-    {% endif %}
-
-    <h3>Understand the plans</h3>
-    <p>
-      See how the free period and Basic / Pro tiers are structured, and how card limits and fees
-      work in practice.
-      <a href="{% url 'pricing' %}">View pricing</a>
-    </p>
-
-    <h3>Explore what others are doing</h3>
-    <p>
-      Browse public MintKit storefronts for inspiration —
-      and treat it as free advertising for your own business once you switch your storefront to
-      public.
-      <a href="{% url 'explore_storefronts' %}">Explore storefronts</a>
-    </p>
-  </section>
-  
 {% endblock %}

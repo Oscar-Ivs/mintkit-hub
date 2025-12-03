@@ -52,30 +52,34 @@
         }
 
         /* Top navbar */
-        .navbar {
+        header.navbar {
             background-color: #f9fafb;
             border-bottom: 1px solid var(--mk-border-soft);
             padding: 0.75rem 1.5rem;
+        }
+
+        .top-nav {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 1rem;
         }
 
-        .navbar-left,
-        .navbar-right {
+        .nav-left,
+        .nav-right {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             font-size: 0.95rem;
         }
 
-        .navbar-brand {
-            font-weight: 600;
-            margin-right: 1.5rem;
+        .brand img {
+            display: block;
+            height: 40px;
         }
 
-        .navbar-links a {
-            margin-right: 0.75rem;
+        .nav-left a:not(.brand) {
+            margin-right: 0.25rem;
         }
 
         /* Page layout */
@@ -142,37 +146,65 @@
         .text-muted {
             color: var(--mk-text-muted);
         }
+
+        /* --------- Mobile tweaks --------- */
+        @media (max-width: 640px) {
+            header.navbar {
+                padding: 0.5rem 0.75rem;
+            }
+
+            .top-nav {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.35rem;
+            }
+
+            .nav-left,
+            .nav-right {
+                flex-wrap: wrap;
+                font-size: 0.88rem;
+            }
+
+            .brand img {
+                height: 32px;
+            }
+
+            .page-container {
+                margin: 1rem 0.75rem 1.75rem;
+                padding: 1.25rem 1.25rem;
+            }
+        }
     </style>
 </head>
 
 <body>
     <header class="navbar">
-        <div class="navbar-left">
-            <a href="{% url 'home' %}" class="navbar-brand">
-                <img src="{% static 'img/Logo_small.webp' %}" alt="MintKit Hub logo" height="40">
-            </a>
+        <nav class="top-nav">
+            <div class="nav-left">
+                <a href="{% url 'home' %}" class="brand">
+                    <img src="{% static 'img/Logo_small.webp' %}" alt="MintKit Hub logo">
+                </a>
 
-            <nav class="navbar-links">
                 <a href="{% url 'home' %}">Home</a>
                 <a href="{% url 'about' %}">About</a>
                 <a href="{% url 'pricing' %}">Pricing</a>
                 <a href="{% url 'faq' %}">FAQ</a>
                 <a href="{% url 'explore_storefronts' %}">Explore</a>
                 <a href="{% url 'studio' %}">Studio</a>
-            </nav>
-        </div>
+            </div>
 
-        <div class="navbar-right">
-            {% if user.is_authenticated %}
-                <span class="nav-text">Logged in as {{ user.username }}</span>
-                <a href="{% url 'dashboard' %}">Dashboard</a>
-                <a href="{% url 'my_storefront' %}">My storefront</a>
-                <a href="{% url 'logout' %}">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'register' %}">Register</a>
-            {% endif %}
-        </div>
+            <div class="nav-right">
+                {% if user.is_authenticated %}
+                    <span class="nav-text">Logged in as {{ user.username }}</span>
+                    <a href="{% url 'dashboard' %}">Dashboard</a>
+                    <a href="{% url 'my_storefront' %}">My storefront</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'register' %}">Register</a>
+                {% endif %}
+            </div>
+        </nav>
     </header>
 
     <main class="page-container">
@@ -184,7 +216,8 @@
             </ul>
         {% endif %}
 
-        {% block content %}{% endblock %}
+        {% block content %}
+        {% endblock %}
     </main>
 </body>
 
