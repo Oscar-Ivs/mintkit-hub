@@ -147,46 +147,44 @@
 
 <body>
     <header class="navbar">
-        <nav class="top-nav">
-            <div class="nav-left">
-                <a href="{% url 'home' %}" class="brand">
-                    <img src="{% static 'img/Logo_small.webp' %}" alt="MintKit Hub logo" height="40">
-                </a>
+        <div class="navbar-left">
+            <a href="{% url 'home' %}" class="navbar-brand">
+                <img src="{% static 'img/Logo_small.webp' %}" alt="MintKit Hub logo" height="40">
+            </a>
 
+            <nav class="navbar-links">
                 <a href="{% url 'home' %}">Home</a>
                 <a href="{% url 'about' %}">About</a>
                 <a href="{% url 'pricing' %}">Pricing</a>
                 <a href="{% url 'faq' %}">FAQ</a>
                 <a href="{% url 'explore_storefronts' %}">Explore</a>
                 <a href="{% url 'studio' %}">Studio</a>
-            </div>
+            </nav>
+        </div>
 
-            <div class="nav-right">
-                {% if user.is_authenticated %}
+        <div class="navbar-right">
+            {% if user.is_authenticated %}
                 <span class="nav-text">Logged in as {{ user.username }}</span>
                 <a href="{% url 'dashboard' %}">Dashboard</a>
                 <a href="{% url 'my_storefront' %}">My storefront</a>
                 <a href="{% url 'logout' %}">Logout</a>
-                {% else %}
+            {% else %}
                 <a href="{% url 'login' %}">Login</a>
                 <a href="{% url 'register' %}">Register</a>
-                {% endif %}
-            </div>
-        </nav>
-
+            {% endif %}
+        </div>
     </header>
 
     <main class="page-container">
         {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
         {% endif %}
 
-        {% block content %}
-        {% endblock %}
+        {% block content %}{% endblock %}
     </main>
 </body>
 
