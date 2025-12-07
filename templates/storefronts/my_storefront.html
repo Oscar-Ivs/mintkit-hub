@@ -1,207 +1,279 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <style>
-  /* Local styles for the My Storefront page only */
+  /* Scoped styles – only affect this page */
 
-  .my-storefront-page {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .my-storefront-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .my-storefront-header h1 {
-    margin: 0 0 0.25rem 0;
-  }
-
-  .my-storefront-header p {
-    margin: 0;
-  }
-
-  .my-storefront-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.5rem;
-    text-align: right;
-  }
-
-  .status-badge {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-
-  .status-active {
-    background: #dcfce7;
-    color: #166534;
-  }
-
-  .status-inactive {
-    background: #fee2e2;
-    color: #991b1b;
-  }
-
-  .my-storefront-body {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .storefront-panel {
-    background: #f5f7fb;
-    border-radius: 10px;
-    padding: 1.25rem 1.5rem;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-  }
-
-  .storefront-preview h2,
-  .storefront-edit h2 {
-    margin-top: 0;
-  }
-
-  .storefront-preview-headline {
-    font-size: 1.15rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-
-  .storefront-preview-description {
-    margin-bottom: 0.75rem;
-  }
-
-  .storefront-form button[type="submit"] {
-    margin-top: 0.75rem;
-  }
-
-  .storefront-footer-info {
-    font-size: 0.9rem;
-  }
-
-  .storefront-footer-info p {
-    margin: 0.25rem 0;
-  }
-
-  @media (min-width: 900px) {
-    .my-storefront-body {
-      flex-direction: row;
+  .sf-header {
+      display: flex;
+      justify-content: space-between;
       align-items: flex-start;
-    }
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+  }
 
-    .storefront-preview,
-    .storefront-edit {
-      flex: 1;
-    }
+  .sf-header-main h1 {
+      margin: 0 0 0.35rem;
+      font-size: 1.9rem;
+  }
+
+  .sf-header-main p {
+      margin: 0;
+  }
+
+  .sf-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+  }
+
+  .sf-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+  }
+
+  .sf-badge-success {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #047857;
+  }
+
+  .sf-badge-muted {
+      background-color: rgba(148, 163, 184, 0.15);
+      color: #334155;
+  }
+
+  .sf-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.25fr);
+      gap: 1.75rem;
+      align-items: flex-start;
+  }
+
+  .sf-panel {
+      background-color: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      padding: 1.4rem 1.6rem;
+  }
+
+  .sf-panel h2 {
+      margin-top: 0;
+      margin-bottom: 0.9rem;
+      font-size: 1.2rem;
+  }
+
+  .sf-preview-card h3 {
+      margin-top: 0;
+      margin-bottom: 0.4rem;
+      font-size: 1.3rem;
+  }
+
+  .sf-preview-card p {
+      margin: 0.35rem 0;
+  }
+
+  .sf-preview-logo {
+      margin-bottom: 0.8rem;
+  }
+
+  .sf-preview-logo img {
+      max-width: 160px;
+      height: auto;
+      display: block;
+  }
+
+  .sf-preview-section-title {
+      margin-top: 1rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+  }
+
+  .sf-preview-empty {
+      color: #6b7280;
+      font-style: italic;
+  }
+
+  .sf-form-row {
+      margin-bottom: 1rem;
+  }
+
+  .sf-form-row label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+  }
+
+  .sf-form-row input[type="text"],
+  .sf-form-row textarea {
+      width: 100%;
+      max-width: 100%;
+      padding: 0.5rem 0.55rem;
+      border-radius: 6px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font: inherit;
+  }
+
+  .sf-form-row textarea {
+      min-height: 5rem;
+      resize: vertical;
+  }
+
+  .sf-form-help {
+      margin-top: 0.25rem;
+      font-size: 0.8rem;
+      color: #6b7280;
+  }
+
+  .sf-form-inline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+  }
+
+  .sf-checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+  }
+
+  .sf-checkbox-label input[type="checkbox"] {
+      transform: translateY(1px);
+  }
+
+  @media (max-width: 900px) {
+      .sf-header {
+          flex-direction: column;
+          align-items: flex-start;
+      }
+
+      .sf-header-actions {
+          align-self: stretch;
+          justify-content: flex-start;
+      }
+
+      .sf-grid {
+          grid-template-columns: 1fr;
+      }
   }
 </style>
 
-<div class="my-storefront-page">
+<header class="sf-header">
+  <div class="sf-header-main">
+    <h1>My storefront</h1>
+    <p class="text-muted">
+      This is your public-facing page. Preview how it looks and update the details below.
+    </p>
+  </div>
 
-  <!-- Header: title, status, view button -->
-  <div class="my-storefront-header">
-    <div>
-      <h1>My storefront</h1>
-      <p class="text-muted">
-        This is your public-facing page. Preview how it looks and update the details below.
-      </p>
-    </div>
+  <div class="sf-header-actions">
+    {% if storefront.is_active %}
+      <span class="sf-badge sf-badge-success">Active</span>
+    {% else %}
+      <span class="sf-badge sf-badge-muted">Inactive</span>
+    {% endif %}
 
-    <div class="my-storefront-actions">
-      {% if storefront.is_active %}
-        <span class="status-badge status-active">Active</span>
-        {% with link=public_url|default:storefront.get_absolute_url %}
-          <a href="{{ link }}" target="_blank" rel="noopener" class="btn btn-primary">
-            View public storefront
-          </a>
-        {% endwith %}
+    <a href="{{ public_url }}" target="_blank" rel="noopener" class="btn btn-primary">
+      View public storefront
+    </a>
+  </div>
+</header>
+
+<div class="sf-grid">
+  <!-- LEFT: PREVIEW -->
+  <section class="sf-panel">
+    <h2>Preview</h2>
+
+    <div class="sf-preview-card">
+      {% if storefront.profile and storefront.profile.logo %}
+        <div class="sf-preview-logo">
+          <img src="{{ storefront.profile.logo.url }}" alt="{{ storefront.headline }}">
+        </div>
+      {% endif %}
+
+      <h3>
+        {{ storefront.headline|default:"Your storefront headline" }}
+      </h3>
+
+      {% if storefront.description %}
+        <p>{{ storefront.description|linebreaksbr }}</p>
       {% else %}
-        <span class="status-badge status-inactive">Inactive</span>
-        <span class="text-muted">
-          Tick “Make my storefront public” and save to publish it.
-        </span>
+        <p class="sf-preview-empty">
+          Add a short description to tell customers what your business offers.
+        </p>
+      {% endif %}
+
+      <div class="sf-preview-section-title">Contact details</div>
+      {% if storefront.contact_details %}
+        <p>{{ storefront.contact_details|linebreaksbr }}</p>
+      {% else %}
+        <p class="sf-preview-empty">
+          Add contact details so customers can reach you or find your location.
+        </p>
       {% endif %}
     </div>
-  </div>
-
-  <!-- Two panels: preview (left) + edit form (right) -->
-  <div class="my-storefront-body">
-
-    <!-- Preview panel -->
-    <section class="storefront-preview storefront-panel">
-      <h2>Preview</h2>
-
-      <div class="storefront-preview-headline">
-        {{ storefront.headline|default:"Your storefront headline" }}
-      </div>
-
-      <p class="storefront-preview-description">
-        {{ storefront.description|default:"Add a short description of what you sell." }}
-      </p>
-
-      <h3 style="margin-bottom: 0.25rem;">Contact details</h3>
-      <p>
-        {% if storefront.contact_details %}
-          {{ storefront.contact_details|linebreaksbr }}
-        {% else %}
-          <span class="text-muted">
-            Add contact details so customers know how to reach you.
-          </span>
-        {% endif %}
-      </p>
-    </section>
-
-    <!-- Edit form panel -->
-    <section class="storefront-edit storefront-panel">
-      <h2>Edit storefront details</h2>
-      <p class="text-muted" style="margin-top: 0; margin-bottom: 0.75rem;">
-        Update the text shown on your public page. You can toggle public visibility here as well.
-      </p>
-
-      <form method="post" class="storefront-form">
-        {% csrf_token %}
-
-        {{ form.non_field_errors }}
-
-        {{ form.as_p }}
-
-        <button type="submit" class="btn btn-primary">Save storefront</button>
-      </form>
-    </section>
-
-  </div>
-
-  <!-- Footer info: URL / status explanation -->
-  <section class="storefront-footer-info">
-    {% if storefront.is_active %}
-      {% with link=public_url|default:storefront.get_absolute_url %}
-        <p>
-          <strong>Public URL:</strong>
-          <a href="{{ link }}" target="_blank" rel="noopener">
-            {{ link }}
-          </a>
-        </p>
-        <p class="text-muted">
-          Share this link with your customers or add it to your website and social profiles.
-        </p>
-      {% endwith %}
-    {% else %}
-      <p>
-        This storefront is currently <strong>inactive</strong> and hidden from the public.
-      </p>
-      <p class="text-muted">
-        When you’re ready, tick “Make my storefront public” in the form above and save.
-      </p>
-    {% endif %}
   </section>
 
+  <!-- RIGHT: EDIT FORM -->
+  <section class="sf-panel">
+    <h2>Edit storefront details</h2>
+    <p class="text-muted">
+      Update the text shown on your public page. You can toggle public visibility here as well.
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="sf-form-row">
+        <label for="{{ form.headline.id_for_label }}">Storefront headline:</label>
+        {{ form.headline }}
+        <div class="sf-form-help">
+          Shown as the main title of your storefront.
+        </div>
+      </div>
+
+      <div class="sf-form-row">
+        <label for="{{ form.description.id_for_label }}">Description:</label>
+        {{ form.description }}
+        <div class="sf-form-help">
+          Appears as the main body text on your storefront page.
+        </div>
+      </div>
+
+      <div class="sf-form-row">
+        <label for="{{ form.contact_details.id_for_label }}">Contact details:</label>
+        {{ form.contact_details }}
+        <div class="sf-form-help">
+          These details help customers contact or find you.
+        </div>
+      </div>
+
+      <div class="sf-form-row">
+        <div class="sf-form-inline">
+          <label class="sf-checkbox-label">
+            {{ form.is_active }}
+            <span>Make my storefront public</span>
+          </label>
+        </div>
+        <div class="sf-form-help">
+          Tick this when you're ready for customers to see your page.
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        Save storefront
+      </button>
+    </form>
+  </section>
 </div>
+
 {% endblock %}
