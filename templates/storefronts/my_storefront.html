@@ -1,31 +1,207 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>My Storefront</h1>
+<style>
+  /* Local styles for the My Storefront page only */
 
-<p>
-  Here you can set up your public storefront page that your customers will see.
-</p>
+  .my-storefront-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Save storefront</button>
-</form>
+  .my-storefront-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
 
-{% if storefront.slug %}
-  <h2>Public URL</h2>
+  .my-storefront-header h1 {
+    margin: 0 0 0.25rem 0;
+  }
 
-  <p>
+  .my-storefront-header p {
+    margin: 0;
+  }
+
+  .my-storefront-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    text-align: right;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .status-active {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .my-storefront-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .storefront-panel {
+    background: #f5f7fb;
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .storefront-preview h2,
+  .storefront-edit h2 {
+    margin-top: 0;
+  }
+
+  .storefront-preview-headline {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .storefront-preview-description {
+    margin-bottom: 0.75rem;
+  }
+
+  .storefront-form button[type="submit"] {
+    margin-top: 0.75rem;
+  }
+
+  .storefront-footer-info {
+    font-size: 0.9rem;
+  }
+
+  .storefront-footer-info p {
+    margin: 0.25rem 0;
+  }
+
+  @media (min-width: 900px) {
+    .my-storefront-body {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+
+    .storefront-preview,
+    .storefront-edit {
+      flex: 1;
+    }
+  }
+</style>
+
+<div class="my-storefront-page">
+
+  <!-- Header: title, status, view button -->
+  <div class="my-storefront-header">
+    <div>
+      <h1>My storefront</h1>
+      <p class="text-muted">
+        This is your public-facing page. Preview how it looks and update the details below.
+      </p>
+    </div>
+
+    <div class="my-storefront-actions">
+      {% if storefront.is_active %}
+        <span class="status-badge status-active">Active</span>
+        {% with link=public_url|default:storefront.get_absolute_url %}
+          <a href="{{ link }}" target="_blank" rel="noopener" class="btn btn-primary">
+            View public storefront
+          </a>
+        {% endwith %}
+      {% else %}
+        <span class="status-badge status-inactive">Inactive</span>
+        <span class="text-muted">
+          Tick “Make my storefront public” and save to publish it.
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Two panels: preview (left) + edit form (right) -->
+  <div class="my-storefront-body">
+
+    <!-- Preview panel -->
+    <section class="storefront-preview storefront-panel">
+      <h2>Preview</h2>
+
+      <div class="storefront-preview-headline">
+        {{ storefront.headline|default:"Your storefront headline" }}
+      </div>
+
+      <p class="storefront-preview-description">
+        {{ storefront.description|default:"Add a short description of what you sell." }}
+      </p>
+
+      <h3 style="margin-bottom: 0.25rem;">Contact details</h3>
+      <p>
+        {% if storefront.contact_details %}
+          {{ storefront.contact_details|linebreaksbr }}
+        {% else %}
+          <span class="text-muted">
+            Add contact details so customers know how to reach you.
+          </span>
+        {% endif %}
+      </p>
+    </section>
+
+    <!-- Edit form panel -->
+    <section class="storefront-edit storefront-panel">
+      <h2>Edit storefront details</h2>
+      <p class="text-muted" style="margin-top: 0; margin-bottom: 0.75rem;">
+        Update the text shown on your public page. You can toggle public visibility here as well.
+      </p>
+
+      <form method="post" class="storefront-form">
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">Save storefront</button>
+      </form>
+    </section>
+
+  </div>
+
+  <!-- Footer info: URL / status explanation -->
+  <section class="storefront-footer-info">
     {% if storefront.is_active %}
-      This storefront is currently <strong>active</strong> and publicly visible.<br>
+      {% with link=public_url|default:storefront.get_absolute_url %}
+        <p>
+          <strong>Public URL:</strong>
+          <a href="{{ link }}" target="_blank" rel="noopener">
+            {{ link }}
+          </a>
+        </p>
+        <p class="text-muted">
+          Share this link with your customers or add it to your website and social profiles.
+        </p>
+      {% endwith %}
     {% else %}
-      This storefront is currently <strong>inactive</strong> and hidden from the public.<br>
+      <p>
+        This storefront is currently <strong>inactive</strong> and hidden from the public.
+      </p>
+      <p class="text-muted">
+        When you’re ready, tick “Make my storefront public” in the form above and save.
+      </p>
     {% endif %}
-    Public link:
-    <a href="{{ storefront.get_absolute_url }}">
-      {{ request.scheme }}://{{ request.get_host }}{{ storefront.get_absolute_url }}
-    </a>
-  </p>
-{% endif %}
+  </section>
+
+</div>
 {% endblock %}
