@@ -56,15 +56,9 @@ def my_storefront(request):
 
 def explore_storefronts(request):
     """
-    Public list of storefronts that have been marked as active/public.
-    Used by the Explore page.
+    Show only storefronts that chose to be listed publicly.
     """
-    storefronts = (
-        Storefront.objects.filter(is_active=True)
-        .select_related("profile")
-        .order_by("headline")
-    )
-
+    storefronts = Storefront.objects.filter(is_active=True).order_by("headline")
     return render(
         request,
         "storefronts/explore_storefronts.html",
@@ -72,13 +66,15 @@ def explore_storefronts(request):
     )
 
 
+
 def storefront_detail(request, slug):
     """
-    Public view of a single storefront, used for the public URL
-    /storefront/<slug>/.
-    """
-    storefront = get_object_or_404(Storefront, slug=slug, is_active=True)
+    Public storefront page.
 
+    The page is always available if you have the link.
+    The is_active flag is used only for Explore listing, not for the URL itself.
+    """
+    storefront = get_object_or_404(Storefront, slug=slug)
     return render(
         request,
         "storefronts/storefront_detail.html",

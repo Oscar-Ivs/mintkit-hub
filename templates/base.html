@@ -86,14 +86,16 @@
 
         /* Page layout */
         .page-container {
-            max-width: 960px;
-            margin: 1.7rem auto 2.6rem;
-            padding: 1.75rem 2rem;
+            max-width: 1180px;
+            /* was 960px */
+            margin: 1.5rem auto 2.5rem;
+            padding: 1.75rem 2.5rem;
             background-color: var(--mk-card-bg);
             border-radius: 12px;
             border: 1px solid var(--mk-border-soft);
             box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
         }
+
 
         /* Django messages */
         ul.messages {
@@ -171,44 +173,45 @@
 </head>
 
 <body>
-<header class="navbar">
-    <div class="navbar-left">
-        <a href="{% url 'home' %}" class="navbar-brand">
-            <img src="{% static 'img/Logo_small.webp' %}" alt="MintKit Hub logo">
-        </a>
-        <nav class="navbar-links">
-            <a href="{% url 'home' %}">Home</a>
-            <a href="{% url 'about' %}">About</a>
-            <a href="{% url 'pricing' %}">Pricing</a>
-            <a href="{% url 'faq' %}">FAQ</a>
-            <a href="{% url 'explore_storefronts' %}">Explore</a>
-            <a href="{% url 'studio' %}">Studio</a>
-        </nav>
-    </div>
+    <header class="navbar">
+        <div class="navbar-left">
+            <a href="{% url 'home' %}" class="navbar-brand">
+                <img src="{% static 'img/Logo_small.webp' %}" alt="MintKit Hub logo">
+            </a>
+            <nav class="navbar-links">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'about' %}">About</a>
+                <a href="{% url 'pricing' %}">Pricing</a>
+                <a href="{% url 'faq' %}">FAQ</a>
+                <a href="{% url 'explore_storefronts' %}">Explore</a>
+                <a href="{% url 'studio' %}">Studio</a>
+            </nav>
+        </div>
 
-    <div class="navbar-right">
-        {% if user.is_authenticated %}
+        <div class="navbar-right">
+            {% if user.is_authenticated %}
             <span>Logged in as {{ user.username }}</span>
             <a href="{% url 'dashboard' %}">Dashboard</a>
             <a href="{% url 'my_storefront' %}">My storefront</a>
             <a href="{% url 'logout' %}">Logout</a>
-        {% else %}
+            {% else %}
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'register' %}">Register</a>
-        {% endif %}
-    </div>
-</header>
+            {% endif %}
+        </div>
+    </header>
 
-<main class="page-container">
-    {% if messages %}
+    <main class="page-container">
+        {% if messages %}
         <ul class="messages">
             {% for message in messages %}
-                <li class="{{ message.tags }}">{{ message }}</li>
+            <li class="{{ message.tags }}">{{ message }}</li>
             {% endfor %}
         </ul>
-    {% endif %}
+        {% endif %}
 
-    {% block content %}{% endblock %}
-</main>
+        {% block content %}{% endblock %}
+    </main>
 </body>
+
 </html>
