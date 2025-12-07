@@ -594,29 +594,54 @@ This section collects recurring issues encountered during development and deploy
 
 ### Common Issues (to be updated as they occur)
 
-#### 1. Example placeholder – Django migrations error
+**`django.db.utils.OperationalError` when running `python manage.py migrate`**
 
-- **Issue:** `django.db.utils.OperationalError` when running `python manage.py migrate`.
-- **Cause:** Database not configured correctly or missing environment variables.
-- **Fix:**  
-  - Check that the correct database settings are in place for the current environment.  
-  - Confirm that environment variables (e.g. `DATABASE_URL` on Heroku) are set.  
-  - Re-run `python manage.py migrate`.
+- _Cause_: Database not configured correctly or missing environment variables.
 
-#### 2. Example placeholder – Static files not loading in production
+ - _Fix_: Check that the correct database settings are in place for the current environment. Confirm that environment variables (e.g. `DATABASE_URL` on Heroku) are set. Re-run `python manage.py migrate`.
 
-- **Issue:** CSS and JS files not loading on the deployed site.
-- **Cause:** Static files not collected or serving configuration incomplete.
-- **Fix:**  
-  - Run `python manage.py collectstatic` on the production environment.  
-  - Confirm static files settings and, if using Heroku, ensure the chosen static file solution (e.g. WhiteNoise) is configured.
+**CSS and JS files not loading on the deployed site**
 
----
+ - _Cause_: Static files not collected or serving configuration incomplete.
 
-> **Note:** As development progresses, real issues and their solutions will be added here with short, clear descriptions:
-> - What went wrong  
-> - Why it happened  
-> - How it was fixed  
+  - _Fix_: Run `python manage.py collectstatic` on the production environment. Confirm static files settings and, if using Heroku, ensure the chosen static file solution (e.g. WhiteNoise) is configured.
+
+**Virtualenv accidentally committed to Git**
+
+ -  _Cause_: The `.venv` folder was created in the project root before `.gitignore` was set up, so Git tracked thousands of environment files.
+
+  - _Fix_: Added `.venv/` to `.gitignore` and ran `git rm -r --cached .venv` to remove it from the repository going forward.
+
+**Static logo / background images not loading**
+
+- _Cause_: The project initially had no global `static/` folder and `STATICFILES_DIRS` did not include it, so `{% static %}` paths such as `img/Logo_small.webp` couldn’t be resolved.
+
+- _Fix_: Created a top-level `static/` directory (with `static/img/` and `static/css/`), wired it in `settings.py` via `STATIC_URL` and `STATICFILES_DIRS`, and updated templates to use `{% load static %}` with the correct paths.
+
+**`NoReverseMatch` errors for Storefront / Explore links**
+
+  - _Cause_: The URL name defined in `storefronts/urls.py` (`explore_storefronts`) did not match the name used in templates and the navbar (`storefront_explore`).
+
+  - _Fix_: Standardised the view name to `explore_storefronts` everywhere (URL config, home page buttons, and navbar links).
+
+**TemplateSyntaxError when building the public storefront URL**
+
+  - _Cause_: The template attempted to call `request.build_absolute_uri(storefront.get_absolute_url)` directly. Django’s template language does not support calling arbitrary methods with arguments like this.
+
+  - _Fix_: Moved URL construction into the `my_storefront` view (which now builds `public_url` in Python) and passed `public_url` into the template context for safe display.
+
+**404 when viewing a newly created storefront**
+
+ -  _Cause_: A user could open `/storefront/my/` before a `Storefront` row existed or before the slug was generated, so the detail view could not find a matching storefront.
+
+ -  _Fix_: The `my_storefront` view now uses `Storefront.objects.get_or_create(profile=request.user.profile)` so that each logged-in user always has a storefront and slug before linking to the public page.
+
+**Confusing “public vs Explore” visibility**
+
+  - _Cause_: The `is_active` flag was originally used both for “is this page publicly accessible?” and “should it appear in the Explore listing?”, which sometimes caused the “View public storefront” button to 404.
+
+  - _Fix_: Decoupled the behaviour. The public storefront URL works once a storefront exists; `is_active` now only controls whether the page is listed on the Explore screen. The UI shows this with a small pill badge (e.g. “Listed in Explore”) next to the “View public storefront” button.
+
 
 </details>
 
