@@ -10,6 +10,18 @@ class ProfileForm(forms.ModelForm):
     We don't expose the user field; that's set automatically in the view.
     """
 
+    # Override the default ClearableFileInput so we don't get
+    # the "Currently / Clear" chunk of HTML.
+    logo = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(
+            attrs={
+                "class": "form-control",
+            }
+        ),
+        label="Profile image (optional)",
+    )
+
     class Meta:
         model = Profile
         fields = [
@@ -34,10 +46,10 @@ class ProfileForm(forms.ModelForm):
         labels = {
             "business_name": "Business name",
             "contact_email": "Contact email",
-            "logo": "Logo (optional)",
+            # label for the form field itself is set above on logo=…
         }
         help_texts = {
             "business_name": "This will be shown on your storefront and in emails.",
             "contact_email": "Where MintKit-related messages should be sent.",
-            "logo": "Upload a small logo to show on your dashboard and storefront.",
+            "logo": "Upload an image that will be used on your dashboard and in Explore-style listings.",
         }
