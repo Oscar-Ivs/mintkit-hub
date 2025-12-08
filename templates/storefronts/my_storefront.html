@@ -12,9 +12,9 @@
 
   <div class="sf-header-actions">
     {% if storefront.is_active %}
-      <span class="sf-badge sf-badge-success">Listed in Explore</span>
+    <span class="sf-badge sf-badge-success">Listed in Explore</span>
     {% else %}
-      <span class="sf-badge sf-badge-muted">Hidden from Explore</span>
+    <span class="sf-badge sf-badge-muted">Hidden from Explore</span>
     {% endif %}
 
     <a href="{{ public_url }}" target="_blank" rel="noopener" class="btn btn-primary">
@@ -26,37 +26,35 @@
 <div class="sf-grid">
   <!-- LEFT: PREVIEW -->
   <section class="sf-panel sf-panel-preview">
-  <h2>Preview</h2>
+    <h2>Preview</h2>
 
-  <div class="sf-preview-card">
+    <div class="sf-preview-card">
       <div class="sf-preview-logo">
-          {% if storefront.logo %}
-              <img src="{{ storefront.logo.url }}"
-                   alt="{{ storefront.headline }} logo">
-          {% else %}
-              <span class="sf-preview-logo-placeholder">Your logo will appear here.</span>
-          {% endif %}
+        {% if storefront.logo %}
+        <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
+        {% endif %}
+
       </div>
 
       <h3 class="sf-preview-headline">
-          {{ storefront.headline|default:"Your storefront headline" }}
+        {{ storefront.headline|default:"Your storefront headline" }}
       </h3>
 
       <p class="sf-preview-body">
-          {{ storefront.description|default:"Add a short description of your service or products." }}
+        {{ storefront.description|default:"Add a short description of your service or products." }}
       </p>
 
       <h4 class="sf-preview-section-title">Contact details</h4>
       <p class="sf-preview-body">
-          {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
+        {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
       </p>
-  </div>
+    </div>
 
-  <p class="text-muted sf-preview-url">
-    Customers will see this page at
-    <a href="{{ public_url }}">{{ public_url }}</a>.
-  </p>
-</section>
+    <p class="text-muted sf-preview-url">
+      Customers will see this page at
+      <a href="{{ public_url }}">{{ public_url }}</a>.
+    </p>
+  </section>
 
   <!-- RIGHT: EDIT FORM -->
   <section class="sf-panel">
@@ -74,12 +72,12 @@
         <label for="{{ form.logo.id_for_label }}">Storefront logo:</label>
 
         {% if storefront.logo %}
-          <div class="sf-logo-current">
-            <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline|default:'Storefront logo' }}">
-            <div class="sf-form-help">
-              This logo appears above the preview on the left and on your public page.
-            </div>
+        <div class="sf-logo-current">
+          <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline|default:'Storefront logo' }}">
+          <div class="sf-form-help">
+            This logo appears above the preview on the left and on your public page.
           </div>
+        </div>
         {% endif %}
 
         {{ form.logo }}

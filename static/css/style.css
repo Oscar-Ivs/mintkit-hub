@@ -598,3 +598,37 @@ ul.messages li.danger {
     margin-bottom: 1rem;
     font-size: 0.9rem;
 }
+
+/* --- File/image “Clear” checkbox tidy-up --- */
+
+/* Keep checkbox and its label on one line */
+.profile-logo-field input[type="checkbox"],
+.storefront-logo-field input[type="checkbox"] {
+    margin-left: 0.4rem;
+    vertical-align: middle;
+}
+
+.profile-logo-field label[for$="_clear"],
+.storefront-logo-field label[for$="_clear"] {
+    display: inline-block;
+    margin-left: 0.25rem;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+/* Optional: slightly de-emphasise the tiny “Currently:” line */
+.profile-logo-field,
+.storefront-logo-field {
+    font-size: 0.9rem;
+}
+
+/* Public storefront logo sizing */
+.storefront-logo-large {
+    max-width: 480px;      /* sensible max width */
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto 1.5rem; /* centred with some space below */
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+}
