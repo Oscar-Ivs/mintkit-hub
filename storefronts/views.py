@@ -9,28 +9,31 @@ from .models import Storefront
 @login_required
 def my_storefront(request):
     """
-    Let the logged-in business owner preview and edit *their* storefront.
-
-    We link the storefront to request.user.profile (not a field called 'owner').
-    If a storefront does not exist yet, we create one on the fly and then
-    display the edit form + preview.
+    Let the logged-in business owner create or edit *their* storefront.
     """
+    profile = request.user.profile
 
-    # Every user should have a Profile because of the signal, but be defensive:
-    profile = getattr(request.user, "profile", None)
-    if profile is None:
-        # Fallback – you can redirect to a “complete your profile” page if you like
-        messages.error(request, "Please complete your profile before editing a storefront.")
-        return redirect("dashboard")
+    storefront, created = Storefront.objects.get_or_create(profile=profile)
 
-    # Fetch existing storefront for this profile or create a new one
-    storefront, created = Storefront.objects.get_or_create(
-        profile=profile,
-        defaults={
-            "headline": profile.business_name or f"{request.user.username}'s storefront",
-            "description": "",
-            "contact_details": profile.contact_email or "",
-            "is_active": False,
+    if request.method == "POST":
+        # IMPORTANT: include request.FILES so the logo upload is processed
+        form = StorefrontForm(request.POST, request.FILES, instance=storefront)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Storefront updated.")
+            return redirect("my_storefront")
+    else:
+        form = StorefrontForm(instance=storefront)
+
+    public_url = request.build_absolute_uri(storefront.get_absolute_url())
+
+    return render(
+        request,
+        "storefronts/my_storefront.html",
+        {
+            "storefront": storefront,
+            "form": form,
+            "public_url": public_url,
         },
     )
 

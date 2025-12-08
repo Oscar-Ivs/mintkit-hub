@@ -439,3 +439,26 @@ ul.messages li.danger {
     padding: 1.25rem 1.25rem;
   }
 }
+
+/* My Storefront – logo upload on the right */
+.sf-logo-row {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+
+.sf-logo-current {
+  margin-bottom: 0.5rem;
+}
+
+.sf-logo-current img {
+  max-width: 140px;
+  height: auto;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.sf-preview-url {
+  margin-top: 1.2rem;
+  font-size: 0.85rem;
+}

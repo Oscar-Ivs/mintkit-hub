@@ -1,6 +1,5 @@
 # storefronts/forms.py
 from django import forms
-
 from .models import Storefront
 
 
@@ -16,6 +15,7 @@ class StorefrontForm(forms.ModelForm):
         model = Storefront
         # Fields that the user can edit via the dashboard
         fields = [
+            "logo",             # dedicated storefront logo
             "headline",         # short title at the top of the page
             "description",      # longer description text
             "contact_details",  # how customers reach the business
