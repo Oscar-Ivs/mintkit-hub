@@ -1,37 +1,88 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Edit business profile</h1>
+<div class="page-container">
 
-{% if form.instance.logo %}
-  <div class="business-logo-wrapper">
-    <img
-      src="{{ form.instance.logo.url }}"
-      alt="{{ form.instance.business_name }} logo"
-      class="business-logo"
-    >
+  <a href="{% url 'dashboard' %}" class="link-back">← Back to dashboard</a>
+
+  <div class="profile-layout">
+
+    <!-- LEFT: current business logo -->
+    <aside class="profile-logo-panel">
+      {% if profile.logo %}
+        <img
+          src="{{ profile.logo.url }}"
+          alt="{{ profile.business_name|default:'Business' }} logo"
+          class="profile-logo-img"
+        >
+      {% else %}
+        <div class="profile-logo-placeholder">
+          <span>No logo uploaded yet</span>
+        </div>
+      {% endif %}
+
+      <p class="text-muted small">
+        This image is used on your dashboard and storefront preview.
+      </p>
+    </aside>
+
+    <!-- RIGHT: form fields -->
+    <section class="profile-form-panel">
+      <h1>Edit business profile</h1>
+      <p class="text-muted">
+        Update the details that will be used on your dashboard and storefront.
+      </p>
+
+      <form method="post" enctype="multipart/form-data" class="form-stacked">
+        {% csrf_token %}
+
+        <div class="form-row">
+          <label for="{{ form.business_name.id_for_label }}">Business name</label>
+          {{ form.business_name }}
+          {% if form.business_name.errors %}
+            <div class="form-error">
+              {{ form.business_name.errors|striptags }}
+            </div>
+          {% endif %}
+          <p class="text-muted small">
+            Shown on your dashboard and public storefront.
+          </p>
+        </div>
+
+        <div class="form-row">
+          <label for="{{ form.contact_email.id_for_label }}">Contact email</label>
+          {{ form.contact_email }}
+          {% if form.contact_email.errors %}
+            <div class="form-error">
+              {{ form.contact_email.errors|striptags }}
+            </div>
+          {% endif %}
+          <p class="text-muted small">
+            Where MintKit-related messages should be sent.
+          </p>
+        </div>
+
+        <div class="form-row">
+          <label>Logo (optional)</label>
+          {{ form.logo }}
+          {% if form.logo.errors %}
+            <div class="form-error">
+              {{ form.logo.errors|striptags }}
+            </div>
+          {% endif %}
+          <p class="text-muted small">
+            Upload a square-ish image – it will be resized automatically.
+            To remove it completely, tick “Clear” and click <em>Save profile</em>.
+          </p>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save profile</button>
+          <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </section>
+
   </div>
-{% endif %}
-
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-
-  <div class="form-field">
-    {{ form.business_name.label_tag }}
-    {{ form.business_name }}
-  </div>
-
-  <div class="form-field">
-    {{ form.contact_email.label_tag }}
-    {{ form.contact_email }}
-  </div>
-
-  <div class="form-field">
-    {{ form.logo.label_tag }}
-    {{ form.logo }}
-  </div>
-
-  <button type="submit" class="btn btn-primary">Save profile</button>
-</form>
-
+</div>
 {% endblock %}

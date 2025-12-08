@@ -253,11 +253,17 @@ ul.messages li.danger {
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
 }
 
+/* --- Storefront logos: preview + public page --- */
+
+/* Logo in the “My storefront” preview card */
 .sf-preview-logo img {
-  max-width: 200px;
-  height: auto;
-  display: block;
-  margin-bottom: 1rem;
+    max-width: 260px;
+    max-height: 180px;
+    width: auto;
+    height: auto;
+    display: block;
+    margin-bottom: 1rem;
+    object-fit: contain;
 }
 
 .sf-preview-card h3 {
@@ -267,12 +273,13 @@ ul.messages li.danger {
 }
 
 .sf-preview-section-title {
-  margin-top: 1.25rem;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--mk-text-muted);
-  font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    /* normal case, no extra spacing */
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--mk-text-muted);
 }
 
 .sf-preview-empty {
@@ -287,6 +294,17 @@ ul.messages li.danger {
 
 .sf-preview-url a {
   word-break: break-all;
+}
+
+/* Logo on the public storefront page */
+.storefront-public-logo img {
+    max-width: 360px;
+    max-height: 260px;
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5rem auto 1rem;
+    object-fit: contain;
 }
 
 /* Form side */
@@ -474,4 +492,109 @@ ul.messages li.danger {
     height: auto;
     display: block;
     border-radius: 12px;
+}
+
+/* Dashboard business profile layout */
+.dash-business-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.business-logo-wrapper {
+    flex: 0 0 auto;
+    padding: 0.5rem;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--mk-border-soft);
+}
+
+.business-logo {
+    display: block;
+    max-width: 120px;
+    max-height: 120px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.business-details {
+    flex: 1 1 auto;
+}
+
+/* --- Business profile layout (Edit business profile) --- */
+
+.profile-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.profile-logo-panel {
+    text-align: center;
+}
+
+.profile-logo-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 24px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+    display: block;
+    margin: 0 auto 0.75rem;
+}
+
+/* Placeholder box if no logo yet */
+.profile-logo-placeholder {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 24px;
+    border: 1px dashed var(--mk-border-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mk-text-muted);
+    margin-bottom: 0.75rem;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.profile-form-panel h1 {
+    margin-top: 0;
+}
+
+/* Form layout tweaks used here (but safe globally) */
+.form-stacked .form-row {
+    margin-bottom: 1.25rem;
+}
+
+.form-stacked label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.form-stacked input[type="text"],
+.form-stacked input[type="email"],
+.form-stacked input[type="file"],
+.form-stacked textarea {
+    width: 100%;
+    max-width: 480px;
+}
+
+.form-error {
+    color: #b91c1c;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.link-back {
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
 }

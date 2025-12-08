@@ -4,11 +4,11 @@
 <h1>{{ storefront.headline }}</h1>
 
 {# Optional logo from the business profile #}
-{% if storefront.profile.logo %}
-  <p>
-    <img src="{{ storefront.profile.logo.url }}"
-         alt="{{ storefront.profile.business_name }} logo">
-  </p>
+{% if storefront.logo %}
+  <div class="storefront-public-logo">
+      <img src="{{ storefront.logo.url }}"
+           alt="{{ storefront.headline }} logo">
+  </div>
 {% endif %}
 
 {# Main description text #}
