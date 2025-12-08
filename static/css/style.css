@@ -160,4 +160,164 @@
             }
         }
 
-        
+ /* Storefront Page */
+
+  .sf-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .sf-header-main h1 {
+    margin: 0 0 0.35rem;
+    font-size: 1.9rem;
+  }
+
+  .sf-header-main p {
+    margin: 0;
+  }
+
+  .sf-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .sf-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .sf-badge-success {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #047857;
+  }
+
+  .sf-badge-muted {
+    background-color: rgba(148, 163, 184, 0.15);
+    color: #334155;
+  }
+
+  .sf-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.25fr);
+    gap: 1.75rem;
+    align-items: flex-start;
+  }
+
+  .sf-panel {
+    background-color: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    padding: 1.4rem 1.6rem;
+  }
+
+  .sf-panel h2 {
+    margin-top: 0;
+    margin-bottom: 0.9rem;
+    font-size: 1.2rem;
+  }
+
+  .sf-preview-card h3 {
+    margin-top: 0;
+    margin-bottom: 0.4rem;
+    font-size: 1.3rem;
+  }
+
+  .sf-preview-card p {
+    margin: 0.35rem 0;
+  }
+
+  .sf-preview-logo {
+    margin-bottom: 0.8rem;
+  }
+
+  .sf-preview-logo img {
+    max-width: 160px;
+    height: auto;
+    display: block;
+  }
+
+  .sf-preview-section-title {
+    margin-top: 1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .sf-preview-empty {
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  .sf-form-row {
+    margin-bottom: 1rem;
+  }
+
+  .sf-form-row label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .sf-form-row input[type="text"],
+  .sf-form-row textarea {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem 0.55rem;
+    border-radius: 6px;
+    border: 1px solid rgba(148, 163, 184, 0.7);
+    font: inherit;
+  }
+
+  .sf-form-row textarea {
+    min-height: 5rem;
+    resize: vertical;
+  }
+
+  .sf-form-help {
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+
+  .sf-form-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sf-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .sf-checkbox-label input[type="checkbox"] {
+    transform: translateY(1px);
+  }
+
+  @media (max-width: 900px) {
+    .sf-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .sf-header-actions {
+      align-self: stretch;
+      justify-content: flex-start;
+    }
+
+    .sf-grid {
+      grid-template-columns: 1fr;
+    }
+  }       
