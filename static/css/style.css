@@ -462,3 +462,16 @@ ul.messages li.danger {
   margin-top: 1.2rem;
   font-size: 0.85rem;
 }
+
+/* Business logo styles for dashboard preview */
+
+.business-logo-wrapper {
+    margin-bottom: 0.75rem;
+}
+
+.business-logo {
+    max-width: 160px;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+}

@@ -6,17 +6,22 @@ from .forms import StorefrontForm
 from .models import Storefront
 
 
+# storefronts/views.py
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render, get_object_or_404
+
+from .forms import StorefrontForm
+from .models import Storefront
+
+
 @login_required
 def my_storefront(request):
-    """
-    Let the logged-in business owner create or edit *their* storefront.
-    """
+    """Create or edit the logged-in user's storefront."""
     profile = request.user.profile
-
     storefront, created = Storefront.objects.get_or_create(profile=profile)
 
     if request.method == "POST":
-        # IMPORTANT: include request.FILES so the logo upload is processed
         form = StorefrontForm(request.POST, request.FILES, instance=storefront)
         if form.is_valid():
             form.save()
@@ -36,25 +41,6 @@ def my_storefront(request):
             "public_url": public_url,
         },
     )
-
-    if request.method == "POST":
-        form = StorefrontForm(request.POST, instance=storefront)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Storefront details updated.")
-            return redirect("my_storefront")
-    else:
-        form = StorefrontForm(instance=storefront)
-
-    # Build the full public URL once here, not in the template
-    public_url = request.build_absolute_uri(storefront.get_absolute_url())
-
-    context = {
-        "storefront": storefront,
-        "form": form,
-        "public_url": public_url,
-    }
-    return render(request, "storefronts/my_storefront.html", context)
 
 
 def explore_storefronts(request):

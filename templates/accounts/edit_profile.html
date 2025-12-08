@@ -3,17 +3,35 @@
 {% block content %}
 <h1>Edit business profile</h1>
 
-<p>
-  Update the details that will be used on your dashboard and storefront.
-</p>
+{% if form.instance.logo %}
+  <div class="business-logo-wrapper">
+    <img
+      src="{{ form.instance.logo.url }}"
+      alt="{{ form.instance.business_name }} logo"
+      class="business-logo"
+    >
+  </div>
+{% endif %}
 
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Save profile</button>
+
+  <div class="form-field">
+    {{ form.business_name.label_tag }}
+    {{ form.business_name }}
+  </div>
+
+  <div class="form-field">
+    {{ form.contact_email.label_tag }}
+    {{ form.contact_email }}
+  </div>
+
+  <div class="form-field">
+    {{ form.logo.label_tag }}
+    {{ form.logo }}
+  </div>
+
+  <button type="submit" class="btn btn-primary">Save profile</button>
 </form>
 
-<p>
-  <a href="{% url 'dashboard' %}">&larr; Back to dashboard</a>
-</p>
 {% endblock %}

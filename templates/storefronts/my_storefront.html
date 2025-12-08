@@ -9,11 +9,12 @@
       This is your public-facing page. Preview how it looks and update the details below.
     </p>
   </div>
+
   <div class="sf-header-actions">
     {% if storefront.is_active %}
-    <span class="sf-badge sf-badge-success">Listed in Explore</span>
+      <span class="sf-badge sf-badge-success">Listed in Explore</span>
     {% else %}
-    <span class="sf-badge sf-badge-muted">Hidden from Explore</span>
+      <span class="sf-badge sf-badge-muted">Hidden from Explore</span>
     {% endif %}
 
     <a href="{{ public_url }}" target="_blank" rel="noopener" class="btn btn-primary">
@@ -29,9 +30,9 @@
 
     <div class="sf-preview-card">
       {% if storefront.logo %}
-      <div class="sf-preview-logo">
-        <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }}">
-      </div>
+        <div class="sf-preview-logo">
+          <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline|default:'Storefront logo' }}">
+        </div>
       {% endif %}
 
       <h3>
@@ -39,29 +40,30 @@
       </h3>
 
       {% if storefront.description %}
-      <p>{{ storefront.description|linebreaksbr }}</p>
+        <p>{{ storefront.description|linebreaksbr }}</p>
       {% else %}
-      <p class="sf-preview-empty">
-        Add a short description to tell customers what your business offers.
-      </p>
+        <p class="sf-preview-empty">
+          Add a short description to tell customers what your business offers.
+        </p>
       {% endif %}
 
       <div class="sf-preview-section-title">Contact details</div>
       {% if storefront.contact_details %}
-      <p>{{ storefront.contact_details|linebreaksbr }}</p>
+        <p>{{ storefront.contact_details|linebreaksbr }}</p>
       {% else %}
-      <p class="sf-preview-empty">
-        Add contact details so customers can reach you or find your location.
-      </p>
+        <p class="sf-preview-empty">
+          Add contact details so customers can reach you or find your location.
+        </p>
       {% endif %}
-
-      <p class="text-muted sf-preview-url">
-        Customers will see this page at
-        <a href="{{ public_url }}" target="_blank" rel="noopener">
-          {{ public_url }}
-        </a>.
-      </p>
     </div>
+
+    <!-- Public URL – under the preview card, still inside the left panel -->
+    <p class="text-muted sf-preview-url">
+      Customers will see this page at
+      <a href="{{ public_url }}" target="_blank" rel="noopener">
+        {{ public_url }}
+      </a>.
+    </p>
   </section>
 
   <!-- RIGHT: EDIT FORM -->
@@ -75,22 +77,23 @@
       {% csrf_token %}
       {{ form.non_field_errors }}
 
-      <!-- Storefront logo upload (right side) -->
+      <!-- Storefront logo upload -->
       <div class="sf-form-row sf-logo-row">
         <label for="{{ form.logo.id_for_label }}">Storefront logo:</label>
 
         {% if storefront.logo %}
-        <div class="sf-logo-current">
-          <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }}">
-          <div class="sf-form-help">
-            This logo appears above the preview on the left and on your public page.
+          <div class="sf-logo-current">
+            <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline|default:'Storefront logo' }}">
+            <div class="sf-form-help">
+              This logo appears above the preview on the left and on your public page.
+            </div>
           </div>
-        </div>
         {% endif %}
 
         {{ form.logo }}
         <div class="sf-form-help">
-          Upload a clear logo (square or landscape works best).
+          • To <strong>replace</strong> your logo, choose a new file and leave “Clear” unticked.<br>
+          • To <strong>remove</strong> the logo completely, tick “Clear” and click Save.
         </div>
       </div>
 

@@ -39,5 +39,5 @@ class ProfileForm(forms.ModelForm):
         help_texts = {
             "business_name": "This will be shown on your storefront and in emails.",
             "contact_email": "Where MintKit-related messages should be sent.",
-            "logo": "Upload a small logo to show on your dashboard/storefront.",
+            "logo": "Upload a small logo to show on your dashboard and storefront.",
         }
