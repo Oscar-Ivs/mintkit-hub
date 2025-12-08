@@ -1,23 +1,38 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ storefront.headline }}</h1>
+<div class="page-container storefront-public-page">
 
-{# Optional logo from the business profile #}
-{% if storefront.logo %}
-  <div class="storefront-public-logo">
-      <img src="{{ storefront.logo.url }}"
-           alt="{{ storefront.headline }} logo">
-  </div>
-{% endif %}
+  <section class="sf-panel sf-preview-card">
+    <h1 class="sf-title">
+      {{ storefront.headline|default:"My storefront" }}
+    </h1>
 
-{# Main description text #}
-<p>
-  {{ storefront.description|linebreaksbr }}
-</p>
+    {# Logo – limited by .storefront-public-logo in style.css #}
+    {% if storefront.logo %}
+      <div class="storefront-public-logo">
+        <img
+          src="{{ storefront.logo.url }}"
+          alt="{{ storefront.headline|default:'Storefront logo' }}"
+        >
+      </div>
+    {% endif %}
 
-<h2>Contact</h2>
-<p>
-  {{ storefront.contact_details|linebreaksbr }}
-</p>
+    {# Main body text #}
+    {% if storefront.description %}
+      <p class="sf-body-text">
+        {{ storefront.description|linebreaksbr }}
+      </p>
+    {% endif %}
+
+    {# Contact section #}
+    {% if storefront.contact_details %}
+      <h2 class="sf-subtitle">Contact</h2>
+      <p class="sf-body-text">
+        {{ storefront.contact_details|linebreaksbr }}
+      </p>
+    {% endif %}
+  </section>
+
+</div>
 {% endblock %}
