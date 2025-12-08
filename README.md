@@ -642,6 +642,25 @@ This section collects recurring issues encountered during development and deploy
 
   - _Fix_: Decoupled the behaviour. The public storefront URL works once a storefront exists; `is_active` now only controls whether the page is listed on the Explore screen. The UI shows this with a small pill badge (e.g. “Listed in Explore”) next to the “View public storefront” button.
 
+  **Oversized logo on the public storefront page**
+
+  - _Cause_: Uploaded storefront logos were rendered at their original pixel size in `storefront_detail.html`. Large square images (e.g. 1000×1000px) overflowed the content area and dominated the page, especially on wide desktop screens.
+
+  - _Fix_: Added a dedicated CSS class for the public storefront logo (constraining `max-width` and keeping `height: auto`) and applied it to the logo `<img>` in `storefront_detail.html`. The logo now scales to the card width, stays centred, and remains responsive on smaller screens.
+
+**Confusion between business profile image and storefront logo**
+
+  - _Cause_: The business profile image and the storefront logo were both referred to as a “logo” in different places. Helper text in `edit_profile.html` incorrectly implied that the profile image was also used in the storefront preview, even though storefront branding is handled by a separate image field on the “My storefront” page.
+
+  - _Fix_: Clarified all helper copy: the profile image is now explicitly described as the picture used on the dashboard and in Explore-style listings, while the storefront logo is clearly marked as being managed separately on the **My storefront** page. This avoids users thinking one upload controls everything.
+
+**“Clear” checkbox for images was confusing and ugly**
+
+  - _Cause_: Django’s default `ClearableFileInput` rendered a small “Clear” checkbox and label next to the file input for both the business profile image and the storefront logo. In the MintKit layout the checkbox was misaligned from the “Clear” text, and the behaviour (“tick Clear, then Save”) wasn’t obvious to users.
+
+  - _Fix_: Removed the `Clear` checkbox from the user-facing templates for both image fields and simplified the behaviour: uploading a new file replaces the current image; leaving the field empty keeps the existing image. All helper text referring to “ticking Clear” was removed to match the new behaviour. (If a hard delete is ever needed, it can be done via the admin interface.)
+
+
 
 </details>
 
