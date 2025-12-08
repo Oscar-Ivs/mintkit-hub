@@ -9,18 +9,18 @@
       This is your public-facing page. Preview how it looks and update the details below.
     </p>
   </div>
+
   <div class="sf-header-actions">
     {% if storefront.is_active %}
-    <span class="sf-badge sf-badge-success">Listed in Explore</span>
+      <span class="sf-badge sf-badge-success">Listed in Explore</span>
     {% else %}
-    <span class="sf-badge sf-badge-muted">Hidden from Explore</span>
+      <span class="sf-badge sf-badge-muted">Hidden from Explore</span>
     {% endif %}
 
     <a href="{{ public_url }}" target="_blank" rel="noopener" class="btn btn-primary">
       View public storefront
     </a>
   </div>
-
 </header>
 
 <div class="sf-grid">
@@ -30,9 +30,9 @@
 
     <div class="sf-preview-card">
       {% if storefront.profile and storefront.profile.logo %}
-      <div class="sf-preview-logo">
-        <img src="{{ storefront.profile.logo.url }}" alt="{{ storefront.headline }}">
-      </div>
+        <div class="sf-preview-logo">
+          <img src="{{ storefront.profile.logo.url }}" alt="{{ storefront.headline }}">
+        </div>
       {% endif %}
 
       <h3>
@@ -40,22 +40,86 @@
       </h3>
 
       {% if storefront.description %}
-      <p>{{ storefront.description|linebreaksbr }}</p>
+        <p>{{ storefront.description|linebreaksbr }}</p>
       {% else %}
-      <p class="sf-preview-empty">
-        Add a short description to tell customers what your business offers.
-      </p>
+        <p class="sf-preview-empty">
+          Add a short description to tell customers what your business offers.
+        </p>
       {% endif %}
 
       <div class="sf-preview-section-title">Contact details</div>
       {% if storefront.contact_details %}
-      <p>{{ storefront.contact_details|linebreaksbr }}</p>
+        <p>{{ storefront.contact_details|linebreaksbr }}</p>
       {% else %}
-      <p class="sf-preview-empty">
-        Add contact details so customers can reach you or find your location.
-      </p>
+        <p class="sf-preview-empty">
+          Add contact details so customers can reach you or find your location.
+        </p>
       {% endif %}
     </div>
+
+    <!-- URL note sits *below* the preview card -->
+    <p class="sf-preview-url text-muted">
+      Customers will see this page at
+      <a href="{{ public_url }}" target="_blank" rel="noopener">
+        {{ public_url }}
+      </a>.
+    </p>
+
+    <!-- Simple placeholder section for featured cards (layout only for now) -->
+    <section class="sf-card-section">
+      <div class="sf-card-section-heading">
+        <h3>Featured digital cards</h3>
+      </div>
+      <p class="text-muted sf-card-section-text">
+        This shows how your gift cards, tickets or vouchers could appear to
+        customers. In a full MintKit setup, these cards would be created in
+        MintKit Studio and linked to this storefront.
+      </p>
+
+      <div class="sf-card-grid">
+        <article class="sf-card">
+          <div>
+            <div class="sf-card-title">Example card 1</div>
+            <div class="sf-card-subtitle">e.g. 1:1s gift card or “Drop-in yoga pass”.</div>
+            <p class="sf-card-desc">
+              Space for a short description of what this card includes, expiry rules, and how it can be used.
+            </p>
+          </div>
+          <div class="sf-card-footer">
+            <div class="sf-card-price">£25.00</div>
+            <a href="#" class="btn btn-secondary btn-xs">Buy card</a>
+          </div>
+        </article>
+
+        <article class="sf-card">
+          <div>
+            <div class="sf-card-title">Example card 2</div>
+            <div class="sf-card-subtitle">e.g. “10-session class bundle”.</div>
+            <p class="sf-card-desc">
+              Another example layout for a multi-session pass, bundle, or membership-style product.
+            </p>
+          </div>
+          <div class="sf-card-footer">
+            <div class="sf-card-price">£75.00</div>
+            <a href="#" class="btn btn-secondary btn-xs">Buy card</a>
+          </div>
+        </article>
+
+        <article class="sf-card">
+          <div>
+            <div class="sf-card-title">Example card 3</div>
+            <div class="sf-card-subtitle">e.g. “Event ticket with QR code”.</div>
+            <p class="sf-card-desc">
+              Placeholder for a simple event ticket or time-limited voucher that would show a QR code on the real card.
+            </p>
+          </div>
+          <div class="sf-card-footer">
+            <div class="sf-card-price">£15.00</div>
+            <a href="#" class="btn btn-secondary btn-xs">Buy card</a>
+          </div>
+        </article>
+      </div>
+    </section>
   </section>
 
   <!-- RIGHT: EDIT FORM -->

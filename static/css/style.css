@@ -1,323 +1,441 @@
 :root {
-            /* Hub (blue) palette */
-            --mk-bg: #dde5f3;
-            --mk-card-bg: #f5f7fb;
-            --mk-border-soft: rgba(0, 0, 0, 0.06);
-            --mk-text-main: #111827;
-            --mk-text-muted: #4b5563;
-            --mk-link: #2f5fa8;
-            --mk-link-hover: #23457b;
-            --mk-btn-bg: #2f5fa8;
-            --mk-btn-bg-hover: #23457b;
-            --mk-btn-text: #ffffff;
+    /* Hub (blue) palette */
+    --mk-bg: #dde5f3;
+    --mk-card-bg: #f5f7fb;
+    --mk-border-soft: rgba(0, 0, 0, 0.06);
+    --mk-text-main: #111827;
+    --mk-text-muted: #4b5563;
+    --mk-link: #2f5fa8;
+    --mk-link-hover: #23457b;
+    --mk-btn-bg: #2f5fa8;
+    --mk-btn-bg-hover: #23457b;
+    --mk-btn-text: #ffffff;
 
-            /* Message colours */
-            --mk-success-bg: #e6ffed;
-            --mk-success-text: #065f46;
-            --mk-info-bg: #e0f2fe;
-            --mk-info-text: #075985;
-            --mk-error-bg: #fee2e2;
-            --mk-error-text: #991b1b;
-        }
+    /* Message colours */
+    --mk-success-bg: #e6ffed;
+    --mk-success-text: #065f46;
+    --mk-info-bg: #e0f2fe;
+    --mk-info-text: #075985;
+    --mk-error-bg: #fee2e2;
+    --mk-error-text: #991b1b;
+}
 
-        * {
-            box-sizing: border-box;
-        }
+/* Basic reset */
+* {
+    box-sizing: border-box;
+}
 
-        body {
-            margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background-color: var(--mk-bg);
-            color: var(--mk-text-main);
-        }
-
-        a {
-            color: var(--mk-link);
-            text-decoration: none;
-        }
-
-        a:hover {
-            color: var(--mk-link-hover);
-            text-decoration: underline;
-        }
-
-        /* Top navbar */
-        .navbar {
-            background-color: #f9fafb;
-            border-bottom: 1px solid var(--mk-border-soft);
-            padding: 0.6rem 1.6rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .navbar-left {
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-        }
-
-        .navbar-brand img {
-            display: block;
-            height: 40px;
-        }
-
-        .navbar-links a {
-            margin-right: 0.9rem;
-            font-size: 0.95rem;
-        }
-
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 0.95rem;
-        }
-
-        /* Page layout */
-        .page-container {
-            max-width: 1180px;
-            /* was 960px */
-            margin: 1.5rem auto 2.5rem;
-            padding: 1.75rem 2.5rem;
-            background-color: var(--mk-card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--mk-border-soft);
-            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
-        }
-
-
-        /* Django messages */
-        ul.messages {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 1rem 0;
-        }
-
-        ul.messages li {
-            padding: 0.5rem 0.75rem;
-            margin-bottom: 0.25rem;
-            border-radius: 6px;
-            font-size: 0.9rem;
-        }
-
-        ul.messages li.success {
-            background-color: var(--mk-success-bg);
-            color: var(--mk-success-text);
-        }
-
-        ul.messages li.info {
-            background-color: var(--mk-info-bg);
-            color: var(--mk-info-text);
-        }
-
-        ul.messages li.error,
-        ul.messages li.danger {
-            background-color: var(--mk-error-bg);
-            color: var(--mk-error-text);
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-block;
-            padding: 0.45rem 0.9rem;
-            border-radius: 999px;
-            border: 1px solid transparent;
-            font-size: 0.9rem;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background-color: var(--mk-btn-bg);
-            color: var(--mk-btn-text);
-            border-color: transparent;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--mk-btn-bg-hover);
-            color: var(--mk-btn-text);
-            text-decoration: none;
-        }
-
-        .text-muted {
-            color: var(--mk-text-muted);
-        }
-
-        @media (max-width: 800px) {
-            .navbar {
-                flex-wrap: wrap;
-                gap: 0.5rem 1rem;
-            }
-
-            .navbar-left {
-                flex-wrap: wrap;
-            }
-
-            .page-container {
-                margin: 1rem 0.75rem 2rem;
-                padding: 1.5rem 1.25rem;
-            }
-        }
-
- /* Storefront Page */
-
-  .sf-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .sf-header-main h1 {
-    margin: 0 0 0.35rem;
-    font-size: 1.9rem;
-  }
-
-  .sf-header-main p {
+body {
     margin: 0;
-  }
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background-color: var(--mk-bg);
+    color: var(--mk-text-main);
+}
 
-  .sf-header-actions {
+a {
+    color: var(--mk-link);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--mk-link-hover);
+    text-decoration: underline;
+}
+
+/* ---------------- Navbar ---------------- */
+
+.navbar {
+    background-color: #f9fafb;
+    border-bottom: 1px solid var(--mk-border-soft);
+    padding: 0.6rem 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.navbar-brand img {
+    display: block;
+    height: 40px;
+}
+
+.navbar-links a {
+    margin-right: 0.9rem;
+    font-size: 0.95rem;
+}
+
+.navbar-right {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    flex-shrink: 0;
-  }
+    font-size: 0.95rem;
+}
 
-  .sf-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.2rem 0.6rem;
+/* ---------------- Page shell ---------------- */
+
+.page-container {
+    max-width: 1180px; /* a bit wider so the storefront feels less cramped */
+    margin: 1.5rem auto 2.5rem;
+    padding: 1.75rem 2.5rem;
+    background-color: var(--mk-card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--mk-border-soft);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+/* Django messages */
+
+ul.messages {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+}
+
+ul.messages li {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.25rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+ul.messages li.success {
+    background-color: var(--mk-success-bg);
+    color: var(--mk-success-text);
+}
+
+ul.messages li.info {
+    background-color: var(--mk-info-bg);
+    color: var(--mk-info-text);
+}
+
+ul.messages li.error,
+ul.messages li.danger {
+    background-color: var(--mk-error-bg);
+    color: var(--mk-error-text);
+}
+
+/* Buttons */
+
+.btn {
+    display: inline-block;
+    padding: 0.45rem 0.9rem;
     border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 500;
-  }
+    border: 1px solid transparent;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+}
 
-  .sf-badge-success {
-    background-color: rgba(16, 185, 129, 0.15);
-    color: #047857;
-  }
+.btn-primary {
+    background-color: var(--mk-btn-bg);
+    color: var(--mk-btn-text);
+    border-color: transparent;
+}
 
-  .sf-badge-muted {
-    background-color: rgba(148, 163, 184, 0.15);
-    color: #334155;
-  }
+.btn-primary:hover {
+    background-color: var(--mk-btn-bg-hover);
+    color: var(--mk-btn-text);
+    text-decoration: none;
+}
 
-  .sf-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.25fr);
-    gap: 1.75rem;
+/* Outline / secondary button (used for some links later if needed) */
+.btn-secondary {
+    background-color: transparent;
+    color: var(--mk-link);
+    border-color: var(--mk-link);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(37, 99, 235, 0.06);
+    color: var(--mk-link-hover);
+    text-decoration: none;
+}
+
+.text-muted {
+    color: var(--mk-text-muted);
+}
+
+/* Navbar / layout tweaks on smaller screens */
+
+@media (max-width: 800px) {
+    .navbar {
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+    }
+
+    .navbar-left {
+        flex-wrap: wrap;
+    }
+
+    .page-container {
+        margin: 1rem 0.75rem 2rem;
+        padding: 1.5rem 1.25rem;
+    }
+}
+
+/* Storefront Page */
+
+.sf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sf-header-main h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.9rem;
+}
+
+.sf-header-main p {
+  margin: 0;
+}
+
+.sf-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.sf-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.sf-badge-success {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #047857;
+}
+
+.sf-badge-muted {
+  background-color: rgba(148, 163, 184, 0.15);
+  color: #334155;
+}
+
+.sf-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.25fr);
+  gap: 1.75rem;
+  align-items: flex-start;
+}
+
+.sf-panel {
+  background-color: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 1.4rem 1.6rem;
+}
+
+.sf-panel h2 {
+  margin-top: 0;
+  margin-bottom: 0.9rem;
+  font-size: 1.2rem;
+}
+
+/* Preview card */
+
+.sf-preview-card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  padding: 1.5rem 1.6rem;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.sf-preview-logo img {
+  max-width: 200px;
+  height: auto;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.sf-preview-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.4rem;
+  font-size: 1.3rem;
+}
+
+.sf-preview-section-title {
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mk-text-muted);
+  font-weight: 600;
+}
+
+.sf-preview-empty {
+  font-style: italic;
+  color: var(--mk-text-muted);
+}
+
+.sf-preview-url {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.sf-preview-url a {
+  word-break: break-all;
+}
+
+/* Form side */
+
+.sf-form-row {
+  margin-bottom: 1rem;
+}
+
+.sf-form-row label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.sf-form-row input[type="text"],
+.sf-form-row textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+.sf-form-help {
+  font-size: 0.85rem;
+  color: var(--mk-text-muted);
+  margin-top: 0.25rem;
+}
+
+.sf-form-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sf-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.sf-checkbox-label input[type="checkbox"] {
+  margin: 0;
+}
+
+/* Featured card placeholders */
+
+.sf-card-section {
+  margin-top: 1.75rem;
+}
+
+.sf-card-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.sf-card-section-heading h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.sf-card-section-text {
+  margin-top: 0;
+  font-size: 0.9rem;
+}
+
+.sf-card-grid {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sf-card {
+  background-color: #e4ebf8;
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 140px;
+}
+
+.sf-card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.15rem;
+}
+
+.sf-card-subtitle {
+  font-size: 0.85rem;
+  color: var(--mk-text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.sf-card-desc {
+  margin: 0 0 0.8rem;
+  font-size: 0.9rem;
+}
+
+.sf-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  font-size: 0.9rem;
+}
+
+.sf-card-price {
+  font-weight: 600;
+}
+
+/* Secondary + tiny buttons */
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--mk-btn-bg);
+  border-color: rgba(47, 95, 168, 0.3);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(47, 95, 168, 0.08);
+  color: var(--mk-btn-bg-hover);
+  text-decoration: none;
+}
+
+.btn-xs {
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+/* Mobile tweaks for storefront layout */
+
+@media (max-width: 900px) {
+  .sf-header {
+    flex-direction: column;
     align-items: flex-start;
   }
 
+  .sf-header-actions {
+    align-self: stretch;
+  }
+
+  .sf-grid {
+    grid-template-columns: 1fr;
+  }
+
   .sf-panel {
-    background-color: #f9fafb;
-    border-radius: 12px;
-    border: 1px solid rgba(15, 23, 42, 0.06);
-    padding: 1.4rem 1.6rem;
+    padding: 1.25rem 1.25rem;
   }
-
-  .sf-panel h2 {
-    margin-top: 0;
-    margin-bottom: 0.9rem;
-    font-size: 1.2rem;
-  }
-
-  .sf-preview-card h3 {
-    margin-top: 0;
-    margin-bottom: 0.4rem;
-    font-size: 1.3rem;
-  }
-
-  .sf-preview-card p {
-    margin: 0.35rem 0;
-  }
-
-  .sf-preview-logo {
-    margin-bottom: 0.8rem;
-  }
-
-  .sf-preview-logo img {
-    max-width: 160px;
-    height: auto;
-    display: block;
-  }
-
-  .sf-preview-section-title {
-    margin-top: 1rem;
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-
-  .sf-preview-empty {
-    color: #6b7280;
-    font-style: italic;
-  }
-
-  .sf-form-row {
-    margin-bottom: 1rem;
-  }
-
-  .sf-form-row label {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-  }
-
-  .sf-form-row input[type="text"],
-  .sf-form-row textarea {
-    width: 100%;
-    max-width: 100%;
-    padding: 0.5rem 0.55rem;
-    border-radius: 6px;
-    border: 1px solid rgba(148, 163, 184, 0.7);
-    font: inherit;
-  }
-
-  .sf-form-row textarea {
-    min-height: 5rem;
-    resize: vertical;
-  }
-
-  .sf-form-help {
-    margin-top: 0.25rem;
-    font-size: 0.8rem;
-    color: #6b7280;
-  }
-
-  .sf-form-inline {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .sf-checkbox-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-
-  .sf-checkbox-label input[type="checkbox"] {
-    transform: translateY(1px);
-  }
-
-  @media (max-width: 900px) {
-    .sf-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .sf-header-actions {
-      align-self: stretch;
-      justify-content: flex-start;
-    }
-
-    .sf-grid {
-      grid-template-columns: 1fr;
-    }
-  }       
+}
