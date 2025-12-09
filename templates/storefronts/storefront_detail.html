@@ -1,78 +1,70 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="page-container">
-  <main class="public-storefront card">
 
-    <header class="public-storefront-header">
-      <h1 class="public-storefront-title">
-        {{ storefront.headline|default:"Your storefront headline" }}
-      </h1>
-
-      {% if storefront.logo %}
-        <img
-          src="{{ storefront.logo.url }}"
-          alt="{{ storefront.headline|default:storefront.profile.business_name }}"
-          class="public-storefront-logo"
-        >
-      {% endif %}
-    </header>
-
-    <section class="public-storefront-body">
-      <p class="public-storefront-description">
-        {{ storefront.description|linebreaksbr }}
-      </p>
-
-      <h2 class="public-storefront-subtitle">Contact</h2>
-      <p class="public-storefront-contact">
-        {{ storefront.contact_details|linebreaksbr }}
-      </p>
-    </section>
-
-    {% if cards %}
-      <section class="public-storefront-cards">
-        <h2 class="public-storefront-subtitle">Featured digital cards</h2>
-
-        <div class="storefront-card-grid">
-          {% for card in cards %}
-            <article class="storefront-card">
-              {% if card.thumbnail_url %}
-                <div class="storefront-card-thumb-wrap">
-                  <img src="{{ card.thumbnail_url }}" alt="{{ card.title }}" class="storefront-card-thumb">
-                </div>
-              {% endif %}
-
-              <div class="storefront-card-body">
-                <div class="storefront-card-header">
-                  <h3 class="storefront-card-title">
-                    {{ card.title|default:"Card title" }}
-                  </h3>
-                  {% if card.price_label %}
-                    <span class="storefront-card-price">
-                      {{ card.price_label }}
-                    </span>
-                  {% endif %}
-                </div>
-
-                {% if card.short_description %}
-                  <p class="storefront-card-text">
-                    {{ card.short_description }}
-                  </p>
-                {% endif %}
-
-                {% if card.buy_link %}
-                  <a href="{{ card.buy_link }}" target="_blank" rel="noopener"
-                     class="btn btn-sm btn-primary">
-                    Buy now
-                  </a>
-                {% endif %}
-              </div>
-            </article>
-          {% endfor %}
-        </div>
-      </section>
+    {% if storefront.logo %}
+      <div class="storefront-public-logo">
+        <img src="{{ storefront.logo.url }}"
+             alt="{{ storefront.headline|default:'Storefront logo' }}">
+      </div>
     {% endif %}
 
-  </main>
-</div>
+    <h1 class="page-title text-center">
+      {{ storefront.headline|default:"Your storefront headline" }}
+    </h1>
+
+    {% if storefront.description %}
+      <p class="lead text-center storefront-public-description">
+        {{ storefront.description }}
+      </p>
+    {% endif %}
+
+    {% if storefront.contact_details %}
+      <h2 class="storefront-section-heading">Contact</h2>
+      <p>{{ storefront.contact_details|linebreaksbr }}</p>
+    {% endif %}
+
+    {# Featured cards, if any exist #}
+    {% with cards=storefront.cards.all %}
+      {% if cards %}
+        <section class="storefront-card-section">
+          <h2 class="storefront-section-heading">Featured digital cards</h2>
+
+          <div class="sf-card-grid">
+            {% for card in cards %}
+              <article class="sf-card">
+                {% if card.image_url %}
+                  <div class="sf-card-image-wrap">
+                    <img src="{{ card.image_url }}" alt="{{ card.title }}">
+                  </div>
+                {% endif %}
+
+                <div class="sf-card-body">
+                  <div class="sf-card-header">
+                    <span class="sf-card-title">{{ card.title }}</span>
+                    {% if card.price_label %}
+                      <span class="sf-card-price">{{ card.price_label }}</span>
+                    {% endif %}
+                  </div>
+
+                  {% if card.description %}
+                    <p class="sf-card-desc">{{ card.description }}</p>
+                  {% endif %}
+
+                  {% if card.buy_url %}
+                    <div class="sf-card-footer">
+                      <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+                         class="btn btn-xs btn-primary">
+                        Buy now
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    {% endwith %}
+
 {% endblock %}
