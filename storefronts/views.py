@@ -1,17 +1,10 @@
+# storefronts/views.py
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import StorefrontForm, StorefrontCardFormSet
-from .models import Storefront
-
-
-# storefronts/views.py
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render, get_object_or_404
-
-from .forms import StorefrontForm
 from .models import Storefront
 
 
@@ -39,7 +32,7 @@ def my_storefront(request):
         card_formset = StorefrontCardFormSet(
             request.POST,
             instance=storefront,
-            prefix="cards",
+            prefix="cards",  # keep a stable prefix for the inline formset
         )
 
         if form.is_valid() and card_formset.is_valid():
@@ -54,8 +47,10 @@ def my_storefront(request):
             prefix="cards",
         )
 
+    # Used in the left-hand preview: open the card section when cards exist
     has_cards = storefront.cards.exists()
 
+    # Full public URL, shown under the preview
     public_url = request.build_absolute_uri(storefront.get_absolute_url())
 
     context = {
@@ -63,7 +58,7 @@ def my_storefront(request):
         "form": form,
         "card_formset": card_formset,
         "public_url": public_url,
-        "has_cards": has_cards, 
+        "has_cards": has_cards,
     }
     return render(request, "storefronts/my_storefront.html", context)
 
@@ -78,7 +73,6 @@ def explore_storefronts(request):
         "storefronts/explore_storefronts.html",
         {"storefronts": storefronts},
     )
-
 
 
 def storefront_detail(request, slug):
