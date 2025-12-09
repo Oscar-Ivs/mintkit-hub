@@ -1,272 +1,270 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="page-container storefront-page">
 
-<header class="sf-header">
-  <div class="sf-header-main">
-    <h1>My storefront</h1>
-    <p class="text-muted">
-      This is your public-facing page. Preview how it looks and update the details below.
-    </p>
-  </div>
-
-  <div class="sf-header-actions">
-    {% if storefront.is_active %}
-    <span class="sf-badge sf-badge-success">Listed in Explore</span>
-    {% else %}
-    <span class="sf-badge sf-badge-muted">Hidden from Explore</span>
-    {% endif %}
-
-    <a href="{{ public_url }}" target="_blank" rel="noopener" class="btn btn-primary">
-      View public storefront
-    </a>
-  </div>
-</header>
-
-<div class="sf-grid">
-  <!-- LEFT: PREVIEW -->
-  <section class="sf-panel sf-panel-preview">
-    <h2>Preview</h2>
-
-    <div class="sf-preview-card">
-      <div class="sf-preview-logo">
-        {% if storefront.logo %}
-        <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
-        {% endif %}
-
-      </div>
-
-      <h3 class="sf-preview-headline">
-        {{ storefront.headline|default:"Your storefront headline" }}
-      </h3>
-
-      <p class="sf-preview-body">
-        {{ storefront.description|default:"Add a short description of your service or products." }}
-      </p>
-
-      <h4 class="sf-preview-section-title">Contact details</h4>
-      <p class="sf-preview-body">
-        {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
+  <!-- Header: title + Explore badge + public link -->
+  <div class="storefront-page-header">
+    <div>
+      <h1 class="page-title">My storefront</h1>
+      <p class="text-muted small">
+        This is your public-facing page. Preview how it looks and update the details below.
       </p>
     </div>
-    <!-- Featured cards preview -->
-    {% if storefront.cards.exists %}
-    <div class="storefront-preview-section">
-      <h3 class="storefront-preview-subheading">Featured digital cards</h3>
 
-      <div class="storefront-card-preview-grid">
-        {% for card in storefront.cards.all %}
-        <article class="storefront-preview-card">
-          {% if card.thumbnail_url %}
-          <img src="{{ card.thumbnail_url }}"
-            alt="{{ card.title|default:'Card ' }}{% if not card.title %}{{ forloop.counter }}{% endif %}"
-            class="storefront-preview-card-image">
-          {% endif %}
+    <div class="storefront-header-actions">
+      {% if storefront.is_active %}
+        <span class="badge-pill badge-success">Listed in Explore</span>
+      {% else %}
+        <span class="badge-pill badge-muted">Not listed in Explore</span>
+      {% endif %}
 
-          <h4 class="storefront-preview-card-title">
-            {% if card.title %}
-            {{ card.title }}
-            {% else %}
-            Card {{ forloop.counter }}
-            {% endif %}
-          </h4>
-
-          {% if card.price_label %}
-          <p class="storefront-preview-card-price">
-            {{ card.price_label }}
-          </p>
-          {% endif %}
-
-          {% if card.short_description %}
-          <p class="storefront-preview-card-text">
-            {{ card.short_description }}
-          </p>
-          {% endif %}
-
-          {% if card.buy_url %}
-          <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-            class="btn btn-secondary btn-sm storefront-preview-card-button">
-            Buy / details
-          </a>
-          {% endif %}
-        </article>
-        {% endfor %}
-      </div>
+      {% if public_url %}
+        <a href="{{ public_url }}" class="btn btn-primary" target="_blank" rel="noopener">
+          View public storefront
+        </a>
+      {% endif %}
     </div>
-    {% endif %}
+  </div>
 
-    {% if storefront.cards.exists %}
-    <h3 class="storefront-section-heading">Featured digital cards</h3>
+  <div class="storefront-layout">
 
-    <div class="sf-card-grid">
-      {% for card in storefront.cards.all %}
-      <article class="sf-card">
-        <div class="sf-card-image-wrap">
-          <img src="{{ card.image_url }}" alt="{{ card.title }}">
-        </div>
+    <!-- LEFT: Preview -->
+    <section class="storefront-preview card">
+      <h2 class="card-title">Preview</h2>
 
-        <div class="sf-card-body">
-          <h4 class="sf-card-title">
-            {{ card.title }}
-            {% if card.price_label %}
-            <span class="sf-card-price">{{ card.price_label }}</span>
-            {% endif %}
-          </h4>
-
-          {% if card.description %}
-          <p class="sf-card-text">{{ card.description }}</p>
-          {% endif %}
-
-          {% if card.buy_url %}
-          <a href="{{ card.buy_url }}" class="btn btn-sm btn-primary" target="_blank" rel="noopener">
-            Buy now
-          </a>
-          {% endif %}
-        </div>
-      </article>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    <p class="text-muted sf-preview-url">
-      Customers will see this page at
-      <a href="{{ public_url }}">{{ public_url }}</a>.
-    </p>
-  </section>
-
-  <!-- RIGHT: EDIT FORM -->
-  <section class="sf-panel">
-    <h2>Edit storefront details</h2>
-    <p class="text-muted">
-      Update the text shown on your public page. You can toggle public visibility here as well.
-    </p>
-
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
-
-      <!-- Storefront logo upload -->
-      <div class="sf-form-row sf-logo-row">
-        <label for="{{ form.logo.id_for_label }}">Storefront logo:</label>
-
+      <div class="storefront-preview-body">
         {% if storefront.logo %}
-        <div class="sf-logo-current">
-          <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline|default:'Storefront logo' }}">
-          <div class="sf-form-help">
-            This logo appears above the preview on the left and on your public page.
-            <p class="text-muted small">
-              To change your logo, upload a new file and click <em>Save storefront</em>.
-              If you leave this field empty, your current logo will stay the same.
-            </p>
-
-          </div>
-        </div>
+          <img
+            src="{{ storefront.logo.url }}"
+            alt="{{ storefront.headline|default:storefront.profile.business_name }}"
+            class="storefront-preview-logo"
+          >
         {% endif %}
 
-        {{ form.logo }}
-      </div>
+        <h3 class="storefront-preview-headline">
+          {{ storefront.headline|default:"Your storefront headline" }}
+        </h3>
 
-      <div class="sf-form-row">
-        <label for="{{ form.headline.id_for_label }}">Storefront headline:</label>
-        {{ form.headline }}
-        <div class="sf-form-help">
-          Shown as the main title of your storefront.
-        </div>
-      </div>
-
-      <div class="sf-form-row">
-        <label for="{{ form.description.id_for_label }}">Description:</label>
-        {{ form.description }}
-        <div class="sf-form-help">
-          Appears as the main body text on your storefront page.
-        </div>
-      </div>
-
-      <div class="sf-form-row">
-        <label for="{{ form.contact_details.id_for_label }}">Contact details:</label>
-        {{ form.contact_details }}
-        <div class="sf-form-help">
-          These details help customers contact or find you.
-        </div>
-      </div>
-
-      <div class="sf-form-row">
-        <div class="sf-form-inline">
-          <label class="sf-checkbox-label">
-            {{ form.is_active }}
-            <span>Make my storefront public</span>
-          </label>
-        </div>
-        <div class="sf-form-help">
-          Tick this when you're ready for customers to see your page (and list it in Explore).
-        </div>
-      </div>
-      {# === Featured cards, optional and collapsible === #}
-      <details class="sf-card-formset-wrapper" {% if has_cards %}open{% endif %}>
-        <summary class="sf-card-summary">
-          Featured digital cards (optional)
-        </summary>
-
-        <p class="text-muted small">
-          Add up to three MintKit cards to highlight on your storefront.
-          Paste the <code>thumbnail.webp</code> image URL and the link customers should use to buy.
+        <p class="storefront-preview-description">
+          {{ storefront.description|default:"Global digital card minting service with unbelievable features and functions not possible anywhere else." }}
         </p>
 
-        <div class="sf-card-formset">
-          {{ card_formset.management_form }}
+        <h4 class="storefront-preview-subtitle">Contact</h4>
+        <p class="storefront-preview-contact">
+          {{ storefront.contact_details|default:"Add some contact details so customers can reach you." }}
+        </p>
 
-          {% for card_form in card_formset %}
-          <div class="sf-card-form">
-            <h4 class="sf-card-form-title">Card {{ forloop.counter }}</h4>
+        {% if cards %}
+          <div class="storefront-preview-cards">
+            <h4 class="storefront-preview-subtitle">Featured digital cards</h4>
+            <div class="storefront-card-grid">
+              {% for card in cards %}
+                <article class="storefront-card">
+                  {% if card.thumbnail_url %}
+                    <div class="storefront-card-thumb-wrap">
+                      <img src="{{ card.thumbnail_url }}" alt="{{ card.title }}" class="storefront-card-thumb">
+                    </div>
+                  {% endif %}
 
-            <div class="form-row">
-              <label for="{{ card_form.title.id_for_label }}">Card title</label>
-              {{ card_form.title }}
+                  <div class="storefront-card-body">
+                    <div class="storefront-card-header">
+                      <h5 class="storefront-card-title">
+                        {{ card.title|default:"Card title" }}
+                      </h5>
+                      {% if card.price_label %}
+                        <span class="storefront-card-price">
+                          {{ card.price_label }}
+                        </span>
+                      {% endif %}
+                    </div>
+
+                    {% if card.short_description %}
+                      <p class="storefront-card-text">
+                        {{ card.short_description }}
+                      </p>
+                    {% endif %}
+
+                    {% if card.buy_link %}
+                      <a href="{{ card.buy_link }}" target="_blank" rel="noopener"
+                         class="btn btn-sm btn-primary">
+                        Buy now
+                      </a>
+                    {% endif %}
+                  </div>
+                </article>
+              {% endfor %}
             </div>
-
-            <div class="form-row sf-card-two-col">
-              <div>
-                <label for="{{ card_form.price_label.id_for_label }}">Price label (optional)</label>
-                {{ card_form.price_label }}
-              </div>
-              <div>
-                <label for="{{ card_form.buy_url.id_for_label }}">Buy / details link</label>
-                {{ card_form.buy_url }}
-              </div>
-            </div>
-
-            <div class="form-row">
-              <label for="{{ card_form.image_url.id_for_label }}">Thumbnail image URL</label>
-              {{ card_form.image_url }}
-              <p class="text-muted small">
-                Example: <code>https://.../thumbnail.webp</code>
-              </p>
-            </div>
-
-            <div class="form-row">
-              <label for="{{ card_form.description.id_for_label }}">Short description (optional)</label>
-              {{ card_form.description }}
-            </div>
-
-            {% if card_form.DELETE %}
-            <div class="form-row sf-card-delete-row">
-              <label class="checkbox-inline">
-                {{ card_form.DELETE }} Remove this card
-              </label>
-            </div>
-            {% endif %}
           </div>
-          {% endfor %}
-        </div>
-      </details>
-
-      {# existing form actions stay LAST #}
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save storefront</button>
-        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+        {% endif %}
       </div>
-    </form>
-  </section>
-</div>
 
+      {% if public_url %}
+        <p class="storefront-preview-url small text-muted">
+          Customers will see this page at
+          <br>
+          <a href="{{ public_url }}" target="_blank" rel="noopener">{{ public_url }}</a>
+        </p>
+      {% endif %}
+    </section>
+
+    <!-- RIGHT: Edit form -->
+    <section class="storefront-edit card">
+      <form method="post" enctype="multipart/form-data" class="storefront-form">
+        {% csrf_token %}
+
+        <div class="storefront-edit-header">
+          <h2 class="card-title">Edit storefront details</h2>
+
+          <!-- “Make my storefront public” moved up next to heading -->
+          <label class="storefront-public-toggle">
+            {{ form.is_active }}
+            <span>{{ form.is_active.label }}</span>
+          </label>
+        </div>
+
+        <p class="text-muted small mb-3">
+          Update the text shown on your public page. You can toggle public visibility here as well.
+        </p>
+
+        <!-- Logo -->
+        <div class="form-row">
+          <label>Storefront logo:</label>
+
+          {% if storefront.logo %}
+            <div class="storefront-logo-current">
+              <img src="{{ storefront.logo.url }}"
+                   alt="{{ storefront.headline|default:storefront.profile.business_name }}"
+                   class="storefront-logo-inline">
+            </div>
+          {% endif %}
+
+          {{ form.logo }}
+
+          {% if form.logo.errors %}
+            <div class="form-error">
+              {{ form.logo.errors|striptags }}
+            </div>
+          {% endif %}
+
+          <p class="text-muted small">
+            This logo appears above the preview on the left and on your public page.
+            To change your logo, upload a new file and click <strong>Save storefront</strong>.
+          </p>
+        </div>
+
+        <!-- Headline -->
+        <div class="form-row">
+          <label for="{{ form.headline.id_for_label }}">Storefront headline:</label>
+          {{ form.headline }}
+          {% if form.headline.errors %}
+            <div class="form-error">
+              {{ form.headline.errors|striptags }}
+            </div>
+          {% endif %}
+          <p class="text-muted small">
+            Shown as the main title of your storefront.
+          </p>
+        </div>
+
+        <!-- Description -->
+        <div class="form-row">
+          <label for="{{ form.description.id_for_label }}">Description:</label>
+          {{ form.description }}
+          {% if form.description.errors %}
+            <div class="form-error">
+              {{ form.description.errors|striptags }}
+            </div>
+          {% endif %}
+          <p class="text-muted small">
+            Appears as the main body text on your storefront page.
+          </p>
+        </div>
+
+        <!-- Contact -->
+        <div class="form-row">
+          <label for="{{ form.contact_details.id_for_label }}">Contact details:</label>
+          {{ form.contact_details }}
+          {% if form.contact_details.errors %}
+            <div class="form-error">
+              {{ form.contact_details.errors|striptags }}
+            </div>
+          {% endif %}
+          <p class="text-muted small">
+            These details help customers contact or find you.
+          </p>
+        </div>
+
+        <!-- Featured cards -->
+        <hr class="mt-4 mb-3">
+
+        <h3 class="card-subtitle">Featured digital cards (optional)</h3>
+        <p class="text-muted small mb-3">
+          Add up to three MintKit cards to highlight on your storefront. Paste the
+          <code>thumbnail.webp</code> image URL and the link customers should use to buy.
+        </p>
+
+        {% if card_formset %}
+          <div class="storefront-card-formset">
+            {{ card_formset.management_form }}
+            {% for card_form in card_formset %}
+              <div class="card card-formset-item">
+                <h4 class="card-formset-title">
+                  Card {{ forloop.counter }}
+                </h4>
+
+                <div class="form-row">
+                  <label>{{ card_form.title.label }}</label>
+                  {{ card_form.title }}
+                </div>
+
+                <div class="form-row storefront-card-inline">
+                  <div class="flex-1">
+                    <label>{{ card_form.price_label.label }}</label>
+                    {{ card_form.price_label }}
+                  </div>
+                  <div class="flex-1">
+                    <label>{{ card_form.buy_link.label }}</label>
+                    {{ card_form.buy_link }}
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <label>{{ card_form.thumbnail_url.label }}</label>
+                  {{ card_form.thumbnail_url }}
+                  <p class="text-muted small">
+                    Example: <code>https://.../thumbnail.webp</code>
+                  </p>
+                </div>
+
+                <div class="form-row">
+                  <label>{{ card_form.short_description.label }}</label>
+                  {{ card_form.short_description }}
+                </div>
+
+                {% if card_form.DELETE %}
+                  <div class="form-row">
+                    <label class="checkbox-inline">
+                      {{ card_form.DELETE }} Remove this card
+                    </label>
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted small">
+            Card editing isn't wired up yet, but this is where the forms will live.
+          </p>
+        {% endif %}
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save storefront</button>
+        </div>
+
+      </form>
+    </section>
+
+  </div>
+</div>
 {% endblock %}
