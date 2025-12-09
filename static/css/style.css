@@ -131,6 +131,7 @@ ul.messages li.danger {
     text-decoration: none;
 }
 
+/* Primary pill button */
 .btn-primary {
     background-color: var(--mk-btn-bg);
     color: var(--mk-btn-text);
@@ -143,16 +144,16 @@ ul.messages li.danger {
     text-decoration: none;
 }
 
-/* Outline / secondary button (used for some links later if needed) */
+/* Outline / secondary button – unified style */
 .btn-secondary {
     background-color: transparent;
-    color: var(--mk-link);
-    border-color: var(--mk-link);
+    color: var(--mk-btn-bg);
+    border-color: rgba(47, 95, 168, 0.3);
 }
 
 .btn-secondary:hover {
-    background-color: rgba(37, 99, 235, 0.06);
-    color: var(--mk-link-hover);
+    background-color: rgba(47, 95, 168, 0.08);
+    color: var(--mk-btn-bg-hover);
     text-decoration: none;
 }
 
@@ -178,82 +179,80 @@ ul.messages li.danger {
     }
 }
 
-/* Storefront Page */
+/* ================= Storefront: dashboard view ================= */
 
 .sf-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .sf-header-main h1 {
-  margin: 0 0 0.35rem;
-  font-size: 1.9rem;
+    margin: 0 0 0.35rem;
+    font-size: 1.9rem;
 }
 
 .sf-header-main p {
-  margin: 0;
+    margin: 0;
 }
 
 .sf-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
 }
 
 .sf-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 .sf-badge-success {
-  background-color: rgba(16, 185, 129, 0.15);
-  color: #047857;
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #047857;
 }
 
 .sf-badge-muted {
-  background-color: rgba(148, 163, 184, 0.15);
-  color: #334155;
+    background-color: rgba(148, 163, 184, 0.15);
+    color: #334155;
 }
 
 .sf-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.25fr);
-  gap: 1.75rem;
-  align-items: flex-start;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.25fr);
+    gap: 1.75rem;
+    align-items: flex-start;
 }
 
 .sf-panel {
-  background-color: #f9fafb;
-  border-radius: 12px;
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  padding: 1.4rem 1.6rem;
+    background-color: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    padding: 1.4rem 1.6rem;
 }
 
 .sf-panel h2 {
-  margin-top: 0;
-  margin-bottom: 0.9rem;
-  font-size: 1.2rem;
+    margin-top: 0;
+    margin-bottom: 0.9rem;
+    font-size: 1.2rem;
 }
 
 /* Preview card */
 
 .sf-preview-card {
-  background-color: #ffffff;
-  border-radius: 10px;
-  border: 1px solid rgba(15, 23, 42, 0.05);
-  padding: 1.5rem 1.6rem;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 1px solid rgba(15, 23, 42, 0.05);
+    padding: 1.5rem 1.6rem;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
 }
-
-/* --- Storefront logos: preview + public page --- */
 
 /* Logo in the “My storefront” preview card */
 .sf-preview-logo img {
@@ -267,221 +266,116 @@ ul.messages li.danger {
 }
 
 .sf-preview-card h3 {
-  margin-top: 0;
-  margin-bottom: 0.4rem;
-  font-size: 1.3rem;
+    margin-top: 0;
+    margin-bottom: 0.4rem;
+    font-size: 1.3rem;
 }
 
 .sf-preview-section-title {
     font-size: 0.95rem;
     font-weight: 600;
     margin-top: 1.25rem;
-    /* normal case, no extra spacing */
     text-transform: none;
     letter-spacing: 0;
     color: var(--mk-text-muted);
 }
 
 .sf-preview-empty {
-  font-style: italic;
-  color: var(--mk-text-muted);
+    font-style: italic;
+    color: var(--mk-text-muted);
 }
 
 .sf-preview-url {
-  margin-top: 0.75rem;
-  font-size: 0.9rem;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
 }
 
 .sf-preview-url a {
-  word-break: break-all;
-}
-
-/* Logo on the public storefront page */
-.storefront-public-logo img {
-    max-width: 360px;
-    max-height: 260px;
-    width: 100%;
-    height: auto;
-    display: block;
-    margin: 1.5rem auto 1rem;
-    object-fit: contain;
-}
-
-/* Form side */
-
-.sf-form-row {
-  margin-bottom: 1rem;
-}
-
-.sf-form-row label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-.sf-form-row input[type="text"],
-.sf-form-row textarea {
-  width: 100%;
-  max-width: 100%;
-}
-
-.sf-form-help {
-  font-size: 0.85rem;
-  color: var(--mk-text-muted);
-  margin-top: 0.25rem;
-}
-
-.sf-form-inline {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.sf-checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
-}
-
-.sf-checkbox-label input[type="checkbox"] {
-  margin: 0;
-}
-
-/* Featured card placeholders */
-
-.sf-card-section {
-  margin-top: 1.75rem;
-}
-
-.sf-card-section-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.35rem;
-}
-
-.sf-card-section-heading h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.sf-card-section-text {
-  margin-top: 0;
-  font-size: 0.9rem;
-}
-
-.sf-card-grid {
-  margin-top: 0.9rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.sf-card {
-  background-color: #e4ebf8;
-  border-radius: 10px;
-  padding: 0.9rem 1rem;
-  border: 1px solid rgba(15, 23, 42, 0.04);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 140px;
-}
-
-.sf-card-title {
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 0.15rem;
-}
-
-.sf-card-subtitle {
-  font-size: 0.85rem;
-  color: var(--mk-text-muted);
-  margin-bottom: 0.6rem;
-}
-
-.sf-card-desc {
-  margin: 0 0 0.8rem;
-  font-size: 0.9rem;
-}
-
-.sf-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: auto;
-  font-size: 0.9rem;
-}
-
-.sf-card-price {
-  font-weight: 600;
-}
-
-/* Secondary + tiny buttons */
-
-.btn-secondary {
-  background-color: transparent;
-  color: var(--mk-btn-bg);
-  border-color: rgba(47, 95, 168, 0.3);
-}
-
-.btn-secondary:hover {
-  background-color: rgba(47, 95, 168, 0.08);
-  color: var(--mk-btn-bg-hover);
-  text-decoration: none;
-}
-
-.btn-xs {
-  padding: 0.25rem 0.7rem;
-  font-size: 0.8rem;
+    word-break: break-all;
 }
 
 /* Mobile tweaks for storefront layout */
 
 @media (max-width: 900px) {
-  .sf-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+    .sf-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-  .sf-header-actions {
-    align-self: stretch;
-  }
+    .sf-header-actions {
+        align-self: stretch;
+    }
 
-  .sf-grid {
-    grid-template-columns: 1fr;
-  }
+    .sf-grid {
+        grid-template-columns: 1fr;
+    }
 
-  .sf-panel {
-    padding: 1.25rem 1.25rem;
-  }
+    .sf-panel {
+        padding: 1.25rem 1.25rem;
+    }
 }
 
 /* My Storefront – logo upload on the right */
+
 .sf-logo-row {
-  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.1rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.1rem;
 }
 
 .sf-logo-current {
-  margin-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .sf-logo-current img {
-  max-width: 140px;
-  height: auto;
-  display: block;
-  margin-bottom: 0.25rem;
+    max-width: 140px;
+    height: auto;
+    display: block;
+    margin-bottom: 0.25rem;
 }
 
-.sf-preview-url {
-  margin-top: 1.2rem;
-  font-size: 0.85rem;
+/* Simple form helpers used across storefront */
+
+.sf-form-row {
+    margin-bottom: 1rem;
 }
 
-/* Business logo styles for dashboard preview */
+.sf-form-row label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.sf-form-row input[type="text"],
+.sf-form-row textarea {
+    width: 100%;
+    max-width: 100%;
+}
+
+.sf-form-help {
+    font-size: 0.85rem;
+    color: var(--mk-text-muted);
+    margin-top: 0.25rem;
+}
+
+.sf-form-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sf-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+}
+
+.sf-checkbox-label input[type="checkbox"] {
+    margin: 0;
+}
+
+/* ================= Business profile & dashboard ================= */
 
 .business-logo-wrapper {
     margin-bottom: 0.75rem;
@@ -622,19 +516,131 @@ ul.messages li.danger {
     font-size: 0.9rem;
 }
 
-/* Public storefront logo sizing */
-.storefront-logo-large {
-    max-width: 480px;      /* sensible max width */
-    width: 100%;
-    height: auto;
-    display: block;
-    margin: 0 auto 1.5rem; /* centred with some space below */
-    border-radius: 16px;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+/* ================= Public storefront ================= */
+
+/* Wrapper card for the whole public storefront */
+.storefront-public-card {
+    max-width: 960px;
+    margin: 2.5rem auto 3rem;
+    padding: 2.5rem 3rem;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
 }
 
-/* === Storefront featured cards – preview grid === */
+/* Logo area */
+.storefront-public-logo {
+    text-align: center;
+    margin: 1.5rem 0 1.75rem;
+}
 
+.storefront-public-logo img {
+    max-width: 420px;
+    max-height: 260px;
+    width: 100%;
+    height: auto;
+    display: inline-block;
+    border-radius: 1.25rem;
+    object-fit: contain;
+}
+
+.storefront-public-title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.25rem;
+}
+
+.storefront-public-section {
+    margin-top: 2rem;
+}
+
+.storefront-public-section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.storefront-public-body {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #1f2937;
+}
+
+/* Public card grid (and preview grid uses same look) */
+
+.storefront-card-public-grid,
+.storefront-card-preview-grid,
+.sf-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.storefront-public-card-item,
+.storefront-preview-card,
+.sf-card {
+    background: #f3f4ff;
+    border-radius: 16px;
+    padding: 1rem 1.15rem 1.25rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    display: flex;
+    flex-direction: column;
+}
+
+.storefront-public-card-image,
+.storefront-preview-card-image,
+.sf-card-image-wrap img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    display: block;
+    object-fit: cover;
+}
+
+/* separate wrapper so preview can crop images if needed */
+.sf-card-image-wrap {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.storefront-public-card-title,
+.storefront-preview-card-title,
+.sf-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.storefront-public-card-price,
+.storefront-preview-card-price,
+.sf-card-price {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #2563eb;
+    margin-bottom: 0.45rem;
+}
+
+.storefront-public-card-text,
+.storefront-preview-card-text,
+.sf-card-desc {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.storefront-public-card-button,
+.storefront-preview-card-button {
+    font-size: 0.9rem;
+    padding: 0.35rem 0.9rem;
+}
+
+/* Section heading used above card grids */
 .storefront-section-heading {
     font-size: 1rem;
     font-weight: 600;
@@ -642,54 +648,7 @@ ul.messages li.danger {
     margin-bottom: 0.75rem;
 }
 
-.sf-card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
-    margin-bottom: 0.5rem;
-}
-
-.sf-card {
-    background: #f5f7fb;
-    border-radius: 0.75rem;
-    border: 1px solid #dde3f0;
-    padding: 0.75rem;
-    display: flex;
-    flex-direction: column;
-}
-
-.sf-card-image-wrap {
-    border-radius: 0.6rem;
-    overflow: hidden;
-    margin-bottom: 0.5rem;
-}
-
-.sf-card-image-wrap img {
-    display: block;
-    width: 100%;
-    height: auto;
-}
-
-.sf-card-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin: 0 0 0.25rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-}
-
-.sf-card-price {
-    font-size: 0.85rem;
-    color: #2151b3;
-}
-
-.sf-card-text {
-    font-size: 0.85rem;
-    margin-bottom: 0.5rem;
-}
-
-/* === Storefront featured cards – edit form === */
+/* ================= Storefront card EDIT form ================= */
 
 .sf-card-formset {
     border-top: 1px solid #e1e6f2;
@@ -726,346 +685,4 @@ ul.messages li.danger {
 
 .sf-card-delete-row {
     margin-top: 0.5rem;
-}
-
-.sf-card-formset-wrapper {
-    margin-top: 1.5rem;
-    border-top: 1px solid #e1e6f2;
-    padding-top: 1rem;
-}
-
-.sf-card-summary {
-    font-weight: 600;
-    cursor: pointer;
-    list-style: none;
-    margin-bottom: 0.5rem;
-}
-
-.sf-card-summary::-webkit-details-marker {
-    display: none;
-}
-
-/* Public storefront layout */
-.storefront-public-card {
-    max-width: 960px;
-    margin: 2.5rem auto 3rem;
-    padding: 2.5rem 3rem;
-    background: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
-}
-
-/* Public logo – keep it big but not ridiculous */
-.storefront-public-logo {
-    text-align: center;
-    margin-bottom: 1.75rem;
-}
-
-.storefront-public-logo img {
-    max-width: 420px;           /* hard cap size */
-    width: 100%;
-    height: auto;
-    display: inline-block;
-    border-radius: 1.25rem;
-}
-
-.storefront-public-title {
-    font-size: 2.1rem;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 1.25rem;
-}
-
-.storefront-public-section {
-    margin-top: 2rem;
-}
-
-.storefront-public-section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-}
-
-.storefront-public-body {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #1f2937;
-}
-
-/* Public card grid */
-.storefront-card-public-grid,
-.storefront-card-preview-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1rem;
-}
-
-.storefront-public-card-item,
-.storefront-preview-card {
-    background: #f3f4ff;
-    border-radius: 16px;
-    padding: 1rem 1.15rem 1.25rem;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-}
-
-.storefront-public-card-image,
-.storefront-preview-card-image {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-    margin-bottom: 0.75rem;
-    display: block;
-    object-fit: cover;
-}
-
-.storefront-public-card-title,
-.storefront-preview-card-title {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.storefront-public-card-price,
-.storefront-preview-card-price {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #2563eb;
-    margin-bottom: 0.45rem;
-}
-
-.storefront-public-card-text,
-.storefront-preview-card-text {
-    font-size: 0.9rem;
-    margin-bottom: 0.75rem;
-}
-
-.storefront-public-card-button,
-.storefront-preview-card-button {
-    font-size: 0.9rem;
-    padding: 0.35rem 0.9rem;
-}
-
-/* ===== Storefront: layout & preview ===== */
-
-.storefront-page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    margin-bottom: 1.75rem;
-}
-
-.storefront-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.badge-pill {
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.badge-success {
-    background: #d1fae5;
-    color: #166534;
-}
-
-.badge-muted {
-    background: #e5e7eb;
-    color: #4b5563;
-}
-
-.storefront-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr);
-    gap: 1.5rem;
-}
-
-@media (max-width: 992px) {
-    .storefront-layout {
-        grid-template-columns: 1fr;
-    }
-}
-
-.storefront-preview-logo {
-    max-width: 260px;
-    height: auto;
-    display: block;
-    margin: 0 auto 1rem;
-}
-
-.storefront-preview-headline {
-    text-align: center;
-    font-size: 1.4rem;
-    margin-bottom: 0.75rem;
-}
-
-.storefront-preview-description,
-.storefront-preview-contact {
-    font-size: 0.95rem;
-}
-
-.storefront-preview-subtitle {
-    margin-top: 1.5rem;
-    margin-bottom: 0.25rem;
-    font-size: 0.95rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #6b7280;
-}
-
-.storefront-preview-url {
-    margin-top: 1.5rem;
-    text-align: left;
-}
-
-/* ===== Storefront: edit panel ===== */
-
-.storefront-edit-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-}
-
-.storefront-public-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.40rem;
-    font-size: 0.9rem;
-    cursor: pointer;
-}
-
-.storefront-logo-current {
-    margin-bottom: 0.75rem;
-}
-
-.storefront-logo-inline {
-    max-width: 180px;
-    height: auto;
-    display: block;
-}
-
-/* ===== Storefront: card formset & public grid ===== */
-
-.storefront-card-formset {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.card-formset-item {
-    padding: 1rem;
-}
-
-.card-formset-title {
-    margin-top: 0;
-    margin-bottom: 0.75rem;
-    font-size: 1rem;
-}
-
-.storefront-card-inline {
-    display: flex;
-    gap: 0.75rem;
-}
-
-.storefront-card-inline .flex-1 {
-    flex: 1 1 0;
-}
-
-.storefront-card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 1rem;
-    margin-top: 0.75rem;
-}
-
-.storefront-card {
-    border-radius: 0.75rem;
-    border: 1px solid #e5e7eb;
-    background: #f9fafb;
-    padding: 0.75rem 0.9rem;
-    display: flex;
-    gap: 0.75rem;
-}
-
-.storefront-card-thumb-wrap {
-    flex: 0 0 90px;
-}
-
-.storefront-card-thumb {
-    width: 100%;
-    height: auto;
-    border-radius: 0.5rem;
-    object-fit: cover;
-}
-
-.storefront-card-body {
-    flex: 1 1 auto;
-}
-
-.storefront-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.5rem;
-    margin-bottom: 0.25rem;
-}
-
-.storefront-card-title {
-    font-size: 0.95rem;
-    margin: 0;
-}
-
-.storefront-card-price {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #2563eb;
-}
-
-.storefront-card-text {
-    font-size: 0.85rem;
-    margin-bottom: 0.5rem;
-}
-
-/* ===== Public storefront card ===== */
-
-.public-storefront {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 2.5rem 3rem;
-}
-
-.public-storefront-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.public-storefront-title {
-    margin-bottom: 1rem;
-}
-
-.public-storefront-logo {
-    max-width: 420px;
-    width: 100%;
-    height: auto;
-    display: inline-block;
-}
-
-.public-storefront-body {
-    font-size: 1rem;
-    margin-bottom: 2rem;
-}
-
-.public-storefront-subtitle {
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-    font-size: 1.1rem;
 }
