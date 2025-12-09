@@ -632,3 +632,98 @@ ul.messages li.danger {
     border-radius: 16px;
     box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
 }
+
+/* === Storefront featured cards – preview grid === */
+
+.storefront-section-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.sf-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.sf-card {
+    background: #f5f7fb;
+    border-radius: 0.75rem;
+    border: 1px solid #dde3f0;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.sf-card-image-wrap {
+    border-radius: 0.6rem;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.sf-card-image-wrap img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.sf-card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.sf-card-price {
+    font-size: 0.85rem;
+    color: #2151b3;
+}
+
+.sf-card-text {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+/* === Storefront featured cards – edit form === */
+
+.sf-card-formset {
+    border-top: 1px solid #e1e6f2;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    display: grid;
+    gap: 1rem;
+}
+
+.sf-card-form {
+    background: #f9fbff;
+    border-radius: 0.75rem;
+    border: 1px solid #dde3f0;
+    padding: 0.75rem 0.9rem;
+}
+
+.sf-card-form-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.6rem;
+}
+
+.sf-card-two-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .sf-card-two-col {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    }
+}
+
+.sf-card-delete-row {
+    margin-top: 0.5rem;
+}

@@ -50,6 +50,39 @@
       </p>
     </div>
 
+    {% if storefront.cards.exists %}
+    <h3 class="storefront-section-heading">Featured digital cards</h3>
+
+    <div class="sf-card-grid">
+      {% for card in storefront.cards.all %}
+      <article class="sf-card">
+        <div class="sf-card-image-wrap">
+          <img src="{{ card.image_url }}" alt="{{ card.title }}">
+        </div>
+
+        <div class="sf-card-body">
+          <h4 class="sf-card-title">
+            {{ card.title }}
+            {% if card.price_label %}
+            <span class="sf-card-price">{{ card.price_label }}</span>
+            {% endif %}
+          </h4>
+
+          {% if card.description %}
+          <p class="sf-card-text">{{ card.description }}</p>
+          {% endif %}
+
+          {% if card.buy_url %}
+          <a href="{{ card.buy_url }}" class="btn btn-sm btn-primary" target="_blank" rel="noopener">
+            Buy now
+          </a>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     <p class="text-muted sf-preview-url">
       Customers will see this page at
       <a href="{{ public_url }}">{{ public_url }}</a>.
@@ -87,7 +120,58 @@
 
         {{ form.logo }}
       </div>
+      <h3 class="storefront-section-heading mt-4">Featured digital cards</h3>
+      <p class="text-muted">
+        Add up to three MintKit cards to highlight on your storefront.
+        Paste the <code>thumbnail.webp</code> image URL and the link customers should use to buy.
+      </p>
 
+      <div class="sf-card-formset">
+        {{ card_formset.management_form }}
+
+        {% for card_form in card_formset %}
+        <div class="sf-card-form">
+          <h4 class="sf-card-form-title">Card {{ forloop.counter }}</h4>
+
+          <div class="form-row">
+            <label for="{{ card_form.title.id_for_label }}">Card title</label>
+            {{ card_form.title }}
+          </div>
+
+          <div class="form-row sf-card-two-col">
+            <div>
+              <label for="{{ card_form.price_label.id_for_label }}">Price label (optional)</label>
+              {{ card_form.price_label }}
+            </div>
+            <div>
+              <label for="{{ card_form.buy_url.id_for_label }}">Buy / details link</label>
+              {{ card_form.buy_url }}
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="{{ card_form.image_url.id_for_label }}">Thumbnail image URL</label>
+            {{ card_form.image_url }}
+            <p class="text-muted small">
+              Example: <code>https://.../Test123/.../thumbnail.webp</code>
+            </p>
+          </div>
+
+          <div class="form-row">
+            <label for="{{ card_form.description.id_for_label }}">Short description (optional)</label>
+            {{ card_form.description }}
+          </div>
+
+          {% if card_form.DELETE %}
+          <div class="form-row sf-card-delete-row">
+            <label class="checkbox-inline">
+              {{ card_form.DELETE }} Remove this card
+            </label>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
       <div class="sf-form-row">
         <label for="{{ form.headline.id_for_label }}">Storefront headline:</label>
         {{ form.headline }}

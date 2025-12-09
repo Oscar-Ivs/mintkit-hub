@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import StorefrontForm
+from .forms import StorefrontForm, StorefrontCardFormSet
 from .models import Storefront
 
 
@@ -17,30 +17,52 @@ from .models import Storefront
 
 @login_required
 def my_storefront(request):
-    """Create or edit the logged-in user's storefront."""
+    """
+    Let the logged-in business owner manage their storefront,
+    plus up to three manually linked MintKit cards.
+    """
+
+    # Ensure the user has a storefront row
     profile = request.user.profile
-    storefront, created = Storefront.objects.get_or_create(profile=profile)
+    storefront, created = Storefront.objects.get_or_create(
+        profile=profile,
+        defaults={
+            "headline": f"{request.user.username}'s storefront",
+            "description": "",
+            "contact_details": profile.contact_email or "",
+            "is_active": False,
+        },
+    )
 
     if request.method == "POST":
         form = StorefrontForm(request.POST, request.FILES, instance=storefront)
-        if form.is_valid():
+        card_formset = StorefrontCardFormSet(
+            request.POST,
+            instance=storefront,
+            prefix="cards",
+        )
+
+        if form.is_valid() and card_formset.is_valid():
             form.save()
+            card_formset.save()
             messages.success(request, "Storefront updated.")
             return redirect("my_storefront")
     else:
         form = StorefrontForm(instance=storefront)
+        card_formset = StorefrontCardFormSet(
+            instance=storefront,
+            prefix="cards",
+        )
 
     public_url = request.build_absolute_uri(storefront.get_absolute_url())
 
-    return render(
-        request,
-        "storefronts/my_storefront.html",
-        {
-            "storefront": storefront,
-            "form": form,
-            "public_url": public_url,
-        },
-    )
+    context = {
+        "storefront": storefront,
+        "form": form,
+        "card_formset": card_formset,
+        "public_url": public_url,
+    }
+    return render(request, "storefronts/my_storefront.html", context)
 
 
 def explore_storefronts(request):

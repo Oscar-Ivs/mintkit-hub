@@ -1,7 +1,8 @@
 # storefronts/forms.py
 from django import forms
+from django.forms import inlineformset_factory
 
-from .models import Storefront
+from .models import Storefront, StorefrontCard
 
 
 class StorefrontForm(forms.ModelForm):
@@ -70,3 +71,29 @@ class StorefrontForm(forms.ModelForm):
             "is_active": "Tick this when you’re ready for customers to see your page.",
             "logo": "Upload a logo that appears above the preview and on your public page.",
         }
+
+
+class StorefrontCardForm(forms.ModelForm):
+    class Meta:
+        model = StorefrontCard
+        fields = ["title", "price_label", "image_url", "buy_url", "description"]
+        labels = {
+            "title": "Card title",
+            "price_label": "Price label (optional)",
+            "image_url": "Thumbnail image URL",
+            "buy_url": "Buy / details link",
+            "description": "Short description (optional)",
+        }
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+StorefrontCardFormSet = inlineformset_factory(
+    Storefront,
+    StorefrontCard,
+    form=StorefrontCardForm,
+    extra=3,        # always show up to 3 slots
+    max_num=3,
+    can_delete=True,
+)
