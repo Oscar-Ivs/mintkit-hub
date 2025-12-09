@@ -23,8 +23,7 @@ class StorefrontForm(forms.ModelForm):
 
     class Meta:
         model = Storefront
-        # Adjust this list if your model has slightly different fields,
-        # but keep "logo" in here so the widget override is used.
+        # Keep "logo" here so the custom widget above is used.
         fields = [
             "headline",
             "description",
@@ -36,7 +35,7 @@ class StorefrontForm(forms.ModelForm):
             "headline": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "e.g. MintKit – create digital cards in seconds",
+                    "placeholder": "e.g. MintKit - create digital cards in seconds",
                 }
             ),
             "description": forms.Textarea(
@@ -68,12 +67,19 @@ class StorefrontForm(forms.ModelForm):
             "headline": "Shown as the main title on your public storefront.",
             "description": "Appears as the main body text on your storefront page.",
             "contact_details": "These details help customers contact or find you.",
-            "is_active": "Tick this when you’re ready for customers to see your page.",
+            "is_active": "Tick this when you're ready for customers to see your page.",
             "logo": "Upload a logo that appears above the preview and on your public page.",
         }
 
 
 class StorefrontCardForm(forms.ModelForm):
+    """
+    Single card inside the inline formset.
+
+    Image URL + buy URL are encouraged but treated as optional,
+    so a card can be saved with just a title if needed.
+    """
+
     class Meta:
         model = StorefrontCard
         fields = ["title", "price_label", "image_url", "buy_url", "description"]
@@ -88,12 +94,18 @@ class StorefrontCardForm(forms.ModelForm):
             "description": forms.Textarea(attrs={"rows": 3}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Allow cards with just a title; URLs are optional here.
+        self.fields["image_url"].required = False
+        self.fields["buy_url"].required = False
+
 
 StorefrontCardFormSet = inlineformset_factory(
     Storefront,
     StorefrontCard,
     form=StorefrontCardForm,
-    extra=1,        # show only ONE blank card by default
-    max_num=3,      # limit to THREE cards total
+    extra=3,        # show THREE card slots (Card 1–3) by default
+    max_num=3,      # and never more than three
     can_delete=True,
 )

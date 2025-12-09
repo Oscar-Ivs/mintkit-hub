@@ -180,45 +180,18 @@
           <div class="sf-card-form">
             <h4 class="sf-card-form-title">Card {{ forloop.counter }}</h4>
 
+            {# Hidden primary key so Django can update existing cards correctly #}
+            {{ card_form.id }}
+
             <div class="form-row">
               <label for="{{ card_form.title.id_for_label }}">Card title</label>
               {{ card_form.title }}
             </div>
-
-            <div class="form-row sf-card-two-col">
-              <div>
-                <label for="{{ card_form.price_label.id_for_label }}">Price label (optional)</label>
-                {{ card_form.price_label }}
-              </div>
-              <div>
-                <label for="{{ card_form.buy_url.id_for_label }}">Buy / details link</label>
-                {{ card_form.buy_url }}
-              </div>
-            </div>
-
-            <div class="form-row">
-              <label for="{{ card_form.image_url.id_for_label }}">Thumbnail image URL</label>
-              {{ card_form.image_url }}
-              <p class="text-muted small">
-                Example: <code>https://.../thumbnail.webp</code>
-              </p>
-            </div>
-
-            <div class="form-row">
-              <label for="{{ card_form.description.id_for_label }}">Short description (optional)</label>
-              {{ card_form.description }}
-            </div>
-
-            {% if card_form.DELETE %}
-            <div class="form-row sf-card-delete-row">
-              <label class="checkbox-inline">
-                {{ card_form.DELETE }} Remove this card from your storefront
-              </label>
-            </div>
-            {% endif %}
+            ...
           </div>
           {% endfor %}
         </div>
+
       </details>
 
       {# Actions #}

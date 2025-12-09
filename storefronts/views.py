@@ -1,5 +1,4 @@
 # storefronts/views.py
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
@@ -32,14 +31,20 @@ def my_storefront(request):
         card_formset = StorefrontCardFormSet(
             request.POST,
             instance=storefront,
-            prefix="cards",  # keep a stable prefix for the inline formset
+            prefix="cards",  # keep prefix stable between GET and POST
         )
 
         if form.is_valid() and card_formset.is_valid():
             form.save()
-            card_formset.save()
+            card_formset.save()  # <- this actually creates/updates the cards
             messages.success(request, "Storefront updated.")
             return redirect("my_storefront")
+        else:
+            # Light message so you know *why* nothing changed
+            messages.error(
+                request,
+                "Please correct the errors below before saving your storefront.",
+            )
     else:
         form = StorefrontForm(instance=storefront)
         card_formset = StorefrontCardFormSet(
@@ -47,7 +52,7 @@ def my_storefront(request):
             prefix="cards",
         )
 
-    # Used in the left-hand preview: open the card section when cards exist
+    # Used in the left-hand preview: show card section only if any exist
     has_cards = storefront.cards.exists()
 
     # Full public URL, shown under the preview
