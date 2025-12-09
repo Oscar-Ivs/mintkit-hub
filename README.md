@@ -660,6 +660,13 @@ This section collects recurring issues encountered during development and deploy
 
   - _Fix_: Removed the `Clear` checkbox from the user-facing templates for both image fields and simplified the behaviour: uploading a new file replaces the current image; leaving the field empty keeps the existing image. All helper text referring to “ticking Clear” was removed to match the new behaviour. (If a hard delete is ever needed, it can be done via the admin interface.)
 
+**Storefront cards not saving or appearing in Preview/public page**
+
+  - _Cause_: The inline formset for featured storefront cards originally showed all three card slots at once and treated the image URL and buy URL as required. If a user typed only a card title in “Card 2” or “Card 3” and clicked “Save storefront”, Django considered the row “changed” but invalid, so the formset failed validation. The user only saw a generic red error banner and no cards appeared in the Preview or on the public storefront.
+
+  - _Fix_: Updated the storefront cards to use an inline formset with `extra=1` and `max_num=3`, so new slots appear only after the previous card is saved (Card 1 → Card 2 → Card 3). The `StorefrontCardForm` now treats `image_url` and `buy_url` as optional at the form level, allowing a card to be saved with just a title and optional text. Empty or unused card slots can be removed via the “Remove this card from your storefront” checkbox. Once saved, all active cards appear in both the dashboard Preview and on the public storefront page.
+
+
 
 
 </details>
