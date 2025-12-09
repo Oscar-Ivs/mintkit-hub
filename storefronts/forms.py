@@ -93,7 +93,7 @@ StorefrontCardFormSet = inlineformset_factory(
     Storefront,
     StorefrontCard,
     form=StorefrontCardForm,
-    extra=3,        # always show up to 3 slots
-    max_num=3,
+    extra=1,        # show only ONE blank card by default
+    max_num=3,      # limit to THREE cards total
     can_delete=True,
 )

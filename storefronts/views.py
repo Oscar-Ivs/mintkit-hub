@@ -54,6 +54,8 @@ def my_storefront(request):
             prefix="cards",
         )
 
+    has_cards = storefront.cards.exists()
+
     public_url = request.build_absolute_uri(storefront.get_absolute_url())
 
     context = {
@@ -61,6 +63,7 @@ def my_storefront(request):
         "form": form,
         "card_formset": card_formset,
         "public_url": public_url,
+        "has_cards": has_cards, 
     }
     return render(request, "storefronts/my_storefront.html", context)
 

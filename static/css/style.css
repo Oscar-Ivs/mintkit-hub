@@ -727,3 +727,21 @@ ul.messages li.danger {
 .sf-card-delete-row {
     margin-top: 0.5rem;
 }
+
+.sf-card-formset-wrapper {
+    margin-top: 1.5rem;
+    border-top: 1px solid #e1e6f2;
+    padding-top: 1rem;
+}
+
+.sf-card-summary {
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    margin-bottom: 0.5rem;
+}
+
+.sf-card-summary::-webkit-details-marker {
+    display: none;
+}
+
