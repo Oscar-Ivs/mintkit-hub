@@ -578,17 +578,22 @@ ul.messages li.danger {
     margin-top: 1rem;
 }
 
-/* Limit public storefront card size so a single card doesn't stretch too wide */
-.storefront-card-public-grid {
-    grid-template-columns: repeat(auto-fit, minmax(260px, 380px));
+/* Public card grid (and preview grid uses same look) */
+
+/* Cards stay between 220–330px wide and are centred.
+   - 1 card  -> nicely centred, not full-width
+   - 2–3 cards -> sit side by side at a comfortable size
+*/
+.storefront-card-public-grid,
+.storefront-card-preview-grid,
+.sf-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 330px));
     justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
 }
 
-.storefront-public-card-item {
-    max-width: 380px;
-    margin-left: auto;
-    margin-right: auto;
-}
 
 .storefront-public-card-item,
 .storefront-preview-card,
