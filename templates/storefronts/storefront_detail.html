@@ -1,38 +1,89 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="page-container storefront-public-page">
+<div class="page-container">
 
-  <section class="sf-panel sf-preview-card">
-    <h1 class="sf-title">
-      {{ storefront.headline|default:"My storefront" }}
-    </h1>
+  <div class="storefront-public-card">
 
-    {# Logo – limited by .storefront-public-logo in style.css #}
     {% if storefront.logo %}
       <div class="storefront-public-logo">
         <img
           src="{{ storefront.logo.url }}"
-          alt="{{ storefront.headline|default:'Storefront logo' }}"
+          alt="{{ storefront.headline|default:storefront.profile.business_name }}"
         >
       </div>
     {% endif %}
 
-    {# Main body text #}
+    <h1 class="storefront-public-title">
+      {{ storefront.headline|default:storefront.profile.business_name }}
+    </h1>
+
     {% if storefront.description %}
-      <p class="sf-body-text">
-        {{ storefront.description|linebreaksbr }}
+      <p class="storefront-public-body">
+        {{ storefront.description }}
       </p>
     {% endif %}
 
-    {# Contact section #}
     {% if storefront.contact_details %}
-      <h2 class="sf-subtitle">Contact</h2>
-      <p class="sf-body-text">
-        {{ storefront.contact_details|linebreaksbr }}
-      </p>
+      <section class="storefront-public-section">
+        <h2 class="storefront-public-section-title">Contact</h2>
+        <p class="storefront-public-body">
+          {{ storefront.contact_details|linebreaksbr }}
+        </p>
+      </section>
     {% endif %}
-  </section>
 
+    {% if storefront.cards.exists %}
+      <section class="storefront-public-section">
+        <h2 class="storefront-public-section-title">Featured digital cards</h2>
+
+        <div class="storefront-card-public-grid">
+          {% for card in storefront.cards.all %}
+            <article class="storefront-public-card-item">
+              {% if card.thumbnail_url %}
+                <img
+                  src="{{ card.thumbnail_url }}"
+                  alt="{{ card.title|default:'Card ' }}{% if not card.title %}{{ forloop.counter }}{% endif %}"
+                  class="storefront-public-card-image"
+                >
+              {% endif %}
+
+              <h3 class="storefront-public-card-title">
+                {% if card.title %}
+                  {{ card.title }}
+                {% else %}
+                  Card {{ forloop.counter }}
+                {% endif %}
+              </h3>
+
+              {% if card.price_label %}
+                <p class="storefront-public-card-price">
+                  {{ card.price_label }}
+                </p>
+              {% endif %}
+
+              {% if card.short_description %}
+                <p class="storefront-public-card-text">
+                  {{ card.short_description }}
+                </p>
+              {% endif %}
+
+              {% if card.buy_url %}
+                <a
+                  href="{{ card.buy_url }}"
+                  target="_blank"
+                  rel="noopener"
+                  class="btn btn-primary storefront-public-card-button"
+                >
+                  Buy / details
+                </a>
+              {% endif %}
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+  </div>
 </div>
 {% endblock %}

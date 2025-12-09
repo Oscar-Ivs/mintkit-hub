@@ -49,6 +49,51 @@
         {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
       </p>
     </div>
+    <!-- Featured cards preview -->
+    {% if storefront.cards.exists %}
+    <div class="storefront-preview-section">
+      <h3 class="storefront-preview-subheading">Featured digital cards</h3>
+
+      <div class="storefront-card-preview-grid">
+        {% for card in storefront.cards.all %}
+        <article class="storefront-preview-card">
+          {% if card.thumbnail_url %}
+          <img src="{{ card.thumbnail_url }}"
+            alt="{{ card.title|default:'Card ' }}{% if not card.title %}{{ forloop.counter }}{% endif %}"
+            class="storefront-preview-card-image">
+          {% endif %}
+
+          <h4 class="storefront-preview-card-title">
+            {% if card.title %}
+            {{ card.title }}
+            {% else %}
+            Card {{ forloop.counter }}
+            {% endif %}
+          </h4>
+
+          {% if card.price_label %}
+          <p class="storefront-preview-card-price">
+            {{ card.price_label }}
+          </p>
+          {% endif %}
+
+          {% if card.short_description %}
+          <p class="storefront-preview-card-text">
+            {{ card.short_description }}
+          </p>
+          {% endif %}
+
+          {% if card.buy_url %}
+          <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+            class="btn btn-secondary btn-sm storefront-preview-card-button">
+            Buy / details
+          </a>
+          {% endif %}
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
 
     {% if storefront.cards.exists %}
     <h3 class="storefront-section-heading">Featured digital cards</h3>
