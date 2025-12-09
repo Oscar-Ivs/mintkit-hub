@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
     {% if storefront.logo %}
       <div class="storefront-public-logo">
         <img src="{{ storefront.logo.url }}"
@@ -54,7 +53,7 @@
                   {% if card.buy_url %}
                     <div class="sf-card-footer">
                       <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-                         class="btn btn-xs btn-primary">
+                        class="btn btn-xs btn-primary storefront-public-card-button">
                         Buy now
                       </a>
                     </div>
@@ -66,5 +65,4 @@
         </section>
       {% endif %}
     {% endwith %}
-
 {% endblock %}

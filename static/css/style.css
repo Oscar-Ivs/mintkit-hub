@@ -650,13 +650,6 @@ ul.messages li.danger {
     font-size: 0.9rem;
     margin-bottom: 0.75rem;
 }
-
-.storefront-public-card-button,
-.storefront-preview-card-button {
-    font-size: 0.9rem;
-    padding: 0.35rem 0.9rem;
-}
-
 /* Section heading used above card grids */
 .storefront-section-heading {
     font-size: 1rem;
@@ -702,4 +695,21 @@ ul.messages li.danger {
 
 .sf-card-delete-row {
     margin-top: 0.5rem;
+}
+
+/* Extra room before Save/Cancel on My storefront form */
+.sf-panel form .form-actions {
+    margin-top: 1.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e1e6f2;
+}
+
+/* Highlight the public storefront toggle block */
+.sf-form-row-public {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-top: 1px solid #e1e6f2;
+    border-bottom: 1px solid #e1e6f2;
 }

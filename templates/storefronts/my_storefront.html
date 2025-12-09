@@ -74,10 +74,12 @@
         {% endif %}
 
         {% if card.buy_url %}
-        <a href="{{ card.buy_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-primary">
+        <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+          class="btn btn-sm btn-primary storefront-preview-card-button">
           Buy now
         </a>
         {% endif %}
+
       </article>
       {% endfor %}
     </div>
@@ -147,9 +149,9 @@
           These details help customers contact or find you.
         </div>
       </div>
-
+      
       {# Public toggle #}
-      <div class="sf-form-row">
+      <div class="sf-form-row sf-form-row-public">
         <div class="sf-form-inline">
           <label class="sf-checkbox-label">
             {{ form.is_active }}
@@ -160,6 +162,7 @@
           Tick this when you're ready for customers to see your page (and list it in Explore).
         </div>
       </div>
+
 
       {# ========= Featured cards - collapsible formset ========= #}
       <details class="sf-card-formset-wrapper" {% if has_cards %}open{% endif %}>
