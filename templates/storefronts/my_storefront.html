@@ -187,7 +187,33 @@
               <label for="{{ card_form.title.id_for_label }}">Card title</label>
               {{ card_form.title }}
             </div>
-            ...
+
+            <div class="form-row">
+              <label for="{{ card_form.price_label.id_for_label }}">Price label (optional)</label>
+              {{ card_form.price_label }}
+            </div>
+
+            <div class="form-row">
+              <label for="{{ card_form.buy_url.id_for_label }}">Buy / details link</label>
+              {{ card_form.buy_url }}
+            </div>
+
+            <div class="form-row">
+              <label for="{{ card_form.image_url.id_for_label }}">Thumbnail image URL</label>
+              {{ card_form.image_url }}
+            </div>
+
+            <div class="form-row">
+              <label for="{{ card_form.description.id_for_label }}">Short description (optional)</label>
+              {{ card_form.description }}
+            </div>
+
+            <div class="form-row form-row-checkbox">
+              <label>
+                {{ card_form.DELETE }}
+                Remove this card from your storefront
+              </label>
+            </div>
           </div>
           {% endfor %}
         </div>

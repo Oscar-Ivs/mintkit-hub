@@ -578,6 +578,18 @@ ul.messages li.danger {
     margin-top: 1rem;
 }
 
+/* Limit public storefront card size so a single card doesn't stretch too wide */
+.storefront-card-public-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 380px));
+    justify-content: center;
+}
+
+.storefront-public-card-item {
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .storefront-public-card-item,
 .storefront-preview-card,
 .sf-card {
