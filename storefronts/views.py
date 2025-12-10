@@ -35,16 +35,15 @@ def my_storefront(request):
         card_formset = StorefrontCardFormSet(
             request.POST,
             instance=storefront,
-            prefix="cards",  # keep prefix stable between GET and POST
+            prefix="cards",
         )
 
         if form.is_valid() and card_formset.is_valid():
             form.save()
-            card_formset.save()  # <- this actually creates/updates the cards
+            card_formset.save()
             messages.success(request, "Storefront updated.")
             return redirect("my_storefront")
         else:
-            # Light message so you know *why* nothing changed
             messages.error(
                 request,
                 "Please correct the errors below before saving your storefront.",
@@ -56,10 +55,7 @@ def my_storefront(request):
             prefix="cards",
         )
 
-    # Used in the left-hand preview: show card section only if any exist
     has_cards = storefront.cards.exists()
-
-    # Full public URL, shown under the preview
     public_url = request.build_absolute_uri(storefront.get_absolute_url())
 
     context = {
@@ -80,6 +76,7 @@ def explore_storefronts(request):
     Supports:
       - view mode: grid or list (remembered in the session)
       - sorting: featured (default), name, newest (also remembered)
+      - basic filtering by business category and region
     """
 
     # ----- View mode (grid / list), remembered per-session -----
@@ -91,12 +88,11 @@ def explore_storefronts(request):
         request.session["explore_view_mode"] = view_mode
     else:
         view_mode = stored_view
-        # normalise junk values in the session if any
         if view_mode not in ("list", "grid"):
             view_mode = "list"
             request.session["explore_view_mode"] = view_mode
 
-    # ----- Sort option, also remembered per-session -----
+    # ----- Sort option, remembered per-session -----
     stored_sort = request.session.get("explore_sort", "featured")
     requested_sort = request.GET.get("sort")
 
@@ -109,10 +105,19 @@ def explore_storefronts(request):
             sort = "featured"
             request.session["explore_sort"] = sort
 
-    # Only storefronts that are marked as active/public
+    # ----- Filters: category & region -----
+    category = request.GET.get("category", "all")
+    region = request.GET.get("region", "all")
+
     queryset = Storefront.objects.filter(is_active=True)
 
-    # Apply ordering based on `sort`
+    if category != "all" and category:
+        queryset = queryset.filter(business_category=category)
+
+    if region != "all" and region:
+        queryset = queryset.filter(region=region)
+
+    # Apply ordering
     if sort == "name":
         queryset = queryset.order_by("headline", "id")
         sort_label = "Name A-Z"
@@ -120,7 +125,6 @@ def explore_storefronts(request):
         queryset = queryset.order_by("-id")
         sort_label = "Newest first"
     else:
-        # “Featured” – currently same as newest, but easy to change later
         sort = "featured"
         queryset = queryset.order_by("-id")
         sort_label = "Featured"
@@ -132,6 +136,10 @@ def explore_storefronts(request):
         "view_mode": view_mode,
         "sort": sort,
         "sort_label": sort_label,
+        "selected_category": category,
+        "selected_region": region,
+        "category_choices": Storefront.BUSINESS_CATEGORY_CHOICES,
+        "region_choices": Storefront.REGION_CHOICES,
     }
     return render(request, "storefronts/explore_storefronts.html", context)
 

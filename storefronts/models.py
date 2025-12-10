@@ -10,13 +10,18 @@ class Storefront(models.Model):
     """
     Public storefront for a business.
 
-    Linked 1:1 to a Profile. Stores simple page content plus a dedicated logo.
+    Linked 1:1 to a Profile. Stores simple page content plus a dedicated logo
+    and basic categorisation so we can show it on the Explore page.
     """
+
+    # Core linkage
     profile = models.OneToOneField(
         Profile,
         on_delete=models.CASCADE,
         related_name="storefront",
     )
+
+    # Basic content
     headline = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     contact_details = models.TextField(blank=True)
@@ -29,7 +34,50 @@ class Storefront(models.Model):
         help_text="Brand logo shown at the top of your storefront.",
     )
 
-    is_active = models.BooleanField(default=False)
+    # Visibility
+    is_active = models.BooleanField(
+        default=False,
+        help_text="If ticked, this storefront can appear in Explore.",
+    )
+
+    # Simple business categorisation for Explore filtering
+    BUSINESS_CATEGORY_CHOICES = [
+        ("beauty_wellness", "Beauty & wellness"),
+        ("food_drink", "Food & drink"),
+        ("retail", "Retail & shops"),
+        ("events_tickets", "Events & tickets"),
+        ("services", "Professional services"),
+        ("education", "Courses & education"),
+        ("sports_fitness", "Sports & fitness"),
+        ("digital_products", "Digital products & subscriptions"),
+        ("charity", "Charities & causes"),
+        ("other", "Other"),
+    ]
+    business_category = models.CharField(
+        max_length=50,
+        blank=True,
+        choices=BUSINESS_CATEGORY_CHOICES,
+        help_text="Used to group storefronts in Explore.",
+    )
+
+    REGION_CHOICES = [
+        ("online", "Online / remote"),
+        ("uk", "United Kingdom"),
+        ("eu", "Europe"),
+        ("us", "United States"),
+        ("africa", "Africa"),
+        ("asia", "Asia"),
+        ("oceania", "Oceania / Australia"),
+        ("other", "Other / not listed"),
+    ]
+    region = models.CharField(
+        max_length=50,
+        blank=True,
+        choices=REGION_CHOICES,
+        help_text="Where your business mainly operates.",
+    )
+
+
     slug = models.SlugField(unique=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -68,11 +116,12 @@ class Storefront(models.Model):
 class StorefrontCard(models.Model):
     """
     A manually-linked MintKit card shown on the storefront.
+
     For now everything is entered by hand; later we can sync with the MintKit app.
     """
 
     storefront = models.ForeignKey(
-        "Storefront",
+        Storefront,
         on_delete=models.CASCADE,
         related_name="cards",
     )

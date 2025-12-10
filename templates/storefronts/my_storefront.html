@@ -96,9 +96,39 @@
   {# ================= RIGHT: EDIT FORM ================= #}
   <section class="sf-panel">
     <h2>Edit storefront details</h2>
+
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {{ form.non_field_errors }}
+
+      {# Category + region row #}
+      <div class="form-row storefront-form-row">
+        <div class="form-group storefront-form-group">
+          <label for="{{ form.business_category.id_for_label }}">
+            Business Category <span class="text-danger">*</span>
+          </label>
+          {{ form.business_category }}
+          {% if form.business_category.help_text %}
+          <div class="sf-form-help">
+            {{ form.business_category.help_text }}
+          </div>
+          {% endif %}
+          {{ form.business_category.errors }}
+        </div>
+
+        <div class="form-group storefront-form-group">
+          <label for="{{ form.region.id_for_label }}">
+            Region <span class="text-danger">*</span>
+          </label>
+          {{ form.region }}
+          {% if form.region.help_text %}
+          <div class="sf-form-help">
+            {{ form.region.help_text }}
+          </div>
+          {% endif %}
+          {{ form.region.errors }}
+        </div>
+      </div>
 
       {# Logo upload #}
       <div class="sf-form-row sf-logo-row">
@@ -149,7 +179,7 @@
           These details help customers contact or find you.
         </div>
       </div>
-      
+
       {# Public toggle #}
       <div class="sf-form-row sf-form-row-public">
         <div class="sf-form-inline">
@@ -163,8 +193,8 @@
         </div>
       </div>
 
-
       {# ========= Featured cards - collapsible formset ========= #}
+      {{ card_formset.management_form }}
       <details class="sf-card-formset-wrapper" {% if has_cards %}open{% endif %}>
         <summary class="sf-card-summary">
           Featured digital cards (optional)
@@ -177,13 +207,10 @@
         </p>
 
         <div class="sf-card-formset">
-          {{ card_formset.management_form }}
-
           {% for card_form in card_formset %}
           <div class="sf-card-form">
             <h4 class="sf-card-form-title">Card {{ forloop.counter }}</h4>
 
-            {# Hidden primary key so Django can update existing cards correctly #}
             {{ card_form.id }}
 
             <div class="form-row">
@@ -220,7 +247,6 @@
           </div>
           {% endfor %}
         </div>
-
       </details>
 
       {# Actions #}
@@ -230,6 +256,4 @@
       </div>
     </form>
   </section>
-</div>
-
-{% endblock %}
+  {% endblock %}

@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<p class="back-link mb-3">
+  <a href="{% url 'explore_storefronts' %}">&larr; Back to Explore</a>
+</p>
+
     {% if storefront.logo %}
       <div class="storefront-public-logo">
         <img src="{{ storefront.logo.url }}"
