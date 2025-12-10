@@ -666,6 +666,16 @@ This section collects recurring issues encountered during development and deploy
 
   - _Fix_: Updated the storefront cards to use an inline formset with `extra=1` and `max_num=3`, so new slots appear only after the previous card is saved (Card 1 → Card 2 → Card 3). The `StorefrontCardForm` now treats `image_url` and `buy_url` as optional at the form level, allowing a card to be saved with just a title and optional text. Empty or unused card slots can be removed via the “Remove this card from your storefront” checkbox. Once saved, all active cards appear in both the dashboard Preview and on the public storefront page.
 
+**Explore page crashes with `no such column: storefronts_storefront.business_category`**
+
+  - _Cause_: New fields (`business_category` and `region`) were added to the `Storefront` model to support Explore filters, but their database migrations weren’t applied yet. Django tried to query the new columns in `explore_storefronts`, `my_storefront` and the dashboard views, but the SQLite table still had the old schema.
+
+  - _Fix_: Generated and applied a dedicated migration for the `storefronts` app:
+
+  ```bash
+  python manage.py makemigrations storefronts
+  python manage.py migrate
+  ```
 
 
 
