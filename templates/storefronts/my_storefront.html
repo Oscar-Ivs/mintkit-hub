@@ -129,7 +129,7 @@
           {{ form.region.errors }}
         </div>
       </div>
-
+      <hr class="sf-form-divider">
       {# Logo upload #}
       <div class="sf-form-row sf-logo-row">
         <label for="{{ form.logo.id_for_label }}">Storefront logo:</label>
@@ -195,7 +195,7 @@
 
       {# ========= Featured cards - collapsible formset ========= #}
       {{ card_formset.management_form }}
-      <details class="sf-card-formset-wrapper" {% if has_cards %}open{% endif %}>
+      <details class="sf-card-formset-wrapper">
         <summary class="sf-card-summary">
           Featured digital cards (optional)
         </summary>

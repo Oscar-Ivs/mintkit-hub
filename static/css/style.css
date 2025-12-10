@@ -912,3 +912,10 @@ ul.messages li.danger {
         max-width: 260px;
     }
 }
+
+/* Subtle divider line for form sections */
+.sf-form-divider {
+  border: 0;
+  border-top: 1px solid #e0e4ea; /* soft grey */
+  margin: 1.25rem 0;             /* breathing room */
+}
