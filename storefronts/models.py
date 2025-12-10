@@ -1,6 +1,7 @@
 # storefronts/models.py
 from django.db import models
 from django.urls import reverse
+from django.utils.text import slugify
 
 from accounts.models import Profile
 
@@ -20,7 +21,7 @@ class Storefront(models.Model):
     description = models.TextField(blank=True)
     contact_details = models.TextField(blank=True)
 
-    # NEW: dedicated storefront logo
+    # Dedicated storefront logo
     logo = models.ImageField(
         upload_to="storefront_logos/",
         blank=True,
@@ -34,12 +35,35 @@ class Storefront(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        """
+        Ensure each storefront has a unique slug based on the headline or username.
+
+        This runs only when slug is empty, so existing slugs are not changed.
+        """
+        if not self.slug:
+            # Base slug from headline, otherwise username, otherwise "storefront"
+            base = slugify(self.headline or self.profile.user.username or "storefront")
+            if not base:
+                base = "storefront"
+
+            candidate = base
+            counter = 1
+            # Ensure uniqueness
+            while Storefront.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
+                candidate = f"{base}-{counter}"
+                counter += 1
+
+            self.slug = candidate
+
+        super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse("storefront_detail", args=[self.slug])
 
     def __str__(self):
         return self.headline or f"{self.profile.user.username}'s storefront"
-    
+
 
 class StorefrontCard(models.Model):
     """
@@ -83,4 +107,3 @@ class StorefrontCard(models.Model):
 
     def __str__(self):
         return self.title or f"Card {self.pk}"
-

@@ -26,6 +26,10 @@ def my_storefront(request):
         },
     )
 
+    # Backfill slug if it is missing (older rows or freshly created without slug)
+    if not storefront.slug:
+        storefront.save()
+
     if request.method == "POST":
         form = StorefrontForm(request.POST, request.FILES, instance=storefront)
         card_formset = StorefrontCardFormSet(
