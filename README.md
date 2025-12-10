@@ -678,6 +678,11 @@ This section collects recurring issues encountered during development and deploy
   ```
 
 
+**New storefronts crashing with Reverse for 'storefront_detail' with arguments '('',)' not found**
+
+  - _Cause_: The Storefront model uses a slug field and get_absolute_url for its public URL. For some older or freshly-created rows, slug could be blank. When the dashboard or My storefront view tried to build the public URL, Django attempted to reverse storefront_detail with an empty slug (''), which raised NoReverseMatch.
+
+  - _Fix_: Updated the Storefront.save() method so that it always generates a unique slug if one is missing, based on the storefront headline or the profile username. The my_storefront view now also calls storefront.save() whenever it detects a missing slug. This backfills slugs for existing rows and prevents NoReverseMatch errors for new users.
 
 </details>
 
