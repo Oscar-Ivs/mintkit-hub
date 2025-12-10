@@ -70,14 +70,47 @@ def my_storefront(request):
 
 def explore_storefronts(request):
     """
-    Show only storefronts that chose to be listed publicly.
+    Public “Explore” page that lists all storefronts which have been
+    marked as public.
+
+    Supports:
+      - view mode: grid (default) or list
+      - sorting: featured (default), name, newest
     """
-    storefronts = Storefront.objects.filter(is_active=True).order_by("headline")
-    return render(
-        request,
-        "storefronts/explore_storefronts.html",
-        {"storefronts": storefronts},
-    )
+
+    # View mode toggle (grid / list)
+    view_mode = request.GET.get("view", "grid")
+    if view_mode not in ("grid", "list"):
+        view_mode = "grid"
+
+    # Sorting
+    sort = request.GET.get("sort", "featured")
+
+    # Only storefronts that are marked as active/public
+    queryset = Storefront.objects.filter(is_active=True)
+
+    if sort == "name":
+        queryset = queryset.order_by("headline", "id")
+        sort_label = "Name A–Z"
+    elif sort == "newest":
+        queryset = queryset.order_by("-id")
+        sort_label = "Newest first"
+    else:
+        # “Featured” – for now this is just newest first, but later
+        # we could plug in a real featured / curated ordering.
+        sort = "featured"
+        queryset = queryset.order_by("-id")
+        sort_label = "Featured"
+
+    storefronts = list(queryset)
+
+    context = {
+        "storefronts": storefronts,
+        "view_mode": view_mode,
+        "sort": sort,
+        "sort_label": sort_label,
+    }
+    return render(request, "storefronts/explore_storefronts.html", context)
 
 
 def storefront_detail(request, slug):

@@ -1,40 +1,138 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Explore storefronts</h1>
-  <p>
-    Browse public MintKit storefronts. These businesses have chosen to make
-    their page visible to everyone.
-  </p>
+<div class="page-container">
 
-  {% if storefronts %}
-    <div class="storefront-grid">
-      {% for sf in storefronts %}
-        <div class="storefront-card">
-          <h2>
-            <a href="{% url 'storefront_detail' sf.slug %}">
-              {{ sf.headline }}
-            </a>
-          </h2>
-
-          <p class="storefront-owner">
-            {{ sf.profile.business_name|default:sf.profile.user.username }}
-          </p>
-
-          <p class="storefront-description">
-            {{ sf.description|truncatewords:25 }}
-          </p>
-
-          <p>
-            <a href="{% url 'storefront_detail' sf.slug %}">
-              View storefront →
-            </a>
-          </p>
+    <div class="explore-header">
+        <div>
+            <h1 class="explore-title">Explore storefronts</h1>
+            <p class="explore-subtitle">
+                Discover MintKit businesses that have published a public storefront.
+            </p>
         </div>
-      {% endfor %}
+        <p class="explore-count">
+            {{ storefronts|length }} storefront{{ storefronts|length|pluralize }} listed
+        </p>
     </div>
-  {% else %}
-    <p>No public storefronts yet. Once businesses activate
-       their pages, they will appear here.</p>
-  {% endif %}
+
+    <form method="get" class="explore-filters">
+        <div class="explore-filters-left">
+            <div class="explore-view-toggle" aria-label="Toggle view mode">
+                {# keep the current sort when switching view #}
+                <a href="?view=grid&sort={{ sort }}"
+                   class="view-toggle-btn {% if view_mode == 'grid' %}is-active{% endif %}">
+                    Grid
+                </a>
+                <a href="?view=list&sort={{ sort }}"
+                   class="view-toggle-btn {% if view_mode == 'list' %}is-active{% endif %}">
+                    List
+                </a>
+            </div>
+        </div>
+
+        <div class="explore-filters-right">
+            <label for="sort" class="explore-sort-label">Sort by</label>
+            <input type="hidden" name="view" value="{{ view_mode }}">
+            <select name="sort" id="sort" class="explore-sort-select" onchange="this.form.submit()">
+                <option value="featured" {% if sort == "featured" %}selected{% endif %}>
+                    Featured (default)
+                </option>
+                <option value="name" {% if sort == "name" %}selected{% endif %}>
+                    Name A–Z
+                </option>
+                <option value="newest" {% if sort == "newest" %}selected{% endif %}>
+                    Newest first
+                </option>
+            </select>
+        </div>
+    </form>
+
+    {% if storefronts %}
+        {% if view_mode == "list" %}
+            {# ---------- LIST VIEW ---------- #}
+            <div class="explore-list">
+                {% for sf in storefronts %}
+                    <article class="explore-list-item">
+                        {% if sf.logo %}
+                            <div class="explore-list-logo">
+                                <a href="{% url 'storefront_detail' sf.slug %}">
+                                    <img src="{{ sf.logo.url }}"
+                                         alt="{{ sf.headline|default:'Storefront logo' }}">
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        <div class="explore-list-body">
+                            <h2 class="explore-list-title">
+                                <a href="{% url 'storefront_detail' sf.slug %}">
+                                    {{ sf.headline|default:"Untitled storefront" }}
+                                </a>
+                            </h2>
+
+                            {% if sf.description %}
+                                <p class="explore-list-desc">
+                                    {{ sf.description|truncatewords:32 }}
+                                </p>
+                            {% endif %}
+
+                            <div class="explore-list-meta">
+                                <span class="explore-meta-pill">
+                                    Owner: {{ sf.profile.user.username }}
+                                </span>
+                                {% if sf.contact_details %}
+                                    <span class="explore-meta-pill">
+                                        Contact details provided
+                                    </span>
+                                {% endif %}
+                                {# Later we can add: location, business type etc. #}
+                            </div>
+
+                            <a href="{% url 'storefront_detail' sf.slug %}"
+                               class="btn btn-primary storefront-card-button explore-list-cta">
+                                View storefront
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            {# ---------- GRID VIEW ---------- #}
+            <div class="explore-grid sf-card-grid">
+                {% for sf in storefronts %}
+                    <article class="sf-card">
+                        {% if sf.logo %}
+                            <a href="{% url 'storefront_detail' sf.slug %}"
+                               class="sf-card-image-wrap">
+                                <img src="{{ sf.logo.url }}"
+                                     alt="{{ sf.headline|default:'Storefront logo' }}">
+                            </a>
+                        {% endif %}
+
+                        <h2 class="sf-card-title">
+                            <span>{{ sf.headline|default:"Untitled storefront" }}</span>
+                        </h2>
+
+                        {% if sf.description %}
+                            <p class="sf-card-desc">
+                                {{ sf.description|truncatewords:24 }}
+                            </p>
+                        {% endif %}
+
+                        <a href="{% url 'storefront_detail' sf.slug %}"
+                           class="btn btn-primary storefront-card-button sf-card-button">
+                            View storefront
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="text-muted">
+            No public storefronts yet. Once businesses publish their storefront and
+            tick “Make my storefront public”, they'll appear here.
+        </p>
+    {% endif %}
+
+</div>
 {% endblock %}
