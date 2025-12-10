@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="page-container">
-
     <div class="explore-header">
         <div>
             <h1 class="explore-title">Explore storefronts</h1>
@@ -38,7 +36,7 @@
                     Featured (default)
                 </option>
                 <option value="name" {% if sort == "name" %}selected{% endif %}>
-                    Name A–Z
+                    Name A-Z
                 </option>
                 <option value="newest" {% if sort == "newest" %}selected{% endif %}>
                     Newest first
@@ -133,6 +131,4 @@
             tick “Make my storefront public”, they'll appear here.
         </p>
     {% endif %}
-
-</div>
 {% endblock %}
