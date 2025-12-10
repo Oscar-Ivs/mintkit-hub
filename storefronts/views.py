@@ -74,36 +74,41 @@ def explore_storefronts(request):
     marked as public.
 
     Supports:
-      - view mode: grid or list (list is the default)
-      - sorting: featured (default), name, newest
+      - view mode: grid or list (remembered in the session)
+      - sorting: featured (default), name, newest (also remembered)
     """
 
-    # --- View mode (list / grid) with session-based preference ---
-    default_view = "list"  # fallback if nothing stored
-
+    # ----- View mode (grid / list), remembered per-session -----
+    stored_view = request.session.get("explore_view_mode", "list")
     requested_view = request.GET.get("view")
-    if requested_view not in ("list", "grid", None):
-        requested_view = None
 
-    if requested_view is not None:
-        # User explicitly chose a view this request (via toggle or URL)
+    if requested_view in ("list", "grid"):
         view_mode = requested_view
+        request.session["explore_view_mode"] = view_mode
     else:
-        # No explicit choice -> fall back to last used mode or default
-        view_mode = request.session.get("explore_view_mode", default_view)
+        view_mode = stored_view
+        # normalise junk values in the session if any
+        if view_mode not in ("list", "grid"):
+            view_mode = "list"
+            request.session["explore_view_mode"] = view_mode
 
-    if view_mode not in ("list", "grid"):
-        view_mode = default_view
+    # ----- Sort option, also remembered per-session -----
+    stored_sort = request.session.get("explore_sort", "featured")
+    requested_sort = request.GET.get("sort")
 
-    # Persist the chosen mode so the next visit remembers it
-    request.session["explore_view_mode"] = view_mode
-
-    # --- Sorting ---
-    sort = request.GET.get("sort", "featured")
+    if requested_sort in ("featured", "name", "newest"):
+        sort = requested_sort
+        request.session["explore_sort"] = sort
+    else:
+        sort = stored_sort
+        if sort not in ("featured", "name", "newest"):
+            sort = "featured"
+            request.session["explore_sort"] = sort
 
     # Only storefronts that are marked as active/public
     queryset = Storefront.objects.filter(is_active=True)
 
+    # Apply ordering based on `sort`
     if sort == "name":
         queryset = queryset.order_by("headline", "id")
         sort_label = "Name A-Z"
@@ -111,7 +116,7 @@ def explore_storefronts(request):
         queryset = queryset.order_by("-id")
         sort_label = "Newest first"
     else:
-        # “Featured” – for now this is just newest first, but later
+        # “Featured” – currently same as newest, but easy to change later
         sort = "featured"
         queryset = queryset.order_by("-id")
         sort_label = "Featured"

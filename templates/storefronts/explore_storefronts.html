@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+
     <div class="explore-header">
         <div>
             <h1 class="explore-title">Explore storefronts</h1>
@@ -36,7 +37,7 @@
                     Featured (default)
                 </option>
                 <option value="name" {% if sort == "name" %}selected{% endif %}>
-                    Name A-Z
+                    Name A–Z
                 </option>
                 <option value="newest" {% if sort == "newest" %}selected{% endif %}>
                     Newest first
@@ -51,14 +52,26 @@
             <div class="explore-list">
                 {% for sf in storefronts %}
                     <article class="explore-list-item">
-                        {% if sf.logo %}
-                            <div class="explore-list-logo">
-                                <a href="{% url 'storefront_detail' sf.slug %}">
-                                    <img src="{{ sf.logo.url }}"
-                                         alt="{{ sf.headline|default:'Storefront logo' }}">
-                                </a>
-                            </div>
-                        {% endif %}
+                        <div class="explore-list-logo">
+                            {# Prefer profile image; fall back to storefront logo; then placeholder #}
+                            {% with profile=sf.profile %}
+                                {% if profile and profile.image %}
+                                    <a href="{% url 'storefront_detail' sf.slug %}">
+                                        <img src="{{ profile.image.url }}"
+                                             alt="{{ profile.business_name|default:sf.headline|default:profile.user.username }}">
+                                    </a>
+                                {% elif sf.logo %}
+                                    <a href="{% url 'storefront_detail' sf.slug %}">
+                                        <img src="{{ sf.logo.url }}"
+                                             alt="{{ sf.headline|default:'Storefront logo' }}">
+                                    </a>
+                                {% else %}
+                                    <div class="explore-logo-placeholder">
+                                        No image yet
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
 
                         <div class="explore-list-body">
                             <h2 class="explore-list-title">
@@ -99,13 +112,25 @@
             <div class="explore-grid sf-card-grid">
                 {% for sf in storefronts %}
                     <article class="sf-card">
-                        {% if sf.logo %}
-                            <a href="{% url 'storefront_detail' sf.slug %}"
-                               class="sf-card-image-wrap">
-                                <img src="{{ sf.logo.url }}"
-                                     alt="{{ sf.headline|default:'Storefront logo' }}">
-                            </a>
-                        {% endif %}
+                        <div class="sf-card-image-wrap">
+                            {% with profile=sf.profile %}
+                                {% if profile and profile.image %}
+                                    <a href="{% url 'storefront_detail' sf.slug %}">
+                                        <img src="{{ profile.image.url }}"
+                                             alt="{{ profile.business_name|default:sf.headline|default:profile.user.username }}">
+                                    </a>
+                                {% elif sf.logo %}
+                                    <a href="{% url 'storefront_detail' sf.slug %}">
+                                        <img src="{{ sf.logo.url }}"
+                                             alt="{{ sf.headline|default:'Storefront logo' }}">
+                                    </a>
+                                {% else %}
+                                    <div class="explore-logo-placeholder">
+                                        No image yet
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
 
                         <h2 class="sf-card-title">
                             <span>{{ sf.headline|default:"Untitled storefront" }}</span>
@@ -131,4 +156,5 @@
             tick “Make my storefront public”, they'll appear here.
         </p>
     {% endif %}
+
 {% endblock %}

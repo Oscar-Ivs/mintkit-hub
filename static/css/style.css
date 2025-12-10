@@ -867,6 +867,30 @@ ul.messages li.danger {
     margin-top: 0.3rem;
 }
 
+/* Logo in Explore list view */
+.explore-list-logo img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    display: block;
+    object-fit: contain;
+    background: #ffffff;
+}
+
+/* Shared placeholder for when no storefront logo is set */
+.explore-logo-placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    border: 1px dashed var(--mk-border-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    color: var(--mk-text-muted);
+    background: rgba(255, 255, 255, 0.7);
+}
+
 /* Explore – responsive tweaks */
 
 @media (max-width: 800px) {
