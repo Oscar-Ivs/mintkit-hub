@@ -1093,3 +1093,64 @@ ul.messages li.danger {
 .sf-layout-draggable:hover {
     outline-color: rgba(37, 99, 235, 0.85);
 }
+
+/* Storefront layout editor – text styling toolbar */
+.sf-layout-editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    font-size: 0.875rem;
+}
+
+.sf-layout-editor-toolbar label {
+    display: block;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.15rem;
+}
+
+.sf-layout-editor-toolbar select {
+    min-width: 8rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+}
+
+/* Small pill-style buttons */
+.sf-layout-editor-toolbar .sf-toolbar-button {
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid #cbd5f5;
+    background: #e5edff;
+    color: #1d4ed8;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.sf-layout-editor-toolbar .sf-toolbar-button[disabled] {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.sf-layout-editor-toolbar .sf-toolbar-button-danger {
+    border-color: #fecaca;
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Selected + hidden states for blocks inside the editor */
+.sf-layout-block--selected {
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.55);
+}
+
+.sf-layout-block--hidden {
+    opacity: 0.25;
+    filter: grayscale(0.6);
+}

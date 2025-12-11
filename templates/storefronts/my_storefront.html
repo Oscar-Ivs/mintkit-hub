@@ -80,7 +80,7 @@
 
         {% if card.buy_url %}
         <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-           class="btn btn-sm btn-primary storefront-preview-card-button">
+          class="btn btn-sm btn-primary storefront-preview-card-button">
           Buy now
         </a>
         {% endif %}
@@ -277,6 +277,45 @@
     </header>
 
     <div class="sf-layout-editor-body">
+      <div class="sf-layout-editor-toolbar">
+        <div class="sf-toolbar-group">
+          <label for="sf-font-family">Font</label>
+          <select id="sf-font-family">
+            <option value="">Default</option>
+            <option value="'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif">
+              Clean sans
+            </option>
+            <option value="'Times New Roman', Georgia, 'Times', serif">
+              Elegant serif
+            </option>
+            <option
+              value="'Courier New', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace">
+              Monospace
+            </option>
+          </select>
+        </div>
+
+        <div class="sf-toolbar-group">
+          <label for="sf-font-size">Size</label>
+          <select id="sf-font-size">
+            <option value="">Default</option>
+            <option value="14px">Small</option>
+            <option value="16px">Normal</option>
+            <option value="20px">Large</option>
+            <option value="24px">Extra large</option>
+          </select>
+        </div>
+
+        <div class="sf-toolbar-group" style="margin-left: auto;">
+          <button type="button" id="sf-hide-block" class="sf-toolbar-button sf-toolbar-button-danger" disabled>
+            Hide block
+          </button>
+          <button type="button" id="sf-reset-block" class="sf-toolbar-button" disabled>
+            Reset styles
+          </button>
+        </div>
+      </div>
+      <br>
       <div class="sf-layout-editor-canvas">
         <div class="sf-layout-editor-surface">
           {# We reuse the same content as the main preview; JS will turn these into draggable/resizable blocks. #}
@@ -325,7 +364,7 @@
 
                 {% if card.buy_url %}
                 <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-                   class="btn btn-sm btn-primary storefront-preview-card-button">
+                  class="btn btn-sm btn-primary storefront-preview-card-button">
                   Buy now
                 </a>
                 {% endif %}
@@ -338,13 +377,13 @@
       </div>
 
       <p class="sf-layout-editor-hint text-muted">
-        Draft layout editor – you can drag and resize the main blocks around here. Layout changes are not saved yet.
+        Draft layout editor - you can drag and resize the main blocks around here. Layout changes are not saved yet.
       </p>
     </div>
   </div>
 </div>
 
-{# ===== Layout editor styles (blocks + resize handle) – local to this template ===== #}
+{# ===== Layout editor styles (blocks + resize handle) - local to this template ===== #}
 <style>
   /* Layout editor blocks: draggable + resizable */
   .sf-layout-editor-overlay .sf-layout-block {
@@ -357,6 +396,12 @@
     box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
     cursor: grab;
     transition: box-shadow 0.12s ease, transform 0.12s ease;
+    max-width: 80%;
+    /* keep initial blocks from stretching too wide */
+    max-height: 360px;
+    /* cap initial height so we avoid giant blocks */
+    overflow: auto;
+    /* scroll inside the block if content is taller */
   }
 
   .sf-layout-editor-overlay .sf-layout-block-label {
@@ -469,10 +514,23 @@
               bottom: r.bottom
             };
           } else {
-            union.top = Math.min(union.top, r.top);
-            union.left = Math.min(union.left, r.left);
-            union.right = Math.max(union.right, r.right);
-            union.bottom = Math.max(union.bottom, r.bottom);
+            let width = union.right - union.left;
+            let height = union.bottom - union.top;
+            let top = union.top - canvasRect.top;
+            let left = union.left - canvasRect.left;
+
+            // So blocks don't start gigantic or way off-screen
+            const padding = 24;
+            const maxWidth = canvasRect.width - padding * 2;
+            const maxHeight = 360;
+
+            width = Math.min(width, maxWidth);
+            height = Math.min(height, maxHeight);
+
+            // Nudge inside the safe area
+            top = Math.max(padding, top);
+            left = Math.max(padding, left);
+
           }
         });
 
@@ -654,6 +712,105 @@
         closeEditor(event);
       }
     });
+  })();
+</script>
+<script>
+  (function () {
+    const overlay = document.getElementById("sf-layout-editor");
+    if (!overlay) return;
+
+    // All draggable / resizable blocks you already have
+    const blocks = Array.from(overlay.querySelectorAll(".sf-layout-block"));
+    if (!blocks.length) return;
+
+    const fontFamilySelect = document.getElementById("sf-font-family");
+    const fontSizeSelect = document.getElementById("sf-font-size");
+    const hideButton = document.getElementById("sf-hide-block");
+    const resetButton = document.getElementById("sf-reset-block");
+
+    if (!fontFamilySelect || !fontSizeSelect || !hideButton || !resetButton) {
+      return;
+    }
+
+    let currentBlock = null;
+
+    function updateToolbarFromBlock(block) {
+      if (!block) {
+        fontFamilySelect.value = "";
+        fontSizeSelect.value = "";
+        hideButton.disabled = true;
+        resetButton.disabled = true;
+        hideButton.textContent = "Hide block";
+        return;
+      }
+
+      fontFamilySelect.value = block.style.fontFamily || "";
+      fontSizeSelect.value = block.style.fontSize || "";
+      hideButton.disabled = false;
+      resetButton.disabled = false;
+      hideButton.textContent = block.classList.contains("sf-layout-block--hidden")
+        ? "Show block"
+        : "Hide block";
+    }
+
+    function selectBlock(block) {
+      if (currentBlock === block) return;
+
+      if (currentBlock) {
+        currentBlock.classList.remove("sf-layout-block--selected");
+      }
+
+      currentBlock = block || null;
+
+      if (currentBlock) {
+        currentBlock.classList.add("sf-layout-block--selected");
+      }
+
+      updateToolbarFromBlock(currentBlock);
+    }
+
+    // Select block on click (works alongside existing drag/resize code)
+    blocks.forEach(function (block) {
+      block.addEventListener("mousedown", function () {
+        selectBlock(block);
+      });
+    });
+
+    fontFamilySelect.addEventListener("change", function () {
+      if (!currentBlock) return;
+      const value = this.value || "";
+      currentBlock.style.fontFamily = value;
+    });
+
+    fontSizeSelect.addEventListener("change", function () {
+      if (!currentBlock) return;
+      const value = this.value || "";
+      currentBlock.style.fontSize = value;
+    });
+
+    hideButton.addEventListener("click", function () {
+      if (!currentBlock) return;
+
+      const isHidden = currentBlock.classList.toggle("sf-layout-block--hidden");
+      hideButton.textContent = isHidden ? "Show block" : "Hide block";
+    });
+
+    resetButton.addEventListener("click", function () {
+      if (!currentBlock) return;
+
+      currentBlock.style.fontFamily = "";
+      currentBlock.style.fontSize = "";
+      currentBlock.classList.remove("sf-layout-block--hidden");
+      updateToolbarFromBlock(currentBlock);
+    });
+
+    // When editor closes, clear selection so next open is clean
+    const closeBtn = document.getElementById("sf-close-layout-editor");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", function () {
+        selectBlock(null);
+      });
+    }
   })();
 </script>
 
