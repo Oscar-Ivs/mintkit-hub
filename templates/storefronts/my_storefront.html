@@ -33,71 +33,61 @@
       </button>
     </div>
 
-    {# Root wrapper we will clone into the layout editor #}
-    <div id="sf-preview-card" class="sf-preview-card storefront-preview-root">
-
-      <div class="sf-preview-logo storefront-public-logo">
+    <div class="sf-preview-card">
+      <div class="sf-preview-logo">
         {% if storefront.logo %}
         <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
         {% endif %}
       </div>
 
-      <div class="storefront-public-heading">
-        <h3 class="sf-preview-headline">
-          {{ storefront.headline|default:"Your storefront headline" }}
-        </h3>
-      </div>
+      <h3 class="sf-preview-headline">
+        {{ storefront.headline|default:"Your storefront headline" }}
+      </h3>
 
-      <div class="storefront-public-description">
-        <p class="sf-preview-body">
-          {{ storefront.description|default:"Add a short description of your service or products." }}
-        </p>
-      </div>
+      <p class="sf-preview-body">
+        {{ storefront.description|default:"Add a short description of your service or products." }}
+      </p>
 
-      <div class="storefront-public-contact">
-        <h4 class="sf-preview-section-title">Contact details</h4>
-        <p class="sf-preview-body">
-          {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
-        </p>
-      </div>
-
-      {# Featured cards - shown inside the preview root so the editor can move them as a block #}
-      {% if has_cards %}
-      <div class="storefront-public-featured">
-        <h3 class="storefront-section-heading">Featured digital cards</h3>
-
-        <div class="sf-card-grid">
-          {% for card in storefront.cards.all %}
-          <article class="sf-card">
-            {% if card.image_url %}
-            <div class="sf-card-image-wrap">
-              <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
-            </div>
-            {% endif %}
-
-            <h4 class="sf-card-title">
-              {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
-              {% if card.price_label %}
-              <span class="sf-card-price">{{ card.price_label }}</span>
-              {% endif %}
-            </h4>
-
-            {% if card.description %}
-            <p class="sf-card-text">{{ card.description }}</p>
-            {% endif %}
-
-            {% if card.buy_url %}
-            <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-               class="btn btn-sm btn-primary storefront-preview-card-button">
-              Buy now
-            </a>
-            {% endif %}
-          </article>
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
+      <h4 class="sf-preview-section-title">Contact details</h4>
+      <p class="sf-preview-body">
+        {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
+      </p>
     </div>
+
+    {# Featured cards - preview #}
+    {% if has_cards %}
+    <h3 class="storefront-section-heading">Featured digital cards</h3>
+
+    <div class="sf-card-grid">
+      {% for card in storefront.cards.all %}
+      <article class="sf-card">
+        {% if card.image_url %}
+        <div class="sf-card-image-wrap">
+          <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
+        </div>
+        {% endif %}
+
+        <h4 class="sf-card-title">
+          {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
+          {% if card.price_label %}
+          <span class="sf-card-price">{{ card.price_label }}</span>
+          {% endif %}
+        </h4>
+
+        {% if card.description %}
+        <p class="sf-card-text">{{ card.description }}</p>
+        {% endif %}
+
+        {% if card.buy_url %}
+        <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+           class="btn btn-sm btn-primary storefront-preview-card-button">
+          Buy now
+        </a>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
 
     <p class="text-muted sf-preview-url">
       Customers will see this page at
@@ -143,6 +133,7 @@
           {{ form.region.errors }}
         </div>
       </div>
+
       <hr class="sf-form-divider">
 
       {# Logo upload #}
@@ -286,8 +277,73 @@
 
     <div class="sf-layout-editor-body">
       <div class="sf-layout-editor-canvas">
-        {# JS will inject a cloned copy of the preview card here #}
-        <div class="sf-layout-editor-surface" id="sf-layout-editor-surface"></div>
+        <div class="sf-layout-editor-surface" id="sf-layout-surface">
+
+          {# Each main piece of content is a draggable block #}
+          <div class="sf-layout-block" data-block-id="headline">
+            <h3 class="sf-preview-headline">
+              {{ storefront.headline|default:"Your storefront headline" }}
+            </h3>
+          </div>
+
+          <div class="sf-layout-block" data-block-id="logo">
+            <div class="sf-preview-logo">
+              {% if storefront.logo %}
+              <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="sf-layout-block" data-block-id="description">
+            <p class="sf-preview-body">
+              {{ storefront.description|default:"Add a short description of your service or products." }}
+            </p>
+          </div>
+
+          <div class="sf-layout-block" data-block-id="contact">
+            <h4 class="sf-preview-section-title">Contact details</h4>
+            <p class="sf-preview-body">
+              {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
+            </p>
+          </div>
+
+          {% if has_cards %}
+          <div class="sf-layout-block" data-block-id="cards">
+            <h3 class="storefront-section-heading">Featured digital cards</h3>
+
+            <div class="sf-card-grid sf-card-grid--layout-editor">
+              {% for card in storefront.cards.all %}
+              <article class="sf-card">
+                {% if card.image_url %}
+                <div class="sf-card-image-wrap">
+                  <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
+                </div>
+                {% endif %}
+
+                <h4 class="sf-card-title">
+                  {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
+                  {% if card.price_label %}
+                  <span class="sf-card-price">{{ card.price_label }}</span>
+                  {% endif %}
+                </h4>
+
+                {% if card.description %}
+                <p class="sf-card-text">{{ card.description }}</p>
+                {% endif %}
+
+                {% if card.buy_url %}
+                <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+                   class="btn btn-sm btn-primary storefront-preview-card-button">
+                  Buy now
+                </a>
+                {% endif %}
+              </article>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
       </div>
 
       <p class="sf-layout-editor-hint text-muted">
@@ -297,75 +353,105 @@
   </div>
 </div>
 
-{# ========== Layout editor scripts (interact.js + wiring) ========== #}
-
-<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
-
 <script>
   (function () {
-    const openBtn  = document.getElementById("sf-open-layout-editor");
+    const openBtn = document.getElementById("sf-open-layout-editor");
     const closeBtn = document.getElementById("sf-close-layout-editor");
-    const overlay  = document.getElementById("sf-layout-editor");
-    const surface  = document.getElementById("sf-layout-editor-surface");
-    const preview  = document.getElementById("sf-preview-card");
+    const overlay = document.getElementById("sf-layout-editor");
+    const surface = document.getElementById("sf-layout-surface");
 
-    if (!openBtn || !overlay || !surface || !preview) {
+    if (!openBtn || !overlay || !surface) {
       return;
     }
 
-    function makeBlocksDraggable(cloneRoot) {
-      const blockSelectors = [
-        ".storefront-public-logo",
-        ".storefront-public-heading",
-        ".storefront-public-description",
-        ".storefront-public-contact",
-        ".storefront-public-featured"
-      ];
+    let editorInitialized = false;
 
-      blockSelectors.forEach(function (selector) {
-        const el = cloneRoot.querySelector(selector);
-        if (!el) return;
+    function initLayoutEditor() {
+      if (editorInitialized) return;
+      editorInitialized = true;
 
-        el.classList.add("sf-layout-draggable");
-        el.style.position = "relative";
-        el.style.touchAction = "none";
-        el.setAttribute("data-x", "0");
-        el.setAttribute("data-y", "0");
+      const surfaceRect = surface.getBoundingClientRect();
+      const surfaceLeft = surfaceRect.left;
+      const surfaceTop = surfaceRect.top;
+
+      const blocks = surface.querySelectorAll(".sf-layout-block");
+
+      blocks.forEach(function (block) {
+        const rect = block.getBoundingClientRect();
+
+        // Convert from normal flow into absolutely positioned blocks
+        const left = rect.left - surfaceLeft;
+        const top = rect.top - surfaceTop;
+
+        block.style.position = "absolute";
+        block.style.left = left + "px";
+        block.style.top = top + "px";
+        block.style.width = rect.width + "px";
+
+        makeBlockDraggable(block);
+      });
+    }
+
+    function makeBlockDraggable(block) {
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+      let originLeft = 0;
+      let originTop = 0;
+
+      block.addEventListener("mousedown", function (event) {
+        // Left mouse button only & ignore clicks on interactive elements
+        if (event.button !== 0) return;
+        if (event.target.closest("a, button, input, textarea, select")) return;
+
+        const surfaceRect = surface.getBoundingClientRect();
+        const rect = block.getBoundingClientRect();
+
+        isDragging = true;
+        startX = event.clientX;
+        startY = event.clientY;
+        originLeft = rect.left - surfaceRect.left;
+        originTop = rect.top - surfaceRect.top;
+
+        block.classList.add("is-dragging");
+        event.preventDefault();
       });
 
-      // Enable dragging for all draggable blocks in the editor
-      interact(".sf-layout-draggable").draggable({
-        listeners: {
-          move(event) {
-            const target = event.target;
-            const startX = parseFloat(target.getAttribute("data-x")) || 0;
-            const startY = parseFloat(target.getAttribute("data-y")) || 0;
+      document.addEventListener("mousemove", function (event) {
+        if (!isDragging) return;
 
-            const x = startX + event.dx;
-            const y = startY + event.dy;
+        const surfaceRect = surface.getBoundingClientRect();
+        const dx = event.clientX - startX;
+        const dy = event.clientY - startY;
 
-            target.style.transform = "translate(" + x + "px, " + y + "px)";
-            target.setAttribute("data-x", x);
-            target.setAttribute("data-y", y);
-          }
-        },
-        inertia: true
+        let newLeft = originLeft + dx;
+        let newTop = originTop + dy;
+
+        const maxLeft = surfaceRect.width - block.offsetWidth;
+        const maxTop = surfaceRect.height - block.offsetHeight;
+
+        if (newLeft < 0) newLeft = 0;
+        if (newTop < 0) newTop = 0;
+        if (newLeft > maxLeft) newLeft = maxLeft;
+        if (newTop > maxTop) newTop = maxTop;
+
+        block.style.left = newLeft + "px";
+        block.style.top = newTop + "px";
+      });
+
+      document.addEventListener("mouseup", function () {
+        if (!isDragging) return;
+        isDragging = false;
+        block.classList.remove("is-dragging");
       });
     }
 
     function openEditor(event) {
       event.preventDefault();
-
-      // Fresh clone of the preview each time
-      surface.innerHTML = "";
-      const clone = preview.cloneNode(true);
-      clone.id = "sf-preview-card-editor-clone";
-      surface.appendChild(clone);
-
-      makeBlocksDraggable(clone);
-
       overlay.classList.add("is-open");
-      overlay.setAttribute("aria-hidden", "false");
+
+      // Wait a tick so the browser can lay out the overlay before measuring
+      setTimeout(initLayoutEditor, 50);
     }
 
     function closeEditor(event) {
@@ -373,7 +459,6 @@
         event.preventDefault();
       }
       overlay.classList.remove("is-open");
-      overlay.setAttribute("aria-hidden", "true");
     }
 
     openBtn.addEventListener("click", openEditor);
@@ -382,7 +467,7 @@
       closeBtn.addEventListener("click", closeEditor);
     }
 
-    // Close when clicking on the dimmed outer area
+    // Close when clicking on the dimmed backdrop (but not the dialog)
     overlay.addEventListener("click", function (event) {
       if (event.target === overlay) {
         closeEditor(event);
