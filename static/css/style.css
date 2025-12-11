@@ -919,3 +919,115 @@ ul.messages li.danger {
   border-top: 1px solid #e0e4ea; /* soft grey */
   margin: 1.25rem 0;             /* breathing room */
 }
+
+/* =======  My Storefront – layout editor overlay ======== */
+
+/* Preview header with small "Edit layout" action */
+.sf-panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.sf-preview-edit-btn {
+    border: none;
+    background: transparent;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--mk-link);
+    cursor: pointer;
+}
+
+.sf-preview-edit-btn:hover,
+.sf-preview-edit-btn:focus {
+    color: var(--mk-link-hover);
+    text-decoration: underline;
+}
+
+/* Full-screen layout editor overlay */
+.sf-layout-editor-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: none;
+}
+
+.sf-layout-editor-overlay.is-open {
+    display: block;
+}
+
+.sf-layout-editor-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+}
+
+.sf-layout-editor-dialog {
+    position: relative;
+    max-width: 1100px;
+    margin: 3rem auto;
+    background: var(--mk-card-bg);
+    border-radius: 18px;
+    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.35);
+    padding: 1.5rem 1.75rem 1.75rem;
+}
+
+.sf-layout-editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sf-layout-editor-header h2 {
+    margin: 0;
+    font-size: 1.15rem;
+}
+
+.sf-layout-editor-close {
+    border: none;
+    background: transparent;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--mk-text-muted);
+}
+
+.sf-layout-editor-close:hover {
+    color: var(--mk-link-hover);
+}
+
+.sf-layout-editor-body {
+    background: #e4ecf7;
+    border-radius: 14px;
+    padding: 1.5rem;
+}
+
+.sf-layout-editor-canvas {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    padding: 1.5rem;
+    max-height: 70vh;
+    overflow: auto;
+}
+
+.sf-layout-editor-surface {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.sf-preview-card--editor {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.sf-layout-editor-hint {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+}

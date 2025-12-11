@@ -26,7 +26,12 @@
 <div class="sf-grid">
   {# ================= LEFT: PREVIEW ================= #}
   <section class="sf-panel sf-panel-preview">
-    <h2>Preview</h2>
+    <div class="sf-panel-heading">
+      <h2>Preview</h2>
+      <button type="button" class="sf-preview-edit-btn" id="sf-open-layout-editor">
+        Edit layout
+      </button>
+    </div>
 
     <div class="sf-preview-card">
       <div class="sf-preview-logo">
@@ -256,4 +261,128 @@
       </div>
     </form>
   </section>
-  {% endblock %}
+</div>
+
+{# ========== Full-screen layout editor overlay (Step 1 - static preview) ========== #}
+<div id="sf-layout-editor" class="sf-layout-editor-overlay" aria-hidden="true">
+  <div class="sf-layout-editor-backdrop"></div>
+  <div class="sf-layout-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="sf-layout-editor-title">
+    <header class="sf-layout-editor-header">
+      <h2 id="sf-layout-editor-title">Customize storefront layout</h2>
+      <button type="button" class="sf-layout-editor-close" id="sf-close-layout-editor" aria-label="Close layout editor">
+        &times;
+      </button>
+    </header>
+
+    <div class="sf-layout-editor-body">
+      <div class="sf-layout-editor-canvas">
+        <div class="sf-layout-editor-surface">
+
+          {# For now we simply reuse the same preview content in a larger canvas. #}
+          <div class="sf-preview-card sf-preview-card--editor">
+            <div class="sf-preview-logo">
+              {% if storefront.logo %}
+              <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
+              {% endif %}
+            </div>
+
+            <h3 class="sf-preview-headline">
+              {{ storefront.headline|default:"Your storefront headline" }}
+            </h3>
+
+            <p class="sf-preview-body">
+              {{ storefront.description|default:"Add a short description of your service or products." }}
+            </p>
+
+            <h4 class="sf-preview-section-title">Contact details</h4>
+            <p class="sf-preview-body">
+              {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
+            </p>
+
+            {% if has_cards %}
+            <h3 class="storefront-section-heading">Featured digital cards</h3>
+
+            <div class="sf-card-grid">
+              {% for card in storefront.cards.all %}
+              <article class="sf-card">
+                {% if card.image_url %}
+                <div class="sf-card-image-wrap">
+                  <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
+                </div>
+                {% endif %}
+
+                <h4 class="sf-card-title">
+                  {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
+                  {% if card.price_label %}
+                  <span class="sf-card-price">{{ card.price_label }}</span>
+                  {% endif %}
+                </h4>
+
+                {% if card.description %}
+                <p class="sf-card-text">{{ card.description }}</p>
+                {% endif %}
+
+                {% if card.buy_url %}
+                <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+                  class="btn btn-sm btn-primary storefront-preview-card-button">
+                  Buy now
+                </a>
+                {% endif %}
+              </article>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+
+      <p class="sf-layout-editor-hint text-muted">
+        Draft layout editor - later this will let you drag and resize blocks.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const openBtn = document.getElementById("sf-open-layout-editor");
+    const closeBtn = document.getElementById("sf-close-layout-editor");
+    const overlay = document.getElementById("sf-layout-editor");
+
+    if (!openBtn || !overlay) return;
+
+    function openEditor(event) {
+      event.preventDefault();
+      overlay.classList.add("is-open");
+    }
+
+    function closeEditor(event) {
+      if (event) {
+        event.preventDefault();
+      }
+      overlay.classList.remove("is-open");
+    }
+
+    openBtn.addEventListener("click", openEditor);
+    if (closeBtn) {
+      closeBtn.addEventListener("click", closeEditor);
+    }
+
+    // Close when clicking on the dimmed area
+    overlay.addEventListener("click", function (event) {
+      if (event.target === overlay) {
+        closeEditor(event);
+      }
+    });
+
+    // Close on Escape
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && overlay.classList.contains("is-open")) {
+        closeEditor(event);
+      }
+    });
+  })();
+</script>
+
+{% endblock %}
