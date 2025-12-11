@@ -334,6 +334,34 @@ ul.messages li.danger {
     margin-bottom: 0.25rem;
 }
 
+/* Logo in the "Preview" card + layout editor */
+.storefront-logo-large {
+    max-width: 120px;      /* controls how big it can get */
+    max-height: 220px;
+    width: 100%;           /* scale inside that max width */
+    height: auto;
+    display: block;
+    margin: 0 auto 1.5rem; /* center + space below */
+    border-radius: 1.25rem;
+}
+
+/* Tighter logo size for the dashboard preview + layout editor */
+.sf-preview-card .sf-preview-logo img.storefront-logo-large {
+    max-width: 140px;   /* shrink overall width */
+    max-height: 140px;
+    width: auto;        /* override the width:100% from .storefront-logo-large */
+    height: auto;
+    margin: 0 auto 1.25rem;
+}
+
+
+/* Slightly smaller on mobiles */
+@media (max-width: 768px) {
+    .storefront-logo-large {
+        max-width: 180px;
+    }
+}
+
 /* Simple form helpers used across storefront */
 
 .sf-form-row {
