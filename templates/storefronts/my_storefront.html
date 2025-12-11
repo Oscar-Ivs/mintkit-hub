@@ -156,10 +156,11 @@
         {{ form.logo }}
       </div>
 
-      {# Headline #}
       <p class="text-muted">
         Update the text shown on your public page. You can toggle public visibility here as well.
       </p>
+
+      {# Headline #}
       <div class="sf-form-row">
         <label for="{{ form.headline.id_for_label }}">Storefront headline:</label>
         {{ form.headline }}
@@ -277,41 +278,32 @@
 
     <div class="sf-layout-editor-body">
       <div class="sf-layout-editor-canvas">
-        <div class="sf-layout-editor-surface" id="sf-layout-surface">
-
-          {# Each main piece of content is a draggable block #}
-          <div class="sf-layout-block" data-block-id="headline">
-            <h3 class="sf-preview-headline">
-              {{ storefront.headline|default:"Your storefront headline" }}
-            </h3>
-          </div>
-
-          <div class="sf-layout-block" data-block-id="logo">
+        <div class="sf-layout-editor-surface">
+          {# We reuse the same content as the main preview; JS will turn these into draggable/resizable blocks. #}
+          <div class="sf-preview-card sf-preview-card--editor">
             <div class="sf-preview-logo">
               {% if storefront.logo %}
               <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
               {% endif %}
             </div>
-          </div>
 
-          <div class="sf-layout-block" data-block-id="description">
+            <h3 class="sf-preview-headline">
+              {{ storefront.headline|default:"Your storefront headline" }}
+            </h3>
+
             <p class="sf-preview-body">
               {{ storefront.description|default:"Add a short description of your service or products." }}
             </p>
-          </div>
 
-          <div class="sf-layout-block" data-block-id="contact">
             <h4 class="sf-preview-section-title">Contact details</h4>
             <p class="sf-preview-body">
               {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
             </p>
-          </div>
 
-          {% if has_cards %}
-          <div class="sf-layout-block" data-block-id="cards">
+            {% if has_cards %}
             <h3 class="storefront-section-heading">Featured digital cards</h3>
 
-            <div class="sf-card-grid sf-card-grid--layout-editor">
+            <div class="sf-card-grid">
               {% for card in storefront.cards.all %}
               <article class="sf-card">
                 {% if card.image_url %}
@@ -340,125 +332,309 @@
               </article>
               {% endfor %}
             </div>
+            {% endif %}
           </div>
-          {% endif %}
-
         </div>
       </div>
 
       <p class="sf-layout-editor-hint text-muted">
-        Draft layout editor - you can drag the main blocks around here. Layout changes are not saved yet.
+        Draft layout editor – you can drag and resize the main blocks around here. Layout changes are not saved yet.
       </p>
     </div>
   </div>
 </div>
+
+{# ===== Layout editor styles (blocks + resize handle) – local to this template ===== #}
+<style>
+  /* Layout editor blocks: draggable + resizable */
+  .sf-layout-editor-overlay .sf-layout-block {
+    position: absolute;
+    box-sizing: border-box;
+    border-radius: 12px;
+    border: 1px dashed rgba(129, 140, 248, 0.95);
+    padding: 12px 16px 20px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+    cursor: grab;
+    transition: box-shadow 0.12s ease, transform 0.12s ease;
+  }
+
+  .sf-layout-editor-overlay .sf-layout-block-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6b7280;
+    margin-bottom: 6px;
+  }
+
+  .sf-layout-editor-overlay .sf-layout-block--dragging,
+  .sf-layout-editor-overlay .sf-layout-block--resizing {
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.26);
+  }
+
+  .sf-layout-editor-overlay .sf-layout-resize-handle {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    border: 2px solid #4f46e5;
+    background: #eef2ff;
+    cursor: se-resize;
+  }
+
+  .sf-layout-editor-overlay .sf-layout-resize-handle::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border-right: 2px solid rgba(148, 163, 184, 0.9);
+    border-bottom: 2px solid rgba(148, 163, 184, 0.9);
+  }
+</style>
 
 <script>
   (function () {
     const openBtn = document.getElementById("sf-open-layout-editor");
     const closeBtn = document.getElementById("sf-close-layout-editor");
     const overlay = document.getElementById("sf-layout-editor");
-    const surface = document.getElementById("sf-layout-surface");
 
-    if (!openBtn || !overlay || !surface) {
-      return;
-    }
+    if (!openBtn || !overlay) return;
 
-    let editorInitialized = false;
+    let initialized = false;
 
-    function initLayoutEditor() {
-      if (editorInitialized) return;
-      editorInitialized = true;
+    // Turn headline, logo, description, contact + cards into draggable/resizable blocks
+    function initLayoutBlocks() {
+      if (initialized) return;
 
-      const surfaceRect = surface.getBoundingClientRect();
-      const surfaceLeft = surfaceRect.left;
-      const surfaceTop = surfaceRect.top;
+      const previewCard = overlay.querySelector(".sf-preview-card--editor");
+      if (!previewCard) return;
 
-      const blocks = surface.querySelectorAll(".sf-layout-block");
+      const canvas = previewCard; // use the card as our canvas
+      const canvasRect = canvas.getBoundingClientRect();
 
-      blocks.forEach(function (block) {
-        const rect = block.getBoundingClientRect();
+      const bodyBlocks = previewCard.querySelectorAll(".sf-preview-body");
 
-        // Convert from normal flow into absolutely positioned blocks
-        const left = rect.left - surfaceLeft;
-        const top = rect.top - surfaceTop;
+      const config = [];
 
-        block.style.position = "absolute";
-        block.style.left = left + "px";
-        block.style.top = top + "px";
-        block.style.width = rect.width + "px";
+      const logoEl = previewCard.querySelector(".sf-preview-logo");
+      if (logoEl) config.push({ id: "logo", label: "Logo", elements: [logoEl] });
 
-        makeBlockDraggable(block);
+      const headlineEl = previewCard.querySelector(".sf-preview-headline");
+      if (headlineEl) config.push({ id: "headline", label: "Headline", elements: [headlineEl] });
+
+      if (bodyBlocks[0]) {
+        config.push({
+          id: "description",
+          label: "Description",
+          elements: [bodyBlocks[0]]
+        });
+      }
+
+      const contactTitleEl = previewCard.querySelector(".sf-preview-section-title");
+      if (contactTitleEl && bodyBlocks[1]) {
+        config.push({
+          id: "contact",
+          label: "Contact details",
+          elements: [contactTitleEl, bodyBlocks[1]]
+        });
+      }
+
+      const cardsTitleEl = previewCard.querySelector(".storefront-section-heading");
+      const cardsGridEl = previewCard.querySelector(".sf-card-grid");
+      if (cardsGridEl) {
+        const elements = cardsTitleEl ? [cardsTitleEl, cardsGridEl] : [cardsGridEl];
+        config.push({
+          id: "cards",
+          label: "Featured cards",
+          elements: elements
+        });
+      }
+
+      const items = [];
+
+      config.forEach(function (blockConfig) {
+        if (!blockConfig.elements.length) return;
+
+        // Measure combined rect of all elements in this block
+        let union = null;
+        blockConfig.elements.forEach(function (el) {
+          const r = el.getBoundingClientRect();
+          if (!union) {
+            union = {
+              top: r.top,
+              left: r.left,
+              right: r.right,
+              bottom: r.bottom
+            };
+          } else {
+            union.top = Math.min(union.top, r.top);
+            union.left = Math.min(union.left, r.left);
+            union.right = Math.max(union.right, r.right);
+            union.bottom = Math.max(union.bottom, r.bottom);
+          }
+        });
+
+        if (!union) return;
+
+        const width = union.right - union.left;
+        const height = union.bottom - union.top;
+        const top = union.top - canvasRect.top;
+        const left = union.left - canvasRect.left;
+
+        const firstEl = blockConfig.elements[0];
+        const parent = firstEl.parentNode;
+
+        const block = document.createElement("div");
+        block.className = "sf-layout-block";
+        block.dataset.blockId = blockConfig.id;
+
+        const labelEl = document.createElement("div");
+        labelEl.className = "sf-layout-block-label";
+        labelEl.textContent = blockConfig.label;
+
+        const resizeHandle = document.createElement("button");
+        resizeHandle.type = "button";
+        resizeHandle.className = "sf-layout-resize-handle";
+        resizeHandle.setAttribute("aria-label", "Resize " + blockConfig.label);
+
+        parent.insertBefore(block, firstEl);
+        block.appendChild(labelEl);
+
+        blockConfig.elements.forEach(function (el) {
+          block.appendChild(el);
+        });
+
+        block.appendChild(resizeHandle);
+
+        Object.assign(block.style, {
+          top: top + "px",
+          left: left + "px",
+          width: width + "px",
+          height: height + "px"
+        });
+
+        items.push({ block: block, handle: resizeHandle });
       });
+
+      canvas.style.position = "relative";
+      canvas.style.minHeight = (canvasRect.height || 600) + "px";
+
+      setupDragAndResize(canvas, items);
+
+      initialized = true;
     }
 
-    function makeBlockDraggable(block) {
-      let isDragging = false;
-      let startX = 0;
-      let startY = 0;
-      let originLeft = 0;
-      let originTop = 0;
+    // Basic drag + resize logic using pointer events
+    function setupDragAndResize(canvas, items) {
+      let active = null;
 
-      block.addEventListener("mousedown", function (event) {
-        // Left mouse button only & ignore clicks on interactive elements
-        if (event.button !== 0) return;
-        if (event.target.closest("a, button, input, textarea, select")) return;
-
-        const surfaceRect = surface.getBoundingClientRect();
-        const rect = block.getBoundingClientRect();
-
-        isDragging = true;
-        startX = event.clientX;
-        startY = event.clientY;
-        originLeft = rect.left - surfaceRect.left;
-        originTop = rect.top - surfaceRect.top;
-
-        block.classList.add("is-dragging");
+      function startInteraction(mode, event, block) {
         event.preventDefault();
-      });
+        event.stopPropagation();
 
-      document.addEventListener("mousemove", function (event) {
-        if (!isDragging) return;
+        const rect = block.getBoundingClientRect();
+        const canvasRect = canvas.getBoundingClientRect();
 
-        const surfaceRect = surface.getBoundingClientRect();
-        const dx = event.clientX - startX;
-        const dy = event.clientY - startY;
+        active = {
+          mode: mode,
+          block: block,
+          startX: event.clientX,
+          startY: event.clientY,
+          startLeft: rect.left - canvasRect.left,
+          startTop: rect.top - canvasRect.top,
+          startWidth: rect.width,
+          startHeight: rect.height,
+          canvasRect: canvasRect
+        };
 
-        let newLeft = originLeft + dx;
-        let newTop = originTop + dy;
+        if (mode === "drag") {
+          block.classList.add("sf-layout-block--dragging");
+        } else {
+          block.classList.add("sf-layout-block--resizing");
+        }
 
-        const maxLeft = surfaceRect.width - block.offsetWidth;
-        const maxTop = surfaceRect.height - block.offsetHeight;
+        window.addEventListener("pointermove", onPointerMove);
+        window.addEventListener("pointerup", endInteraction);
+        window.addEventListener("pointercancel", endInteraction);
+      }
 
-        if (newLeft < 0) newLeft = 0;
-        if (newTop < 0) newTop = 0;
-        if (newLeft > maxLeft) newLeft = maxLeft;
-        if (newTop > maxTop) newTop = maxTop;
+      function onPointerMove(event) {
+        if (!active) return;
 
-        block.style.left = newLeft + "px";
-        block.style.top = newTop + "px";
-      });
+        const dx = event.clientX - active.startX;
+        const dy = event.clientY - active.startY;
+        const minWidth = 160;
+        const minHeight = 60;
 
-      document.addEventListener("mouseup", function () {
-        if (!isDragging) return;
-        isDragging = false;
-        block.classList.remove("is-dragging");
+        if (active.mode === "drag") {
+          let left = active.startLeft + dx;
+          let top = active.startTop + dy;
+
+          const maxLeft = Math.max(0, active.canvasRect.width - active.startWidth);
+          const maxTop = Math.max(0, active.canvasRect.height - active.startHeight);
+
+          left = Math.min(Math.max(0, left), maxLeft);
+          top = Math.min(Math.max(0, top), maxTop);
+
+          active.block.style.left = left + "px";
+          active.block.style.top = top + "px";
+        } else if (active.mode === "resize") {
+          let width = active.startWidth + dx;
+          let height = active.startHeight + dy;
+
+          width = Math.max(minWidth, Math.min(width, active.canvasRect.width - active.startLeft));
+          height = Math.max(minHeight, Math.min(height, active.canvasRect.height - active.startTop));
+
+          active.block.style.width = width + "px";
+          active.block.style.height = height + "px";
+        }
+      }
+
+      function endInteraction() {
+        if (!active) return;
+
+        active.block.classList.remove("sf-layout-block--dragging", "sf-layout-block--resizing");
+        active = null;
+
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", endInteraction);
+        window.removeEventListener("pointercancel", endInteraction);
+      }
+
+      items.forEach(function (item) {
+        const block = item.block;
+        const handle = item.handle;
+
+        block.addEventListener("pointerdown", function (event) {
+          if (event.button !== 0) return;
+
+          const targetTag = event.target.tagName.toLowerCase();
+          if (["a", "button", "input", "textarea"].includes(targetTag)) return;
+
+          startInteraction("drag", event, block);
+        });
+
+        handle.addEventListener("pointerdown", function (event) {
+          if (event.button !== 0) return;
+          startInteraction("resize", event, block);
+        });
       });
     }
 
     function openEditor(event) {
       event.preventDefault();
       overlay.classList.add("is-open");
-
-      // Wait a tick so the browser can lay out the overlay before measuring
-      setTimeout(initLayoutEditor, 50);
+      document.body.classList.add("sf-layout-editor-open");
+      // small delay so the modal has laid out before we measure
+      window.setTimeout(initLayoutBlocks, 30);
     }
 
     function closeEditor(event) {
-      if (event) {
-        event.preventDefault();
-      }
+      if (event) event.preventDefault();
       overlay.classList.remove("is-open");
+      document.body.classList.remove("sf-layout-editor-open");
     }
 
     openBtn.addEventListener("click", openEditor);
@@ -467,14 +643,12 @@
       closeBtn.addEventListener("click", closeEditor);
     }
 
-    // Close when clicking on the dimmed backdrop (but not the dialog)
     overlay.addEventListener("click", function (event) {
       if (event.target === overlay) {
         closeEditor(event);
       }
     });
 
-    // Close on Escape
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && overlay.classList.contains("is-open")) {
         closeEditor(event);
