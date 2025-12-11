@@ -1043,3 +1043,25 @@ ul.messages li.danger {
     max-width: 1120px;               /* let the preview breathe a bit more */
   }
 }
+
+/* === Storefront layout editor – draggable blocks === */
+
+.sf-layout-editor-surface {
+    position: relative;
+    min-height: 420px;
+}
+
+/* Any block we mark as draggable gets this outline */
+.sf-layout-draggable {
+    position: relative;
+    cursor: move;
+    outline: 2px dashed rgba(59, 130, 246, 0.45); /* soft blue */
+    outline-offset: 6px;
+    border-radius: 0.75rem;
+    padding: 0.35rem; /* small padding so outline doesn’t touch content */
+    touch-action: none; /* required for interact.js on touch devices */
+}
+
+.sf-layout-draggable:hover {
+    outline-color: rgba(37, 99, 235, 0.85);
+}
