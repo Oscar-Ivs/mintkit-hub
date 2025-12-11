@@ -285,8 +285,11 @@
             <option value="'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif">
               Clean sans
             </option>
-            <option value="'Times New Roman', Georgia, 'Times', serif">
+            <option value="'Georgia', 'Times New Roman', serif">
               Elegant serif
+            </option>
+            <option value="'Trebuchet MS', system-ui, sans-serif">
+              Modern
             </option>
             <option
               value="'Courier New', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace">
@@ -296,14 +299,28 @@
         </div>
 
         <div class="sf-toolbar-group">
-          <label for="sf-font-size">Size</label>
-          <select id="sf-font-size">
-            <option value="">Default</option>
-            <option value="14px">Small</option>
-            <option value="16px">Normal</option>
-            <option value="20px">Large</option>
-            <option value="24px">Extra large</option>
-          </select>
+          <label for="sf-font-size">Size (px)</label>
+          <input id="sf-font-size" type="number" min="10" max="40" step="1" placeholder="Default">
+        </div>
+
+        <div class="sf-toolbar-group">
+          <label>Style</label>
+          <div class="sf-toolbar-inline-buttons">
+            <button type="button" id="sf-font-bold" class="sf-toolbar-button sf-toolbar-button-toggle">
+              <strong>B</strong>
+            </button>
+            <button type="button" id="sf-font-italic" class="sf-toolbar-button sf-toolbar-button-toggle">
+              <em>I</em>
+            </button>
+            <button type="button" id="sf-font-underline" class="sf-toolbar-button sf-toolbar-button-toggle">
+              <span style="text-decoration: underline;">U</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sf-toolbar-group">
+          <label for="sf-bg-color">Background</label>
+          <input id="sf-bg-color" type="color" value="#ffffff">
         </div>
 
         <div class="sf-toolbar-group" style="margin-left: auto;">
@@ -396,13 +413,12 @@
     box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
     cursor: grab;
     transition: box-shadow 0.12s ease, transform 0.12s ease;
-    max-width: 80%;
-    /* keep initial blocks from stretching too wide */
-    max-height: 360px;
-    /* cap initial height so we avoid giant blocks */
-    overflow: auto;
-    /* scroll inside the block if content is taller */
+    min-width: 220px;
+    max-width: 90%;
+    min-height: 72px;
+    /* let blocks use their natural height; the canvas will scroll */
   }
+
 
   .sf-layout-editor-overlay .sf-layout-block-label {
     font-size: 0.75rem;
@@ -449,26 +465,32 @@
 
     let initialized = false;
 
-    // Turn headline, logo, description, contact + cards into draggable/resizable blocks
-    function initLayoutBlocks() {
+    // Turn headline / logo / description / contact / cards into blocks
+    function initLayoutBlocksAndToolbar() {
       if (initialized) return;
 
       const previewCard = overlay.querySelector(".sf-preview-card--editor");
       if (!previewCard) return;
 
-      const canvas = previewCard; // use the card as our canvas
+      const canvas = previewCard;
       const canvasRect = canvas.getBoundingClientRect();
-
       const bodyBlocks = previewCard.querySelectorAll(".sf-preview-body");
 
       const config = [];
 
+      // Logo
       const logoEl = previewCard.querySelector(".sf-preview-logo");
-      if (logoEl) config.push({ id: "logo", label: "Logo", elements: [logoEl] });
+      if (logoEl) {
+        config.push({ id: "logo", label: "Logo", elements: [logoEl] });
+      }
 
+      // Headline
       const headlineEl = previewCard.querySelector(".sf-preview-headline");
-      if (headlineEl) config.push({ id: "headline", label: "Headline", elements: [headlineEl] });
+      if (headlineEl) {
+        config.push({ id: "headline", label: "Headline", elements: [headlineEl] });
+      }
 
+      // Description paragraph
       if (bodyBlocks[0]) {
         config.push({
           id: "description",
@@ -477,69 +499,79 @@
         });
       }
 
+      // Contact title + body as separate blocks so you can hide just the text
       const contactTitleEl = previewCard.querySelector(".sf-preview-section-title");
-      if (contactTitleEl && bodyBlocks[1]) {
+      const contactBodyEl = bodyBlocks[1];
+
+      if (contactTitleEl) {
         config.push({
-          id: "contact",
-          label: "Contact details",
-          elements: [contactTitleEl, bodyBlocks[1]]
+          id: "contact-title",
+          label: "Contact title",
+          elements: [contactTitleEl]
         });
       }
 
+      if (contactBodyEl) {
+        config.push({
+          id: "contact-body",
+          label: "Contact text",
+          elements: [contactBodyEl]
+        });
+      }
+
+      // Featured cards: split heading + grid so heading alone can be hidden
       const cardsTitleEl = previewCard.querySelector(".storefront-section-heading");
       const cardsGridEl = previewCard.querySelector(".sf-card-grid");
-      if (cardsGridEl) {
-        const elements = cardsTitleEl ? [cardsTitleEl, cardsGridEl] : [cardsGridEl];
+
+      if (cardsTitleEl) {
         config.push({
-          id: "cards",
-          label: "Featured cards",
-          elements: elements
+          id: "cards-title",
+          label: "Featured cards title",
+          elements: [cardsTitleEl]
+        });
+      }
+
+      if (cardsGridEl) {
+        config.push({
+          id: "cards-grid",
+          label: "Cards grid",
+          elements: [cardsGridEl]
         });
       }
 
       const items = [];
 
+      // Wrap each group of elements in a draggable / resizable block
       config.forEach(function (blockConfig) {
         if (!blockConfig.elements.length) return;
 
-        // Measure combined rect of all elements in this block
+        // Bounding box around all elements in this block
         let union = null;
         blockConfig.elements.forEach(function (el) {
           const r = el.getBoundingClientRect();
           if (!union) {
-            union = {
-              top: r.top,
-              left: r.left,
-              right: r.right,
-              bottom: r.bottom
-            };
+            union = { top: r.top, left: r.left, right: r.right, bottom: r.bottom };
           } else {
-            let width = union.right - union.left;
-            let height = union.bottom - union.top;
-            let top = union.top - canvasRect.top;
-            let left = union.left - canvasRect.left;
-
-            // So blocks don't start gigantic or way off-screen
-            const padding = 24;
-            const maxWidth = canvasRect.width - padding * 2;
-            const maxHeight = 360;
-
-            width = Math.min(width, maxWidth);
-            height = Math.min(height, maxHeight);
-
-            // Nudge inside the safe area
-            top = Math.max(padding, top);
-            left = Math.max(padding, left);
-
+            union.top = Math.min(union.top, r.top);
+            union.left = Math.min(union.left, r.left);
+            union.right = Math.max(union.right, r.right);
+            union.bottom = Math.max(union.bottom, r.bottom);
           }
         });
 
         if (!union) return;
 
-        const width = union.right - union.left;
-        const height = union.bottom - union.top;
-        const top = union.top - canvasRect.top;
-        const left = union.left - canvasRect.left;
+        const padding = 16;
+        let width = (union.right - union.left) + padding * 2;
+        let height = (union.bottom - union.top) + padding * 2;
+        let top = union.top - canvasRect.top - padding;
+        let left = union.left - canvasRect.left - padding;
+
+        // 10–20% breathing room, but keep inside canvas
+        top = Math.max(8, top);
+        left = Math.max(8, left);
+        const maxWidth = canvasRect.width - 16;
+        width = Math.min(width, maxWidth);
 
         const firstEl = blockConfig.elements[0];
         const parent = firstEl.parentNode;
@@ -547,6 +579,7 @@
         const block = document.createElement("div");
         block.className = "sf-layout-block";
         block.dataset.blockId = blockConfig.id;
+        block.setAttribute("tabindex", "0");
 
         const labelEl = document.createElement("div");
         labelEl.className = "sf-layout-block-label";
@@ -577,14 +610,15 @@
       });
 
       canvas.style.position = "relative";
-      canvas.style.minHeight = (canvasRect.height || 600) + "px";
+      canvas.style.minHeight = Math.max(canvasRect.height, 620) + "px";
 
       setupDragAndResize(canvas, items);
+      initTextToolbar(canvas);
 
       initialized = true;
     }
 
-    // Basic drag + resize logic using pointer events
+    // Basic drag + resize logic
     function setupDragAndResize(canvas, items) {
       let active = null;
 
@@ -667,10 +701,7 @@
 
         block.addEventListener("pointerdown", function (event) {
           if (event.button !== 0) return;
-
-          const targetTag = event.target.tagName.toLowerCase();
-          if (["a", "button", "input", "textarea"].includes(targetTag)) return;
-
+          if (event.target.classList.contains("sf-layout-resize-handle")) return;
           startInteraction("drag", event, block);
         });
 
@@ -681,12 +712,188 @@
       });
     }
 
+    // Text styling toolbar: font, size, bold/italic/underline, background, hide/show
+    function initTextToolbar(canvas) {
+      const fontFamilySelect = document.getElementById("sf-font-family");
+      const fontSizeInput = document.getElementById("sf-font-size");
+      const boldBtn = document.getElementById("sf-font-bold");
+      const italicBtn = document.getElementById("sf-font-italic");
+      const underlineBtn = document.getElementById("sf-font-underline");
+      const bgInput = document.getElementById("sf-bg-color");
+      const hideButton = document.getElementById("sf-hide-block");
+      const resetButton = document.getElementById("sf-reset-block");
+
+      if (!fontFamilySelect || !fontSizeInput || !hideButton || !resetButton) return;
+
+      const blocks = Array.from(canvas.querySelectorAll(".sf-layout-block"));
+      if (!blocks.length) return;
+
+      let currentBlock = null;
+
+      function rgbToHex(color) {
+        if (!color) return null;
+        if (color.startsWith("#")) return color;
+        const match = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+        if (!match) return null;
+        const r = parseInt(match[1], 10);
+        const g = parseInt(match[2], 10);
+        const b = parseInt(match[3], 10);
+        return "#" + [r, g, b].map(function (x) {
+          return x.toString(16).padStart(2, "0");
+        }).join("");
+      }
+
+      function updateToolbarFromBlock(block) {
+        if (!block) {
+          fontFamilySelect.value = "";
+          fontSizeInput.value = "";
+          if (bgInput) bgInput.value = "#ffffff";
+          hideButton.disabled = true;
+          resetButton.disabled = true;
+          hideButton.textContent = "Hide block";
+          [boldBtn, italicBtn, underlineBtn].forEach(function (btn) {
+            if (btn) btn.classList.remove("is-active");
+          });
+          return;
+        }
+
+        fontFamilySelect.value = block.style.fontFamily || "";
+        fontSizeInput.value = block.style.fontSize ? parseInt(block.style.fontSize, 10) : "";
+
+        if (bgInput) {
+          const currentBg = block.style.backgroundColor || "#ffffff";
+          bgInput.value = rgbToHex(currentBg) || "#ffffff";
+        }
+
+        hideButton.disabled = false;
+        resetButton.disabled = false;
+        hideButton.textContent = block.classList.contains("sf-layout-block--hidden")
+          ? "Show block"
+          : "Hide block";
+
+        if (boldBtn) {
+          boldBtn.classList.toggle(
+            "is-active",
+            block.style.fontWeight === "700" || block.style.fontWeight === "bold"
+          );
+        }
+        if (italicBtn) {
+          italicBtn.classList.toggle("is-active", block.style.fontStyle === "italic");
+        }
+        if (underlineBtn) {
+          underlineBtn.classList.toggle(
+            "is-active",
+            (block.style.textDecoration || "").indexOf("underline") !== -1
+          );
+        }
+      }
+
+      function selectBlock(block) {
+        if (currentBlock === block) return;
+
+        if (currentBlock) {
+          currentBlock.classList.remove("sf-layout-block--selected");
+        }
+
+        currentBlock = block || null;
+
+        if (currentBlock) {
+          currentBlock.classList.add("sf-layout-block--selected");
+        }
+
+        updateToolbarFromBlock(currentBlock);
+      }
+
+      // Click to select a block (drag still works via pointerdown)
+      blocks.forEach(function (block) {
+        block.addEventListener("click", function (event) {
+          if (event.target.classList.contains("sf-layout-resize-handle")) return;
+          selectBlock(block);
+        });
+      });
+
+      fontFamilySelect.addEventListener("change", function () {
+        if (!currentBlock) return;
+        currentBlock.style.fontFamily = this.value || "";
+      });
+
+      fontSizeInput.addEventListener("input", function () {
+        if (!currentBlock) return;
+        const value = parseInt(this.value, 10);
+        currentBlock.style.fontSize = value ? value + "px" : "";
+      });
+
+      function toggleButton(button, applyFn) {
+        if (!currentBlock || !button) return;
+        button.classList.toggle("is-active");
+        applyFn(button.classList.contains("is-active"));
+      }
+
+      if (boldBtn) {
+        boldBtn.addEventListener("click", function () {
+          toggleButton(boldBtn, function (on) {
+            currentBlock.style.fontWeight = on ? "700" : "";
+          });
+        });
+      }
+
+      if (italicBtn) {
+        italicBtn.addEventListener("click", function () {
+          toggleButton(italicBtn, function (on) {
+            currentBlock.style.fontStyle = on ? "italic" : "";
+          });
+        });
+      }
+
+      if (underlineBtn) {
+        underlineBtn.addEventListener("click", function () {
+          toggleButton(underlineBtn, function (on) {
+            currentBlock.style.textDecoration = on ? "underline" : "";
+          });
+        });
+      }
+
+      if (bgInput) {
+        bgInput.addEventListener("input", function () {
+          if (!currentBlock) return;
+          currentBlock.style.backgroundColor = this.value || "";
+        });
+      }
+
+      hideButton.addEventListener("click", function () {
+        if (!currentBlock) return;
+        const isHidden = currentBlock.classList.toggle("sf-layout-block--hidden");
+        hideButton.textContent = isHidden ? "Show block" : "Hide block";
+      });
+
+      resetButton.addEventListener("click", function () {
+        if (!currentBlock) return;
+
+        currentBlock.style.fontFamily = "";
+        currentBlock.style.fontSize = "";
+        currentBlock.style.fontWeight = "";
+        currentBlock.style.fontStyle = "";
+        currentBlock.style.textDecoration = "";
+        currentBlock.style.backgroundColor = "";
+        currentBlock.classList.remove("sf-layout-block--hidden");
+
+        updateToolbarFromBlock(currentBlock);
+      });
+
+      const closeBtn = document.getElementById("sf-close-layout-editor");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", function () {
+          selectBlock(null);
+        });
+      }
+    }
+
     function openEditor(event) {
       event.preventDefault();
       overlay.classList.add("is-open");
       document.body.classList.add("sf-layout-editor-open");
-      // small delay so the modal has laid out before we measure
-      window.setTimeout(initLayoutBlocks, 30);
+      // Wait for modal layout so measurements are correct
+      window.setTimeout(initLayoutBlocksAndToolbar, 50);
     }
 
     function closeEditor(event) {
@@ -712,106 +919,15 @@
         closeEditor(event);
       }
     });
+
+    // In the editor, disable real navigation / button actions
+    overlay.addEventListener("click", function (event) {
+      if (event.target.closest(".sf-preview-card--editor a, .sf-preview-card--editor button")) {
+        event.preventDefault();
+      }
+    });
   })();
 </script>
-<script>
-  (function () {
-    const overlay = document.getElementById("sf-layout-editor");
-    if (!overlay) return;
 
-    // All draggable / resizable blocks you already have
-    const blocks = Array.from(overlay.querySelectorAll(".sf-layout-block"));
-    if (!blocks.length) return;
-
-    const fontFamilySelect = document.getElementById("sf-font-family");
-    const fontSizeSelect = document.getElementById("sf-font-size");
-    const hideButton = document.getElementById("sf-hide-block");
-    const resetButton = document.getElementById("sf-reset-block");
-
-    if (!fontFamilySelect || !fontSizeSelect || !hideButton || !resetButton) {
-      return;
-    }
-
-    let currentBlock = null;
-
-    function updateToolbarFromBlock(block) {
-      if (!block) {
-        fontFamilySelect.value = "";
-        fontSizeSelect.value = "";
-        hideButton.disabled = true;
-        resetButton.disabled = true;
-        hideButton.textContent = "Hide block";
-        return;
-      }
-
-      fontFamilySelect.value = block.style.fontFamily || "";
-      fontSizeSelect.value = block.style.fontSize || "";
-      hideButton.disabled = false;
-      resetButton.disabled = false;
-      hideButton.textContent = block.classList.contains("sf-layout-block--hidden")
-        ? "Show block"
-        : "Hide block";
-    }
-
-    function selectBlock(block) {
-      if (currentBlock === block) return;
-
-      if (currentBlock) {
-        currentBlock.classList.remove("sf-layout-block--selected");
-      }
-
-      currentBlock = block || null;
-
-      if (currentBlock) {
-        currentBlock.classList.add("sf-layout-block--selected");
-      }
-
-      updateToolbarFromBlock(currentBlock);
-    }
-
-    // Select block on click (works alongside existing drag/resize code)
-    blocks.forEach(function (block) {
-      block.addEventListener("mousedown", function () {
-        selectBlock(block);
-      });
-    });
-
-    fontFamilySelect.addEventListener("change", function () {
-      if (!currentBlock) return;
-      const value = this.value || "";
-      currentBlock.style.fontFamily = value;
-    });
-
-    fontSizeSelect.addEventListener("change", function () {
-      if (!currentBlock) return;
-      const value = this.value || "";
-      currentBlock.style.fontSize = value;
-    });
-
-    hideButton.addEventListener("click", function () {
-      if (!currentBlock) return;
-
-      const isHidden = currentBlock.classList.toggle("sf-layout-block--hidden");
-      hideButton.textContent = isHidden ? "Show block" : "Hide block";
-    });
-
-    resetButton.addEventListener("click", function () {
-      if (!currentBlock) return;
-
-      currentBlock.style.fontFamily = "";
-      currentBlock.style.fontSize = "";
-      currentBlock.classList.remove("sf-layout-block--hidden");
-      updateToolbarFromBlock(currentBlock);
-    });
-
-    // When editor closes, clear selection so next open is clean
-    const closeBtn = document.getElementById("sf-close-layout-editor");
-    if (closeBtn) {
-      closeBtn.addEventListener("click", function () {
-        selectBlock(null);
-      });
-    }
-  })();
-</script>
 
 {% endblock %}
