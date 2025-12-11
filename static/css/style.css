@@ -1031,3 +1031,15 @@ ul.messages li.danger {
     margin-top: 0.75rem;
     font-size: 0.85rem;
 }
+
+/* Wider "Customize storefront layout" editor on desktop */
+@media (min-width: 992px) {
+  .sf-layout-editor-dialog {
+    max-width: none;                 /* remove old 1100px cap */
+    width: min(96vw, 1400px);        /* use up to ~96% of the screen, but cap at 1400px */
+  }
+
+  .sf-layout-editor-surface {
+    max-width: 1120px;               /* let the preview breathe a bit more */
+  }
+}
