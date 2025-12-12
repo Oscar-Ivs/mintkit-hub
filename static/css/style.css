@@ -622,7 +622,6 @@ ul.messages li.danger {
     margin-top: 1rem;
 }
 
-
 .storefront-public-card-item,
 .storefront-preview-card,
 .sf-card {
@@ -678,6 +677,7 @@ ul.messages li.danger {
     font-size: 0.9rem;
     margin-bottom: 0.75rem;
 }
+
 /* Section heading used above card grids */
 .storefront-section-heading {
     font-size: 1rem;
@@ -1155,3 +1155,23 @@ ul.messages li.danger {
     filter: grayscale(0.6);
 }
 
+/* Layout editor tweaks – selection + scrolling */
+
+/* Make the selected block clearly stand out */
+.sf-layout-editor-overlay .sf-layout-block--selected {
+    box-shadow:
+        0 0 0 2px rgba(59, 130, 246, 0.9),
+        0 18px 55px rgba(15, 23, 42, 0.35);
+}
+
+/* Let the whole modal body scroll, not the inner canvas box */
+.sf-layout-editor-body {
+    max-height: 80vh;          /* the dialog can scroll vertically */
+    overflow: auto;
+}
+
+/* The preview canvas itself no longer has its own scrollbar */
+.sf-layout-editor-canvas {
+    max-height: none;
+    overflow: visible;
+}

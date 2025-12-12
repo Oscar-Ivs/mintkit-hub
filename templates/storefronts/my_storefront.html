@@ -419,7 +419,6 @@
     /* let blocks use their natural height; the canvas will scroll */
   }
 
-
   .sf-layout-editor-overlay .sf-layout-block-label {
     font-size: 0.75rem;
     font-weight: 600;
@@ -562,7 +561,8 @@
         if (!union) return;
 
         const padding = 16;
-        let width = (union.right - union.left) + padding * 2;
+        const contentWidth = (union.right - union.left);
+        let width = contentWidth * 1.15 + padding * 2;  // ~15% breathing room
         let height = (union.bottom - union.top) + padding * 2;
         let top = union.top - canvasRect.top - padding;
         let left = union.left - canvasRect.left - padding;
@@ -570,7 +570,7 @@
         // 10–20% breathing room, but keep inside canvas
         top = Math.max(8, top);
         left = Math.max(8, left);
-        const maxWidth = canvasRect.width - 16;
+        const maxWidth = canvasRect.width * 0.8;
         width = Math.min(width, maxWidth);
 
         const firstEl = blockConfig.elements[0];
@@ -927,7 +927,39 @@
       }
     });
   })();
-</script>
 
+  // Extra helper: highlight active block + keep it on top
+  (function () {
+    const overlay = document.getElementById("sf-layout-editor");
+    if (!overlay) return;
+
+    let zCounter = 10;  // simple z-index counter
+
+    // When you press on a block, mark it as selected and bring it to front
+    overlay.addEventListener("mousedown", function (event) {
+      const block = event.target.closest(".sf-layout-block");
+      if (!block) return;
+
+      // Clear previous selection
+      overlay.querySelectorAll(".sf-layout-block--selected").forEach(function (other) {
+        if (other !== block) {
+          other.classList.remove("sf-layout-block--selected");
+        }
+      });
+
+      // Mark current block + bump z-index
+      block.classList.add("sf-layout-block--selected");
+      zCounter += 1;
+      block.style.zIndex = String(zCounter);
+    });
+
+    // In the layout editor, disable all links/buttons so Buy now etc. do nothing
+    overlay.addEventListener("click", function (event) {
+      const link = event.target.closest("a");
+      if (!link) return;
+      event.preventDefault();
+    });
+  })();
+</script>
 
 {% endblock %}
