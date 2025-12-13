@@ -2,9 +2,11 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+import json
+from django.http import JsonResponse
 
 from .forms import StorefrontForm, StorefrontCardFormSet
-from .models import Storefront
+from .models import Storefront, StorefrontLayout
 
 
 @login_required
@@ -157,3 +159,43 @@ def storefront_detail(request, slug):
         "storefronts/storefront_detail.html",
         {"storefront": storefront},
     )
+
+@login_required
+def storefront_layout_load(request, storefront_id):
+    """
+    Only allow the owner to load their layout.
+    """
+    storefront = get_object_or_404(Storefront, id=storefront_id, owner=request.user)
+    layout_obj, _ = StorefrontLayout.objects.get_or_create(storefront=storefront)
+
+    return JsonResponse({
+        "layout": layout_obj.layout or {},
+        "styles": layout_obj.styles or {},
+        "bg": layout_obj.bg or "#ffffff",
+        "updated_at": layout_obj.updated_at.isoformat(),
+    })
+
+
+@login_required
+def storefront_layout_save(request, storefront_id):
+    """
+    Only allow the owner to save their layout.
+    Accept JSON and store it in the DB.
+    """
+    if request.method != "POST":
+        return JsonResponse({"ok": False, "error": "POST required"}, status=405)
+
+    storefront = get_object_or_404(Storefront, id=storefront_id, owner=request.user)
+    layout_obj, _ = StorefrontLayout.objects.get_or_create(storefront=storefront)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        return JsonResponse({"ok": False, "error": "Invalid JSON"}, status=400)
+
+    layout_obj.layout = payload.get("layout", {}) or {}
+    layout_obj.styles = payload.get("styles", {}) or {}
+    layout_obj.bg = payload.get("bg", "#ffffff") or "#ffffff"
+    layout_obj.save()
+
+    return JsonResponse({"ok": True, "updated_at": layout_obj.updated_at.isoformat()})
