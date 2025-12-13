@@ -421,7 +421,7 @@
 
 <script>
   /*
-    Storefront layout editor — merged “stable” version
+    Storefront layout editor — merged “stable + save” version
 
     Fixes in this version:
     1) No more “mystical top block” — #sf-editor-content is used only for measuring, then hidden.
@@ -435,7 +435,7 @@
        - Re-apply after fonts are ready (fixes “needs 2 clicks”)
     6) Font size applies to headings too (Featured digital cards / Contact details etc.)
     7) Dragging now clamps bottom too (cannot move blocks outside surface at bottom).
-    8) I want the editor to feel stable: blocks should drag/resize smoothly, and Fit should be predictable.
+    8) Save layout to the database (loads on open, saves via button).
   */
 
   (function () {
@@ -461,6 +461,11 @@
     const hideBtn = document.getElementById("sf-hide-block");
     const resetBtn = document.getElementById("sf-reset-block");
 
+    const saveBtn = document.getElementById("sf-save-layout");
+    const saveStatus = document.getElementById("sf-save-status");
+
+    const storefrontId = editor.getAttribute("data-storefront-id");
+
     // Make toolbar sticky again (no CSS file change needed)
     const toolbar = document.querySelector(".sf-layout-editor-toolbar");
     if (toolbar) {
@@ -480,6 +485,67 @@
     function writeJSON(key, value) {
       try { localStorage.setItem(key, JSON.stringify(value)); }
       catch { /* ignore */ }
+    }
+
+    function setStatus(text, isError) {
+      if (!saveStatus) return;
+      saveStatus.textContent = text;
+      saveStatus.style.color = isError ? "#b42318" : "";
+    }
+
+    function getCookie(name) {
+      const v = document.cookie
+        .split(";")
+        .map(s => s.trim())
+        .find(s => s.startsWith(name + "="));
+      return v ? decodeURIComponent(v.split("=")[1]) : null;
+    }
+
+    async function loadFromServer() {
+      if (!storefrontId) return;
+
+      const url = `/storefront/${storefrontId}/layout/load/`;
+      const res = await fetch(url, { credentials: "same-origin" });
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      localStorage.setItem(KEY_LAYOUT, JSON.stringify(data.layout || {}));
+      localStorage.setItem(KEY_STYLES, JSON.stringify(data.styles || {}));
+      localStorage.setItem(KEY_BG, data.bg || "#ffffff");
+    }
+
+    async function saveToServer() {
+      if (!storefrontId) {
+        setStatus("Missing storefront id", true);
+        return;
+      }
+
+      const url = `/storefront/${storefrontId}/layout/save/`;
+      const payload = {
+        layout: readJSON(KEY_LAYOUT, {}),
+        styles: readJSON(KEY_STYLES, {}),
+        bg: localStorage.getItem(KEY_BG) || "#ffffff",
+      };
+
+      const res = await fetch(url, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) {
+        setStatus("Save failed", true);
+        return;
+      }
+
+      setStatus("Saved ✔", false);
     }
 
     let zCounter = 10;
@@ -521,8 +587,15 @@
       document.body.classList.toggle("sf-editor-lock", isOpen);
     }
 
-    function openEditor() {
+    async function openEditor() {
       setEditorOpen(true);
+
+      setStatus("Loading…", false);
+      try {
+        await loadFromServer();
+      } catch {
+        // Network failures should not block editing
+      }
 
       // Ensure common fonts are available, then rebuild after fonts are ready
       injectGoogleFontsOnce();
@@ -533,6 +606,7 @@
       }
 
       rebuildBlocks();
+      setStatus("Loaded", false);
     }
 
     function closeEditor() {
@@ -555,6 +629,17 @@
     if (openBtn) openBtn.addEventListener("click", openEditor);
     if (closeBtn) closeBtn.addEventListener("click", closeEditor);
     if (backdrop) backdrop.addEventListener("click", closeEditor);
+
+    if (saveBtn) {
+      saveBtn.addEventListener("click", async () => {
+        setStatus("Saving…", false);
+        try {
+          await saveToServer();
+        } catch {
+          setStatus("Save failed", true);
+        }
+      });
+    }
 
     // Prevent navigation inside editor (buttons/links inside cloned preview)
     surface.addEventListener("click", function (e) {
@@ -661,7 +746,7 @@
     function rebuildBlocks() {
       clearBlocks();
 
-      // Show original wrapper so we can measure positions
+      // Show original wrapper so can measure positions
       content.style.display = "";
       content.style.visibility = "";
       content.style.pointerEvents = "none";
@@ -697,7 +782,7 @@
         const defaultX = rect.left - surfaceRect.left;
         const defaultY = rect.top - surfaceRect.top;
 
-        // Your preferred default sizing logic (25% when the element “feels wide”)
+        // Preferred default sizing logic (25% when the element “feels wide”)
         const targetW = (baseW > surfaceW * 0.30)
           ? Math.floor(surfaceW * 0.25)
           : Math.floor(baseW * 1.15);
@@ -831,6 +916,8 @@
       const saved = readJSON(KEY_LAYOUT, {});
       saved[id] = { x, y, w, h };
       writeJSON(KEY_LAYOUT, saved);
+
+      setStatus("Not saved yet", false);
     }
 
     function updateStyleForSelected(patch) {
@@ -855,6 +942,8 @@
       boldBtn.classList.toggle("is-active", !!st.bold);
       italicBtn.classList.toggle("is-active", !!st.italic);
       underBtn.classList.toggle("is-active", !!st.underline);
+
+      setStatus("Not saved yet", false);
     }
 
     fontSelect.addEventListener("change", () => selectedId && updateStyleForSelected({ fontFamily: fontSelect.value }));
@@ -887,6 +976,7 @@
     bgInput.addEventListener("input", () => {
       surface.style.background = bgInput.value;
       localStorage.setItem(KEY_BG, bgInput.value);
+      setStatus("Not saved yet", false);
     });
 
     hideBtn.addEventListener("click", () => {
@@ -901,6 +991,7 @@
       delete saved[selectedId];
       writeJSON(KEY_STYLES, saved);
       rebuildBlocks();
+      setStatus("Not saved yet", false);
     });
 
     fitBtn.addEventListener("click", () => {
@@ -912,7 +1003,6 @@
         return;
       }
 
-      // Compute once, then keep it stable
       computeAndApplyFit();
     });
 
@@ -1020,6 +1110,7 @@
 
     // Initialise Fit button visuals off
     applyFitVisuals(false);
+    setStatus("Not saved yet", false);
   })();
 </script>
 
