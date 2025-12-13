@@ -266,15 +266,17 @@
 </div>
 
 {# ========== Full-screen layout editor overlay ========== #}
-<div id="sf-layout-editor" class="sf-layout-editor-overlay" aria-hidden="true">
+<div id="sf-layout-editor" class="sf-layout-editor-overlay" aria-hidden="true" data-storefront-id="{{ storefront.id }}">
+
   <div class="sf-layout-editor-backdrop" id="sf-layout-editor-backdrop"></div>
 
   <div class="sf-layout-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="sf-layout-editor-title">
     <header class="sf-layout-editor-header">
       <h2 id="sf-layout-editor-title">Customize storefront layout</h2>
-      <button type="button" class="sf-layout-editor-close" id="sf-close-layout-editor" aria-label="Close layout editor">
-        &times;
+      <button type="button" class="sf-layout-editor-close" id="sf-close-layout-editor">
+        Close
       </button>
+
     </header>
 
     <div class="sf-layout-editor-body">
@@ -331,6 +333,14 @@
           <button type="button" id="sf-reset-block" class="sf-toolbar-button" disabled>
             Reset styles
           </button>
+          <button type="button" class="btn btn-primary" id="sf-save-layout">
+            Save layout
+          </button>
+
+          <span id="sf-save-status" class="ms-2 text-muted" style="font-size: 0.9rem;">
+            Not saved yet
+          </span>
+
         </div>
       </div>
 
