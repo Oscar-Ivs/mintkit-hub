@@ -2,6 +2,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from django.conf import settings
 
 from accounts.models import Profile
 
@@ -156,3 +157,24 @@ class StorefrontCard(models.Model):
 
     def __str__(self):
         return self.title or f"Card {self.pk}"
+
+
+class StorefrontLayout(models.Model):
+    """
+    Store each storefront's editor layout in the DB,
+    so it loads the same on any device and for the correct owner.
+    """
+    storefront = models.OneToOneField(
+        "Storefront",
+        on_delete=models.CASCADE,
+        related_name="layout_data"
+    )
+
+    layout = models.JSONField(default=dict, blank=True)   # block positions/sizes
+    styles = models.JSONField(default=dict, blank=True)   # per-block typography + hidden
+    bg = models.CharField(max_length=20, default="#ffffff", blank=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Layout for storefront #{self.storefront_id}"
