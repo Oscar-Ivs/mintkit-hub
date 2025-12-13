@@ -278,32 +278,17 @@
     </header>
 
     <div class="sf-layout-editor-body">
+
       <div class="sf-layout-editor-toolbar">
         <div class="sf-toolbar-group">
           <label for="sf-font-family">Font</label>
           <select id="sf-font-family">
             <option value="">Default</option>
-
-            <!-- Sans -->
             <option value="'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif">Inter</option>
             <option value="'Roboto', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Roboto</option>
-            <option value="'Poppins', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Poppins</option>
             <option value="'Montserrat', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Montserrat</option>
-            <option value="'Lato', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Lato</option>
-            <option value="'Nunito', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Nunito</option>
-            <option value="'Open Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Open Sans</option>
-
-            <!-- Serif -->
-            <option value="'Merriweather', Georgia, 'Times New Roman', serif">Merriweather</option>
-            <option value="'Playfair Display', Georgia, 'Times New Roman', serif">Playfair Display</option>
-            <option value="'PT Serif', Georgia, 'Times New Roman', serif">PT Serif</option>
             <option value="Georgia, 'Times New Roman', serif">Georgia</option>
             <option value="'Times New Roman', serif">Times New Roman</option>
-
-            <!-- Display / Mono -->
-            <option value="'Oswald', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Oswald</option>
-            <option value="'Raleway', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Raleway</option>
-            <option value="'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace">Fira Code</option>
             <option value="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace">Monospace</option>
           </select>
         </div>
@@ -347,11 +332,10 @@
         </div>
       </div>
 
-      {# Canvas is the scrollable area; surface is the “page” background we style. #}
       <div class="sf-layout-editor-canvas" id="sf-editor-canvas">
         <div class="sf-layout-editor-surface" id="sf-editor-surface">
-          {# Editor content (normal flow) – JS will convert marked nodes into draggable blocks. #}
           <div class="sf-preview-card sf-preview-card--editor" id="sf-editor-content">
+
             <div class="sf-preview-logo" data-sf-block="logo" data-sf-label="Logo">
               {% if storefront.logo %}
               <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
@@ -401,7 +385,7 @@
 
                 {% if card.buy_url %}
                 <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-                  class="btn btn-sm btn-primary storefront-preview-card-button">
+                   class="btn btn-sm btn-primary storefront-preview-card-button">
                   Buy now
                 </a>
                 {% endif %}
@@ -409,6 +393,7 @@
               {% endfor %}
             </div>
             {% endif %}
+
           </div>
         </div>
       </div>
@@ -416,19 +401,18 @@
       <p class="sf-layout-editor-hint text-muted">
         Draft layout editor — drag and resize blocks. (Saving will be added next.)
       </p>
+
     </div>
   </div>
 </div>
 
 <script>
 /*
-  Storefront layout editor (drag + resize + basic text styling)
-  ------------------------------------------------------------
-  Notes for future reference:
-  - We convert marked nodes ([data-sf-block]) into absolutely positioned blocks.
-  - Selected block is highlighted and always brought on top while interacting.
-  - Page background picker changes the editor “page” background (surface), not the block.
-  - Links/buttons inside the editor are disabled to prevent accidental navigation.
+  Fixes in this version:
+  1) Removes the “mystical top block” by hiding #sf-editor-content (the original preview wrapper)
+     after measuring (so only draggable blocks remain visible).
+  2) Better default block widths: instead of 100%, blocks start ~25% page width (more natural).
+  3) Still clamps blocks so they can’t exceed the page width.
 */
 
 (function () {
@@ -439,7 +423,6 @@
   const closeBtn = document.getElementById("sf-close-layout-editor");
   const backdrop = document.getElementById("sf-layout-editor-backdrop");
 
-  const canvas = document.getElementById("sf-editor-canvas");
   const surface = document.getElementById("sf-editor-surface");
   const content = document.getElementById("sf-editor-content");
 
@@ -454,86 +437,92 @@
   const hideBtn    = document.getElementById("sf-hide-block");
   const resetBtn   = document.getElementById("sf-reset-block");
 
-  // Storage keys (scoped per page)
-  const KEY_LAYOUT = "sf_layout_v2:" + location.pathname;
-  const KEY_STYLES = "sf_styles_v2:" + location.pathname;
-  const KEY_BG     = "sf_bg_v2:" + location.pathname;
+  const KEY_LAYOUT = "sf_layout_v4:" + location.pathname;
+  const KEY_STYLES = "sf_styles_v4:" + location.pathname;
+  const KEY_BG     = "sf_bg_v4:" + location.pathname;
 
   function readJSON(key, fallback) {
     try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
-    catch (e) { return fallback; }
+    catch { return fallback; }
   }
-
   function writeJSON(key, value) {
     try { localStorage.setItem(key, JSON.stringify(value)); }
-    catch (e) { /* ignore */ }
+    catch { /* ignore */ }
   }
 
-  // Internal state
   let zCounter = 10;
   let selectedId = null;
   let fitEnabled = false;
 
-  // Maps blockId -> DOM block element
   const blocks = new Map();
 
-  function openEditor() {
-    editor.setAttribute("aria-hidden", "false");
-    editor.classList.add("is-open");
-    document.body.classList.add("sf-editor-lock");
-
-    // Build blocks once per open (safe rebuild)
-    rebuildBlocks();
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
   }
 
-  function closeEditor() {
-    editor.setAttribute("aria-hidden", "true");
-    editor.classList.remove("is-open");
-    document.body.classList.remove("sf-editor-lock");
+  function setEditorOpen(isOpen) {
+    editor.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    editor.classList.toggle("is-open", isOpen);
+    document.body.classList.toggle("sf-editor-lock", isOpen);
+  }
 
-    // Clear selection so toolbar disables
+  function openEditor() {
+    setEditorOpen(true);
+    rebuildBlocks();
+  }
+  function closeEditor() {
+    setEditorOpen(false);
     selectBlock(null);
+    clearBlocks();
+    // restore content wrapper visibility for next open/measure
+    content.style.display = "";
+    content.style.visibility = "";
+    content.style.pointerEvents = "";
   }
 
   if (openBtn) openBtn.addEventListener("click", openEditor);
   if (closeBtn) closeBtn.addEventListener("click", closeEditor);
   if (backdrop) backdrop.addEventListener("click", closeEditor);
 
-  // Disable navigation / button actions inside editor page
+  // Prevent clicks inside editor from triggering navigation
   surface.addEventListener("click", function (e) {
-    const a = e.target.closest("a");
-    const btn = e.target.closest("button");
-    if (a || btn) {
+    if (e.target.closest("a,button")) {
       e.preventDefault();
       e.stopPropagation();
     }
   }, true);
 
-  function rebuildBlocks() {
-    // Remove old blocks
+  function clearBlocks() {
     blocks.forEach((el) => el.remove());
     blocks.clear();
+  }
 
-    // Restore normal flow content (in case it was modified)
-    // (We keep content as the visual reference; blocks will be overlays.)
-    const marked = content.querySelectorAll("[data-sf-block]");
-    if (!marked.length) return;
+  function rebuildBlocks() {
+    clearBlocks();
 
-    // Apply saved page background
+    // IMPORTANT: show the original wrapper so we can measure positions
+    content.style.display = "";
+    content.style.visibility = "";
+    content.style.pointerEvents = "none"; // don’t steal clicks while measuring
+
+    // Background applies to the real page surface
     const savedBg = localStorage.getItem(KEY_BG);
     if (savedBg) {
       surface.style.background = savedBg;
       bgInput.value = savedBg;
     } else {
       surface.style.background = "#ffffff";
+      bgInput.value = "#ffffff";
     }
 
-    // Load saved layout + styles
+    const marked = content.querySelectorAll("[data-sf-block]");
+    if (!marked.length) return;
+
     const savedLayout = readJSON(KEY_LAYOUT, {});
     const savedStyles = readJSON(KEY_STYLES, {});
 
-    // Compute positions based on current rendered positions
     const surfaceRect = surface.getBoundingClientRect();
+    const surfaceW = surface.clientWidth;
 
     marked.forEach((node) => {
       const id = node.getAttribute("data-sf-block");
@@ -541,43 +530,50 @@
 
       const rect = node.getBoundingClientRect();
 
-      // Base size from node, then add 15% “breathing room”
       const baseW = rect.width;
       const baseH = rect.height;
-      const padW = Math.max(20, baseW * 0.15);  // 10–20% feel
-      const padH = Math.max(16, baseH * 0.20);
 
       const defaultX = rect.left - surfaceRect.left;
       const defaultY = rect.top  - surfaceRect.top;
 
-      const layout = savedLayout[id] || {
+      // Better “nice default width”
+      // If an element naturally renders full-width, start it at ~25% of the page.
+      // Otherwise keep it near its measured width with +15% breathing room.
+      const targetW = (baseW > surfaceW * 0.30)
+        ? Math.floor(surfaceW * 0.25)
+        : Math.floor(baseW * 1.15);
+
+      const fallbackLayout = {
         x: Math.max(0, defaultX),
         y: Math.max(0, defaultY),
-        w: Math.min(surfaceRect.width - 20, baseW + padW),
-        h: baseH + padH
+        w: clamp(targetW, 240, surfaceW - 20),
+        h: Math.max(90, Math.floor(baseH * 1.20)),
       };
 
-      // Create overlay block
+      const layout = savedLayout[id] || fallbackLayout;
+
+      // Clamp so blocks can’t extend beyond the surface width
+      const safeW = clamp(layout.w, 240, surfaceW - 20);
+      const safeX = clamp(layout.x, 0, surfaceW - safeW - 10);
+
       const block = document.createElement("div");
       block.className = "sf-layout-block";
       block.setAttribute("data-block-id", id);
-      block.style.left = layout.x + "px";
-      block.style.top  = layout.y + "px";
-      block.style.width  = layout.w + "px";
-      block.style.height = layout.h + "px";
+      block.style.left = safeX + "px";
+      block.style.top  = Math.max(0, layout.y) + "px";
+      block.style.width  = safeW + "px";
+      block.style.height = Math.max(90, layout.h) + "px";
       block.style.zIndex = (++zCounter).toString();
 
-      // Label
       const labelEl = document.createElement("div");
       labelEl.className = "sf-layout-block-label";
       labelEl.textContent = label;
 
-      // Content clone (so the block matches what user sees)
       const contentWrap = document.createElement("div");
       contentWrap.className = "sf-layout-block-content";
       contentWrap.appendChild(node.cloneNode(true));
 
-      // Apply saved styles for this block
+      // Apply styles
       const st = savedStyles[id] || {};
       if (st.fontFamily) contentWrap.style.fontFamily = st.fontFamily;
       if (st.fontSize) contentWrap.style.fontSize = st.fontSize + "px";
@@ -586,7 +582,6 @@
       if (st.underline) contentWrap.style.textDecoration = "underline";
       if (st.hidden) block.classList.add("sf-layout-block-hidden");
 
-      // Resize handle
       const handle = document.createElement("div");
       handle.className = "sf-layout-resize-handle";
       handle.title = "Resize";
@@ -598,9 +593,7 @@
 
       blocks.set(id, block);
 
-      // Select on click
       block.addEventListener("pointerdown", (e) => {
-        // Clicking the resize handle should not start dragging
         if (e.target === handle) return;
         selectBlock(id);
         startDrag(e, block);
@@ -613,59 +606,63 @@
       });
     });
 
-    // If we previously had a selected block, reselect it
-    if (selectedId && blocks.has(selectedId)) {
-      selectBlock(selectedId);
-    } else {
-      selectBlock(null);
-    }
+    // ✅ Now hide the original wrapper completely (removes that “mystical block”)
+    content.style.display = "none";
+
+    if (selectedId && blocks.has(selectedId)) selectBlock(selectedId);
+    else selectBlock(null);
   }
 
   function selectBlock(id) {
     selectedId = id;
+    blocks.forEach((b) => b.classList.remove("sf-layout-block-selected"));
 
-    // Visual highlight + toolbar enable/disable
-    blocks.forEach((block) => block.classList.remove("sf-layout-block-selected"));
-    if (id && blocks.has(id)) {
-      const block = blocks.get(id);
-      block.classList.add("sf-layout-block-selected");
-      block.style.zIndex = (++zCounter).toString();
-
-      hideBtn.disabled = false;
-      resetBtn.disabled = false;
-
-      // Sync toolbar values from stored styles
-      const savedStyles = readJSON(KEY_STYLES, {});
-      const st = savedStyles[id] || {};
-
-      fontSelect.value = st.fontFamily || "";
-      sizeInput.value  = st.fontSize ? String(st.fontSize) : "";
-
-      boldBtn.classList.toggle("is-active", !!st.bold);
-      italicBtn.classList.toggle("is-active", !!st.italic);
-      underBtn.classList.toggle("is-active", !!st.underline);
-    } else {
+    if (!id || !blocks.has(id)) {
       hideBtn.disabled = true;
       resetBtn.disabled = true;
-
       fontSelect.value = "";
       sizeInput.value = "";
-
       boldBtn.classList.remove("is-active");
       italicBtn.classList.remove("is-active");
       underBtn.classList.remove("is-active");
+      return;
     }
+
+    const block = blocks.get(id);
+    block.classList.add("sf-layout-block-selected");
+    block.style.zIndex = (++zCounter).toString();
+
+    hideBtn.disabled = false;
+    resetBtn.disabled = false;
+
+    const savedStyles = readJSON(KEY_STYLES, {});
+    const st = savedStyles[id] || {};
+
+    fontSelect.value = st.fontFamily || "";
+    sizeInput.value  = st.fontSize ? String(st.fontSize) : "";
+
+    boldBtn.classList.toggle("is-active", !!st.bold);
+    italicBtn.classList.toggle("is-active", !!st.italic);
+    underBtn.classList.toggle("is-active", !!st.underline);
   }
 
   function saveLayoutFromBlock(block) {
     const id = block.getAttribute("data-block-id");
+    const surfaceW = surface.clientWidth;
+
+    let x = parseFloat(block.style.left) || 0;
+    let y = parseFloat(block.style.top) || 0;
+    let w = parseFloat(block.style.width) || 300;
+    let h = parseFloat(block.style.height) || 120;
+
+    w = clamp(w, 240, surfaceW - 20);
+    x = clamp(x, 0, surfaceW - w - 10);
+
+    block.style.left = x + "px";
+    block.style.width = w + "px";
+
     const saved = readJSON(KEY_LAYOUT, {});
-    saved[id] = {
-      x: parseFloat(block.style.left) || 0,
-      y: parseFloat(block.style.top) || 0,
-      w: parseFloat(block.style.width) || 300,
-      h: parseFloat(block.style.height) || 120
-    };
+    saved[id] = { x, y, w, h };
     writeJSON(KEY_LAYOUT, saved);
   }
 
@@ -677,7 +674,6 @@
     saved[selectedId] = { ...current, ...patch };
     writeJSON(KEY_STYLES, saved);
 
-    // Apply immediately
     const block = blocks.get(selectedId);
     if (!block) return;
 
@@ -685,70 +681,54 @@
     if (!contentWrap) return;
 
     const st = saved[selectedId];
-
     contentWrap.style.fontFamily = st.fontFamily || "";
     contentWrap.style.fontSize = st.fontSize ? (st.fontSize + "px") : "";
-
     contentWrap.style.fontWeight = st.bold ? "700" : "";
     contentWrap.style.fontStyle = st.italic ? "italic" : "";
     contentWrap.style.textDecoration = st.underline ? "underline" : "";
 
     block.classList.toggle("sf-layout-block-hidden", !!st.hidden);
 
-    // Keep toolbar toggles in sync
     boldBtn.classList.toggle("is-active", !!st.bold);
     italicBtn.classList.toggle("is-active", !!st.italic);
     underBtn.classList.toggle("is-active", !!st.underline);
   }
 
-  // Toolbar events
-  fontSelect.addEventListener("change", () => {
-    if (!selectedId) return;
-    updateStyleForSelected({ fontFamily: fontSelect.value });
-  });
+  fontSelect.addEventListener("change", () => selectedId && updateStyleForSelected({ fontFamily: fontSelect.value }));
 
   sizeInput.addEventListener("input", () => {
     if (!selectedId) return;
-
     const n = parseInt(sizeInput.value, 10);
-    if (Number.isFinite(n) && n > 0) {
-      updateStyleForSelected({ fontSize: n });
-    } else if (sizeInput.value === "") {
-      updateStyleForSelected({ fontSize: null });
-    }
+    if (Number.isFinite(n) && n > 0) updateStyleForSelected({ fontSize: n });
+    if (sizeInput.value === "") updateStyleForSelected({ fontSize: null });
   });
 
   boldBtn.addEventListener("click", () => {
     if (!selectedId) return;
-    const saved = readJSON(KEY_STYLES, {});
-    const st = saved[selectedId] || {};
+    const st = (readJSON(KEY_STYLES, {})[selectedId] || {});
     updateStyleForSelected({ bold: !st.bold });
   });
 
   italicBtn.addEventListener("click", () => {
     if (!selectedId) return;
-    const saved = readJSON(KEY_STYLES, {});
-    const st = saved[selectedId] || {};
+    const st = (readJSON(KEY_STYLES, {})[selectedId] || {});
     updateStyleForSelected({ italic: !st.italic });
   });
 
   underBtn.addEventListener("click", () => {
     if (!selectedId) return;
-    const saved = readJSON(KEY_STYLES, {});
-    const st = saved[selectedId] || {};
+    const st = (readJSON(KEY_STYLES, {})[selectedId] || {});
     updateStyleForSelected({ underline: !st.underline });
   });
 
   bgInput.addEventListener("input", () => {
-    const color = bgInput.value;
-    surface.style.background = color;
-    localStorage.setItem(KEY_BG, color);
+    surface.style.background = bgInput.value;
+    localStorage.setItem(KEY_BG, bgInput.value);
   });
 
   hideBtn.addEventListener("click", () => {
     if (!selectedId) return;
-    const saved = readJSON(KEY_STYLES, {});
-    const st = saved[selectedId] || {};
+    const st = (readJSON(KEY_STYLES, {})[selectedId] || {});
     updateStyleForSelected({ hidden: !st.hidden });
   });
 
@@ -757,14 +737,12 @@
     const saved = readJSON(KEY_STYLES, {});
     delete saved[selectedId];
     writeJSON(KEY_STYLES, saved);
-    updateStyleForSelected({ fontFamily: "", fontSize: null, bold: false, italic: false, underline: false, hidden: false });
+    rebuildBlocks();
   });
 
   fitBtn.addEventListener("click", () => {
     fitEnabled = !fitEnabled;
     surface.classList.toggle("sf-surface-fit", fitEnabled);
-
-    // When switching modes, rebuild positions from current view
     rebuildBlocks();
   });
 
@@ -785,8 +763,10 @@
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
 
-      // Keep within surface bounds (light clamp)
-      const newLeft = Math.max(0, startLeft + dx);
+      const w = parseFloat(block.style.width) || 300;
+      const surfaceW = surface.clientWidth;
+
+      const newLeft = clamp(startLeft + dx, 0, surfaceW - w - 10);
       const newTop  = Math.max(0, startTop + dy);
 
       block.style.left = newLeft + "px";
@@ -824,8 +804,10 @@
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
 
-      const newW = Math.max(200, startW + dx);
-      const newH = Math.max(80,  startH + dy);
+      const surfaceW = surface.clientWidth;
+
+      const newW = clamp(startW + dx, 240, surfaceW - 20);
+      const newH = Math.max(90, startH + dy);
 
       block.style.width = newW + "px";
       block.style.height = newH + "px";
@@ -845,12 +827,12 @@
     block.addEventListener("pointerup", onUp);
   }
 
-  // ESC closes editor (nice UX)
   document.addEventListener("keydown", function (e) {
     if (!editor.classList.contains("is-open")) return;
     if (e.key === "Escape") closeEditor();
   });
 })();
 </script>
+
 
 {% endblock %}

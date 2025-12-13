@@ -1196,12 +1196,13 @@ ul.messages li.danger {
   position: absolute;
   inset: 0;
   background: rgba(2, 6, 23, 0.45);
+  backdrop-filter: blur(2px);
 }
 
 .sf-layout-editor-dialog {
   position: relative;
-  width: min(1200px, calc(100% - 48px));
-  height: min(860px, calc(100% - 48px));
+  width: min(1400px, calc(100% - 48px));
+  height: min(900px, calc(100% - 48px));
   margin: 24px auto;
   background: #f8fafc;
   border-radius: 18px;
@@ -1218,6 +1219,11 @@ ul.messages li.danger {
   padding: 18px 22px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.35);
   background: #f8fafc;
+}
+
+.sf-layout-editor-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
 }
 
 .sf-layout-editor-close {
@@ -1303,7 +1309,10 @@ ul.messages li.danger {
   border-color: rgba(244, 63, 94, 0.35);
 }
 
-/* Canvas + surface (NO extra “side gutters” divs) */
+/* Canvas + surface
+   - Canvas is scrollable
+   - Surface is the “page” (background colour applies here)
+   - Surface is constrained to editor width (no over-wide layer) */
 .sf-layout-editor-canvas {
   flex: 1;
   min-height: 0;
@@ -1316,19 +1325,21 @@ ul.messages li.danger {
 .sf-layout-editor-surface {
   position: relative;
   min-height: 720px;
+  width: 100%;
+  max-width: 100%;
   background: #ffffff;
   border-radius: 16px;
   border: 1px solid rgba(148, 163, 184, 0.25);
   padding: 22px;
+  overflow: hidden; /* prevents blocks creating “ghost width” */
 }
 
-/* Fit mode: shrink content visually (blocks will rebuild positions) */
 .sf-layout-editor-surface.sf-surface-fit {
   transform-origin: top left;
   transform: scale(0.85);
 }
 
-/* Disable accidental selection while editing */
+/* Lock body scroll when editor open */
 body.sf-editor-lock {
   overflow: hidden;
 }
@@ -1344,6 +1355,7 @@ body.sf-editor-lock {
   box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
   cursor: grab;
   user-select: none;
+  max-width: 100%;
 }
 
 .sf-layout-block--dragging,
@@ -1367,7 +1379,6 @@ body.sf-editor-lock {
 }
 
 .sf-layout-block-content {
-  /* Keep the block tighter – stops the “2x width empty block” feel */
   display: inline-block;
   max-width: 100%;
 }
