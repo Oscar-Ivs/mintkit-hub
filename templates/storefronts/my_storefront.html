@@ -267,7 +267,8 @@
 
 {# ========== Full-screen layout editor overlay ========== #}
 <div id="sf-layout-editor" class="sf-layout-editor-overlay" aria-hidden="true">
-  <div class="sf-layout-editor-backdrop"></div>
+  <div class="sf-layout-editor-backdrop" id="sf-layout-editor-backdrop"></div>
+
   <div class="sf-layout-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="sf-layout-editor-title">
     <header class="sf-layout-editor-header">
       <h2 id="sf-layout-editor-title">Customize storefront layout</h2>
@@ -282,48 +283,61 @@
           <label for="sf-font-family">Font</label>
           <select id="sf-font-family">
             <option value="">Default</option>
-            <option value="'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif">
-              Clean sans
-            </option>
-            <option value="'Georgia', 'Times New Roman', serif">
-              Elegant serif
-            </option>
-            <option value="'Trebuchet MS', system-ui, sans-serif">
-              Modern
-            </option>
-            <option
-              value="'Courier New', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace">
-              Monospace
-            </option>
+
+            <!-- Sans -->
+            <option value="'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif">Inter</option>
+            <option value="'Roboto', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Roboto</option>
+            <option value="'Poppins', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Poppins</option>
+            <option value="'Montserrat', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Montserrat</option>
+            <option value="'Lato', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Lato</option>
+            <option value="'Nunito', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Nunito</option>
+            <option value="'Open Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Open Sans</option>
+
+            <!-- Serif -->
+            <option value="'Merriweather', Georgia, 'Times New Roman', serif">Merriweather</option>
+            <option value="'Playfair Display', Georgia, 'Times New Roman', serif">Playfair Display</option>
+            <option value="'PT Serif', Georgia, 'Times New Roman', serif">PT Serif</option>
+            <option value="Georgia, 'Times New Roman', serif">Georgia</option>
+            <option value="'Times New Roman', serif">Times New Roman</option>
+
+            <!-- Display / Mono -->
+            <option value="'Oswald', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Oswald</option>
+            <option value="'Raleway', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Raleway</option>
+            <option value="'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace">Fira Code</option>
+            <option value="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace">Monospace</option>
           </select>
         </div>
 
         <div class="sf-toolbar-group">
           <label for="sf-font-size">Size (px)</label>
-          <input id="sf-font-size" type="number" min="10" max="40" step="1" placeholder="Default">
+          <input id="sf-font-size" type="number" min="10" max="96" step="1" placeholder="Default">
         </div>
 
         <div class="sf-toolbar-group">
           <label>Style</label>
           <div class="sf-toolbar-inline-buttons">
-            <button type="button" id="sf-font-bold" class="sf-toolbar-button sf-toolbar-button-toggle">
+            <button type="button" id="sf-font-bold" class="sf-toolbar-button sf-toolbar-button-toggle" title="Bold">
               <strong>B</strong>
             </button>
-            <button type="button" id="sf-font-italic" class="sf-toolbar-button sf-toolbar-button-toggle">
+            <button type="button" id="sf-font-italic" class="sf-toolbar-button sf-toolbar-button-toggle" title="Italic">
               <em>I</em>
             </button>
-            <button type="button" id="sf-font-underline" class="sf-toolbar-button sf-toolbar-button-toggle">
+            <button type="button" id="sf-font-underline" class="sf-toolbar-button sf-toolbar-button-toggle" title="Underline">
               <span style="text-decoration: underline;">U</span>
             </button>
           </div>
         </div>
 
         <div class="sf-toolbar-group">
-          <label for="sf-bg-color">Background</label>
+          <label for="sf-bg-color">Page background</label>
           <input id="sf-bg-color" type="color" value="#ffffff">
         </div>
 
         <div class="sf-toolbar-group" style="margin-left: auto;">
+          <button type="button" id="sf-fit-toggle" class="sf-toolbar-button" title="Fit page into view">
+            Fit
+          </button>
+
           <button type="button" id="sf-hide-block" class="sf-toolbar-button sf-toolbar-button-danger" disabled>
             Hide block
           </button>
@@ -332,34 +346,40 @@
           </button>
         </div>
       </div>
-      <br>
-      <div class="sf-layout-editor-canvas">
-        <div class="sf-layout-editor-surface">
-          {# We reuse the same content as the main preview; JS will turn these into draggable/resizable blocks. #}
-          <div class="sf-preview-card sf-preview-card--editor">
-            <div class="sf-preview-logo">
+
+      {# Canvas is the scrollable area; surface is the “page” background we style. #}
+      <div class="sf-layout-editor-canvas" id="sf-editor-canvas">
+        <div class="sf-layout-editor-surface" id="sf-editor-surface">
+          {# Editor content (normal flow) – JS will convert marked nodes into draggable blocks. #}
+          <div class="sf-preview-card sf-preview-card--editor" id="sf-editor-content">
+            <div class="sf-preview-logo" data-sf-block="logo" data-sf-label="Logo">
               {% if storefront.logo %}
               <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
               {% endif %}
             </div>
 
-            <h3 class="sf-preview-headline">
+            <h3 class="sf-preview-headline" data-sf-block="headline" data-sf-label="Headline">
               {{ storefront.headline|default:"Your storefront headline" }}
             </h3>
 
-            <p class="sf-preview-body">
+            <p class="sf-preview-body" data-sf-block="description" data-sf-label="Description">
               {{ storefront.description|default:"Add a short description of your service or products." }}
             </p>
 
-            <h4 class="sf-preview-section-title">Contact details</h4>
-            <p class="sf-preview-body">
+            <h4 class="sf-preview-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
+              Contact details
+            </h4>
+
+            <p class="sf-preview-body" data-sf-block="contact_text" data-sf-label="Contact text">
               {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
             </p>
 
             {% if has_cards %}
-            <h3 class="storefront-section-heading">Featured digital cards</h3>
+            <h3 class="storefront-section-heading" data-sf-block="cards_title" data-sf-label="Featured cards title">
+              Featured digital cards
+            </h3>
 
-            <div class="sf-card-grid">
+            <div class="sf-card-grid" data-sf-block="cards_grid" data-sf-label="Cards grid">
               {% for card in storefront.cards.all %}
               <article class="sf-card">
                 {% if card.image_url %}
@@ -394,572 +414,443 @@
       </div>
 
       <p class="sf-layout-editor-hint text-muted">
-        Draft layout editor - you can drag and resize the main blocks around here. Layout changes are not saved yet.
+        Draft layout editor — drag and resize blocks. (Saving will be added next.)
       </p>
     </div>
   </div>
 </div>
 
-{# ===== Layout editor styles (blocks + resize handle) - local to this template ===== #}
-<style>
-  /* Layout editor blocks: draggable + resizable */
-  .sf-layout-editor-overlay .sf-layout-block {
-    position: absolute;
-    box-sizing: border-box;
-    border-radius: 12px;
-    border: 1px dashed rgba(129, 140, 248, 0.95);
-    padding: 12px 16px 20px;
-    background: rgba(255, 255, 255, 0.98);
-    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
-    cursor: grab;
-    transition: box-shadow 0.12s ease, transform 0.12s ease;
-    min-width: 220px;
-    max-width: 90%;
-    min-height: 72px;
-    /* let blocks use their natural height; the canvas will scroll */
-  }
-
-  .sf-layout-editor-overlay .sf-layout-block-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #6b7280;
-    margin-bottom: 6px;
-  }
-
-  .sf-layout-editor-overlay .sf-layout-block--dragging,
-  .sf-layout-editor-overlay .sf-layout-block--resizing {
-    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.26);
-  }
-
-  .sf-layout-editor-overlay .sf-layout-resize-handle {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-    width: 14px;
-    height: 14px;
-    border-radius: 999px;
-    border: 2px solid #4f46e5;
-    background: #eef2ff;
-    cursor: se-resize;
-  }
-
-  .sf-layout-editor-overlay .sf-layout-resize-handle::before {
-    content: "";
-    position: absolute;
-    inset: 2px;
-    border-right: 2px solid rgba(148, 163, 184, 0.9);
-    border-bottom: 2px solid rgba(148, 163, 184, 0.9);
-  }
-</style>
-
 <script>
-  (function () {
-    const openBtn = document.getElementById("sf-open-layout-editor");
-    const closeBtn = document.getElementById("sf-close-layout-editor");
-    const overlay = document.getElementById("sf-layout-editor");
+/*
+  Storefront layout editor (drag + resize + basic text styling)
+  ------------------------------------------------------------
+  Notes for future reference:
+  - We convert marked nodes ([data-sf-block]) into absolutely positioned blocks.
+  - Selected block is highlighted and always brought on top while interacting.
+  - Page background picker changes the editor “page” background (surface), not the block.
+  - Links/buttons inside the editor are disabled to prevent accidental navigation.
+*/
 
-    if (!openBtn || !overlay) return;
+(function () {
+  const editor = document.getElementById("sf-layout-editor");
+  if (!editor) return;
 
-    let initialized = false;
+  const openBtn = document.getElementById("sf-open-layout-editor");
+  const closeBtn = document.getElementById("sf-close-layout-editor");
+  const backdrop = document.getElementById("sf-layout-editor-backdrop");
 
-    // Turn headline / logo / description / contact / cards into blocks
-    function initLayoutBlocksAndToolbar() {
-      if (initialized) return;
+  const canvas = document.getElementById("sf-editor-canvas");
+  const surface = document.getElementById("sf-editor-surface");
+  const content = document.getElementById("sf-editor-content");
 
-      const previewCard = overlay.querySelector(".sf-preview-card--editor");
-      if (!previewCard) return;
+  const fontSelect = document.getElementById("sf-font-family");
+  const sizeInput  = document.getElementById("sf-font-size");
+  const boldBtn    = document.getElementById("sf-font-bold");
+  const italicBtn  = document.getElementById("sf-font-italic");
+  const underBtn   = document.getElementById("sf-font-underline");
+  const bgInput    = document.getElementById("sf-bg-color");
 
-      const canvas = previewCard;
-      const canvasRect = canvas.getBoundingClientRect();
-      const bodyBlocks = previewCard.querySelectorAll(".sf-preview-body");
+  const fitBtn     = document.getElementById("sf-fit-toggle");
+  const hideBtn    = document.getElementById("sf-hide-block");
+  const resetBtn   = document.getElementById("sf-reset-block");
 
-      const config = [];
+  // Storage keys (scoped per page)
+  const KEY_LAYOUT = "sf_layout_v2:" + location.pathname;
+  const KEY_STYLES = "sf_styles_v2:" + location.pathname;
+  const KEY_BG     = "sf_bg_v2:" + location.pathname;
 
-      // Logo
-      const logoEl = previewCard.querySelector(".sf-preview-logo");
-      if (logoEl) {
-        config.push({ id: "logo", label: "Logo", elements: [logoEl] });
-      }
+  function readJSON(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+    catch (e) { return fallback; }
+  }
 
-      // Headline
-      const headlineEl = previewCard.querySelector(".sf-preview-headline");
-      if (headlineEl) {
-        config.push({ id: "headline", label: "Headline", elements: [headlineEl] });
-      }
+  function writeJSON(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); }
+    catch (e) { /* ignore */ }
+  }
 
-      // Description paragraph
-      if (bodyBlocks[0]) {
-        config.push({
-          id: "description",
-          label: "Description",
-          elements: [bodyBlocks[0]]
-        });
-      }
+  // Internal state
+  let zCounter = 10;
+  let selectedId = null;
+  let fitEnabled = false;
 
-      // Contact title + body as separate blocks so you can hide just the text
-      const contactTitleEl = previewCard.querySelector(".sf-preview-section-title");
-      const contactBodyEl = bodyBlocks[1];
+  // Maps blockId -> DOM block element
+  const blocks = new Map();
 
-      if (contactTitleEl) {
-        config.push({
-          id: "contact-title",
-          label: "Contact title",
-          elements: [contactTitleEl]
-        });
-      }
+  function openEditor() {
+    editor.setAttribute("aria-hidden", "false");
+    editor.classList.add("is-open");
+    document.body.classList.add("sf-editor-lock");
 
-      if (contactBodyEl) {
-        config.push({
-          id: "contact-body",
-          label: "Contact text",
-          elements: [contactBodyEl]
-        });
-      }
+    // Build blocks once per open (safe rebuild)
+    rebuildBlocks();
+  }
 
-      // Featured cards: split heading + grid so heading alone can be hidden
-      const cardsTitleEl = previewCard.querySelector(".storefront-section-heading");
-      const cardsGridEl = previewCard.querySelector(".sf-card-grid");
+  function closeEditor() {
+    editor.setAttribute("aria-hidden", "true");
+    editor.classList.remove("is-open");
+    document.body.classList.remove("sf-editor-lock");
 
-      if (cardsTitleEl) {
-        config.push({
-          id: "cards-title",
-          label: "Featured cards title",
-          elements: [cardsTitleEl]
-        });
-      }
+    // Clear selection so toolbar disables
+    selectBlock(null);
+  }
 
-      if (cardsGridEl) {
-        config.push({
-          id: "cards-grid",
-          label: "Cards grid",
-          elements: [cardsGridEl]
-        });
-      }
+  if (openBtn) openBtn.addEventListener("click", openEditor);
+  if (closeBtn) closeBtn.addEventListener("click", closeEditor);
+  if (backdrop) backdrop.addEventListener("click", closeEditor);
 
-      const items = [];
+  // Disable navigation / button actions inside editor page
+  surface.addEventListener("click", function (e) {
+    const a = e.target.closest("a");
+    const btn = e.target.closest("button");
+    if (a || btn) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }, true);
 
-      // Wrap each group of elements in a draggable / resizable block
-      config.forEach(function (blockConfig) {
-        if (!blockConfig.elements.length) return;
+  function rebuildBlocks() {
+    // Remove old blocks
+    blocks.forEach((el) => el.remove());
+    blocks.clear();
 
-        // Bounding box around all elements in this block
-        let union = null;
-        blockConfig.elements.forEach(function (el) {
-          const r = el.getBoundingClientRect();
-          if (!union) {
-            union = { top: r.top, left: r.left, right: r.right, bottom: r.bottom };
-          } else {
-            union.top = Math.min(union.top, r.top);
-            union.left = Math.min(union.left, r.left);
-            union.right = Math.max(union.right, r.right);
-            union.bottom = Math.max(union.bottom, r.bottom);
-          }
-        });
+    // Restore normal flow content (in case it was modified)
+    // (We keep content as the visual reference; blocks will be overlays.)
+    const marked = content.querySelectorAll("[data-sf-block]");
+    if (!marked.length) return;
 
-        if (!union) return;
-
-        const padding = 16;
-        const contentWidth = (union.right - union.left);
-        let width = contentWidth * 1.15 + padding * 2;  // ~15% breathing room
-        let height = (union.bottom - union.top) + padding * 2;
-        let top = union.top - canvasRect.top - padding;
-        let left = union.left - canvasRect.left - padding;
-
-        // 10–20% breathing room, but keep inside canvas
-        top = Math.max(8, top);
-        left = Math.max(8, left);
-        const maxWidth = canvasRect.width * 0.8;
-        width = Math.min(width, maxWidth);
-
-        const firstEl = blockConfig.elements[0];
-        const parent = firstEl.parentNode;
-
-        const block = document.createElement("div");
-        block.className = "sf-layout-block";
-        block.dataset.blockId = blockConfig.id;
-        block.setAttribute("tabindex", "0");
-
-        const labelEl = document.createElement("div");
-        labelEl.className = "sf-layout-block-label";
-        labelEl.textContent = blockConfig.label;
-
-        const resizeHandle = document.createElement("button");
-        resizeHandle.type = "button";
-        resizeHandle.className = "sf-layout-resize-handle";
-        resizeHandle.setAttribute("aria-label", "Resize " + blockConfig.label);
-
-        parent.insertBefore(block, firstEl);
-        block.appendChild(labelEl);
-
-        blockConfig.elements.forEach(function (el) {
-          block.appendChild(el);
-        });
-
-        block.appendChild(resizeHandle);
-
-        Object.assign(block.style, {
-          top: top + "px",
-          left: left + "px",
-          width: width + "px",
-          height: height + "px"
-        });
-
-        items.push({ block: block, handle: resizeHandle });
-      });
-
-      canvas.style.position = "relative";
-      canvas.style.minHeight = Math.max(canvasRect.height, 620) + "px";
-
-      setupDragAndResize(canvas, items);
-      initTextToolbar(canvas);
-
-      initialized = true;
+    // Apply saved page background
+    const savedBg = localStorage.getItem(KEY_BG);
+    if (savedBg) {
+      surface.style.background = savedBg;
+      bgInput.value = savedBg;
+    } else {
+      surface.style.background = "#ffffff";
     }
 
-    // Basic drag + resize logic
-    function setupDragAndResize(canvas, items) {
-      let active = null;
+    // Load saved layout + styles
+    const savedLayout = readJSON(KEY_LAYOUT, {});
+    const savedStyles = readJSON(KEY_STYLES, {});
 
-      function startInteraction(mode, event, block) {
-        event.preventDefault();
-        event.stopPropagation();
+    // Compute positions based on current rendered positions
+    const surfaceRect = surface.getBoundingClientRect();
 
-        const rect = block.getBoundingClientRect();
-        const canvasRect = canvas.getBoundingClientRect();
+    marked.forEach((node) => {
+      const id = node.getAttribute("data-sf-block");
+      const label = node.getAttribute("data-sf-label") || id;
 
-        active = {
-          mode: mode,
-          block: block,
-          startX: event.clientX,
-          startY: event.clientY,
-          startLeft: rect.left - canvasRect.left,
-          startTop: rect.top - canvasRect.top,
-          startWidth: rect.width,
-          startHeight: rect.height,
-          canvasRect: canvasRect
-        };
+      const rect = node.getBoundingClientRect();
 
-        if (mode === "drag") {
-          block.classList.add("sf-layout-block--dragging");
-        } else {
-          block.classList.add("sf-layout-block--resizing");
-        }
+      // Base size from node, then add 15% “breathing room”
+      const baseW = rect.width;
+      const baseH = rect.height;
+      const padW = Math.max(20, baseW * 0.15);  // 10–20% feel
+      const padH = Math.max(16, baseH * 0.20);
 
-        window.addEventListener("pointermove", onPointerMove);
-        window.addEventListener("pointerup", endInteraction);
-        window.addEventListener("pointercancel", endInteraction);
-      }
+      const defaultX = rect.left - surfaceRect.left;
+      const defaultY = rect.top  - surfaceRect.top;
 
-      function onPointerMove(event) {
-        if (!active) return;
+      const layout = savedLayout[id] || {
+        x: Math.max(0, defaultX),
+        y: Math.max(0, defaultY),
+        w: Math.min(surfaceRect.width - 20, baseW + padW),
+        h: baseH + padH
+      };
 
-        const dx = event.clientX - active.startX;
-        const dy = event.clientY - active.startY;
-        const minWidth = 160;
-        const minHeight = 60;
+      // Create overlay block
+      const block = document.createElement("div");
+      block.className = "sf-layout-block";
+      block.setAttribute("data-block-id", id);
+      block.style.left = layout.x + "px";
+      block.style.top  = layout.y + "px";
+      block.style.width  = layout.w + "px";
+      block.style.height = layout.h + "px";
+      block.style.zIndex = (++zCounter).toString();
 
-        if (active.mode === "drag") {
-          let left = active.startLeft + dx;
-          let top = active.startTop + dy;
+      // Label
+      const labelEl = document.createElement("div");
+      labelEl.className = "sf-layout-block-label";
+      labelEl.textContent = label;
 
-          const maxLeft = Math.max(0, active.canvasRect.width - active.startWidth);
-          const maxTop = Math.max(0, active.canvasRect.height - active.startHeight);
+      // Content clone (so the block matches what user sees)
+      const contentWrap = document.createElement("div");
+      contentWrap.className = "sf-layout-block-content";
+      contentWrap.appendChild(node.cloneNode(true));
 
-          left = Math.min(Math.max(0, left), maxLeft);
-          top = Math.min(Math.max(0, top), maxTop);
+      // Apply saved styles for this block
+      const st = savedStyles[id] || {};
+      if (st.fontFamily) contentWrap.style.fontFamily = st.fontFamily;
+      if (st.fontSize) contentWrap.style.fontSize = st.fontSize + "px";
+      if (st.bold) contentWrap.style.fontWeight = "700";
+      if (st.italic) contentWrap.style.fontStyle = "italic";
+      if (st.underline) contentWrap.style.textDecoration = "underline";
+      if (st.hidden) block.classList.add("sf-layout-block-hidden");
 
-          active.block.style.left = left + "px";
-          active.block.style.top = top + "px";
-        } else if (active.mode === "resize") {
-          let width = active.startWidth + dx;
-          let height = active.startHeight + dy;
+      // Resize handle
+      const handle = document.createElement("div");
+      handle.className = "sf-layout-resize-handle";
+      handle.title = "Resize";
 
-          width = Math.max(minWidth, Math.min(width, active.canvasRect.width - active.startLeft));
-          height = Math.max(minHeight, Math.min(height, active.canvasRect.height - active.startTop));
+      block.appendChild(labelEl);
+      block.appendChild(contentWrap);
+      block.appendChild(handle);
+      surface.appendChild(block);
 
-          active.block.style.width = width + "px";
-          active.block.style.height = height + "px";
-        }
-      }
+      blocks.set(id, block);
 
-      function endInteraction() {
-        if (!active) return;
-
-        active.block.classList.remove("sf-layout-block--dragging", "sf-layout-block--resizing");
-        active = null;
-
-        window.removeEventListener("pointermove", onPointerMove);
-        window.removeEventListener("pointerup", endInteraction);
-        window.removeEventListener("pointercancel", endInteraction);
-      }
-
-      items.forEach(function (item) {
-        const block = item.block;
-        const handle = item.handle;
-
-        block.addEventListener("pointerdown", function (event) {
-          if (event.button !== 0) return;
-          if (event.target.classList.contains("sf-layout-resize-handle")) return;
-          startInteraction("drag", event, block);
-        });
-
-        handle.addEventListener("pointerdown", function (event) {
-          if (event.button !== 0) return;
-          startInteraction("resize", event, block);
-        });
-      });
-    }
-
-    // Text styling toolbar: font, size, bold/italic/underline, background, hide/show
-    function initTextToolbar(canvas) {
-      const fontFamilySelect = document.getElementById("sf-font-family");
-      const fontSizeInput = document.getElementById("sf-font-size");
-      const boldBtn = document.getElementById("sf-font-bold");
-      const italicBtn = document.getElementById("sf-font-italic");
-      const underlineBtn = document.getElementById("sf-font-underline");
-      const bgInput = document.getElementById("sf-bg-color");
-      const hideButton = document.getElementById("sf-hide-block");
-      const resetButton = document.getElementById("sf-reset-block");
-
-      if (!fontFamilySelect || !fontSizeInput || !hideButton || !resetButton) return;
-
-      const blocks = Array.from(canvas.querySelectorAll(".sf-layout-block"));
-      if (!blocks.length) return;
-
-      let currentBlock = null;
-
-      function rgbToHex(color) {
-        if (!color) return null;
-        if (color.startsWith("#")) return color;
-        const match = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-        if (!match) return null;
-        const r = parseInt(match[1], 10);
-        const g = parseInt(match[2], 10);
-        const b = parseInt(match[3], 10);
-        return "#" + [r, g, b].map(function (x) {
-          return x.toString(16).padStart(2, "0");
-        }).join("");
-      }
-
-      function updateToolbarFromBlock(block) {
-        if (!block) {
-          fontFamilySelect.value = "";
-          fontSizeInput.value = "";
-          if (bgInput) bgInput.value = "#ffffff";
-          hideButton.disabled = true;
-          resetButton.disabled = true;
-          hideButton.textContent = "Hide block";
-          [boldBtn, italicBtn, underlineBtn].forEach(function (btn) {
-            if (btn) btn.classList.remove("is-active");
-          });
-          return;
-        }
-
-        fontFamilySelect.value = block.style.fontFamily || "";
-        fontSizeInput.value = block.style.fontSize ? parseInt(block.style.fontSize, 10) : "";
-
-        if (bgInput) {
-          const currentBg = block.style.backgroundColor || "#ffffff";
-          bgInput.value = rgbToHex(currentBg) || "#ffffff";
-        }
-
-        hideButton.disabled = false;
-        resetButton.disabled = false;
-        hideButton.textContent = block.classList.contains("sf-layout-block--hidden")
-          ? "Show block"
-          : "Hide block";
-
-        if (boldBtn) {
-          boldBtn.classList.toggle(
-            "is-active",
-            block.style.fontWeight === "700" || block.style.fontWeight === "bold"
-          );
-        }
-        if (italicBtn) {
-          italicBtn.classList.toggle("is-active", block.style.fontStyle === "italic");
-        }
-        if (underlineBtn) {
-          underlineBtn.classList.toggle(
-            "is-active",
-            (block.style.textDecoration || "").indexOf("underline") !== -1
-          );
-        }
-      }
-
-      function selectBlock(block) {
-        if (currentBlock === block) return;
-
-        if (currentBlock) {
-          currentBlock.classList.remove("sf-layout-block--selected");
-        }
-
-        currentBlock = block || null;
-
-        if (currentBlock) {
-          currentBlock.classList.add("sf-layout-block--selected");
-        }
-
-        updateToolbarFromBlock(currentBlock);
-      }
-
-      // Click to select a block (drag still works via pointerdown)
-      blocks.forEach(function (block) {
-        block.addEventListener("click", function (event) {
-          if (event.target.classList.contains("sf-layout-resize-handle")) return;
-          selectBlock(block);
-        });
+      // Select on click
+      block.addEventListener("pointerdown", (e) => {
+        // Clicking the resize handle should not start dragging
+        if (e.target === handle) return;
+        selectBlock(id);
+        startDrag(e, block);
       });
 
-      fontFamilySelect.addEventListener("change", function () {
-        if (!currentBlock) return;
-        currentBlock.style.fontFamily = this.value || "";
+      handle.addEventListener("pointerdown", (e) => {
+        e.stopPropagation();
+        selectBlock(id);
+        startResize(e, block);
       });
-
-      fontSizeInput.addEventListener("input", function () {
-        if (!currentBlock) return;
-        const value = parseInt(this.value, 10);
-        currentBlock.style.fontSize = value ? value + "px" : "";
-      });
-
-      function toggleButton(button, applyFn) {
-        if (!currentBlock || !button) return;
-        button.classList.toggle("is-active");
-        applyFn(button.classList.contains("is-active"));
-      }
-
-      if (boldBtn) {
-        boldBtn.addEventListener("click", function () {
-          toggleButton(boldBtn, function (on) {
-            currentBlock.style.fontWeight = on ? "700" : "";
-          });
-        });
-      }
-
-      if (italicBtn) {
-        italicBtn.addEventListener("click", function () {
-          toggleButton(italicBtn, function (on) {
-            currentBlock.style.fontStyle = on ? "italic" : "";
-          });
-        });
-      }
-
-      if (underlineBtn) {
-        underlineBtn.addEventListener("click", function () {
-          toggleButton(underlineBtn, function (on) {
-            currentBlock.style.textDecoration = on ? "underline" : "";
-          });
-        });
-      }
-
-      if (bgInput) {
-        bgInput.addEventListener("input", function () {
-          if (!currentBlock) return;
-          currentBlock.style.backgroundColor = this.value || "";
-        });
-      }
-
-      hideButton.addEventListener("click", function () {
-        if (!currentBlock) return;
-        const isHidden = currentBlock.classList.toggle("sf-layout-block--hidden");
-        hideButton.textContent = isHidden ? "Show block" : "Hide block";
-      });
-
-      resetButton.addEventListener("click", function () {
-        if (!currentBlock) return;
-
-        currentBlock.style.fontFamily = "";
-        currentBlock.style.fontSize = "";
-        currentBlock.style.fontWeight = "";
-        currentBlock.style.fontStyle = "";
-        currentBlock.style.textDecoration = "";
-        currentBlock.style.backgroundColor = "";
-        currentBlock.classList.remove("sf-layout-block--hidden");
-
-        updateToolbarFromBlock(currentBlock);
-      });
-
-      const closeBtn = document.getElementById("sf-close-layout-editor");
-      if (closeBtn) {
-        closeBtn.addEventListener("click", function () {
-          selectBlock(null);
-        });
-      }
-    }
-
-    function openEditor(event) {
-      event.preventDefault();
-      overlay.classList.add("is-open");
-      document.body.classList.add("sf-layout-editor-open");
-      // Wait for modal layout so measurements are correct
-      window.setTimeout(initLayoutBlocksAndToolbar, 50);
-    }
-
-    function closeEditor(event) {
-      if (event) event.preventDefault();
-      overlay.classList.remove("is-open");
-      document.body.classList.remove("sf-layout-editor-open");
-    }
-
-    openBtn.addEventListener("click", openEditor);
-
-    if (closeBtn) {
-      closeBtn.addEventListener("click", closeEditor);
-    }
-
-    overlay.addEventListener("click", function (event) {
-      if (event.target === overlay) {
-        closeEditor(event);
-      }
     });
 
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && overlay.classList.contains("is-open")) {
-        closeEditor(event);
-      }
-    });
+    // If we previously had a selected block, reselect it
+    if (selectedId && blocks.has(selectedId)) {
+      selectBlock(selectedId);
+    } else {
+      selectBlock(null);
+    }
+  }
 
-    // In the editor, disable real navigation / button actions
-    overlay.addEventListener("click", function (event) {
-      if (event.target.closest(".sf-preview-card--editor a, .sf-preview-card--editor button")) {
-        event.preventDefault();
-      }
-    });
-  })();
+  function selectBlock(id) {
+    selectedId = id;
 
-  // Extra helper: highlight active block + keep it on top
-  (function () {
-    const overlay = document.getElementById("sf-layout-editor");
-    if (!overlay) return;
+    // Visual highlight + toolbar enable/disable
+    blocks.forEach((block) => block.classList.remove("sf-layout-block-selected"));
+    if (id && blocks.has(id)) {
+      const block = blocks.get(id);
+      block.classList.add("sf-layout-block-selected");
+      block.style.zIndex = (++zCounter).toString();
 
-    let zCounter = 10;  // simple z-index counter
+      hideBtn.disabled = false;
+      resetBtn.disabled = false;
 
-    // When you press on a block, mark it as selected and bring it to front
-    overlay.addEventListener("mousedown", function (event) {
-      const block = event.target.closest(".sf-layout-block");
-      if (!block) return;
+      // Sync toolbar values from stored styles
+      const savedStyles = readJSON(KEY_STYLES, {});
+      const st = savedStyles[id] || {};
 
-      // Clear previous selection
-      overlay.querySelectorAll(".sf-layout-block--selected").forEach(function (other) {
-        if (other !== block) {
-          other.classList.remove("sf-layout-block--selected");
-        }
-      });
+      fontSelect.value = st.fontFamily || "";
+      sizeInput.value  = st.fontSize ? String(st.fontSize) : "";
 
-      // Mark current block + bump z-index
-      block.classList.add("sf-layout-block--selected");
-      zCounter += 1;
-      block.style.zIndex = String(zCounter);
-    });
+      boldBtn.classList.toggle("is-active", !!st.bold);
+      italicBtn.classList.toggle("is-active", !!st.italic);
+      underBtn.classList.toggle("is-active", !!st.underline);
+    } else {
+      hideBtn.disabled = true;
+      resetBtn.disabled = true;
 
-    // In the layout editor, disable all links/buttons so Buy now etc. do nothing
-    overlay.addEventListener("click", function (event) {
-      const link = event.target.closest("a");
-      if (!link) return;
-      event.preventDefault();
-    });
-  })();
+      fontSelect.value = "";
+      sizeInput.value = "";
+
+      boldBtn.classList.remove("is-active");
+      italicBtn.classList.remove("is-active");
+      underBtn.classList.remove("is-active");
+    }
+  }
+
+  function saveLayoutFromBlock(block) {
+    const id = block.getAttribute("data-block-id");
+    const saved = readJSON(KEY_LAYOUT, {});
+    saved[id] = {
+      x: parseFloat(block.style.left) || 0,
+      y: parseFloat(block.style.top) || 0,
+      w: parseFloat(block.style.width) || 300,
+      h: parseFloat(block.style.height) || 120
+    };
+    writeJSON(KEY_LAYOUT, saved);
+  }
+
+  function updateStyleForSelected(patch) {
+    if (!selectedId) return;
+
+    const saved = readJSON(KEY_STYLES, {});
+    const current = saved[selectedId] || {};
+    saved[selectedId] = { ...current, ...patch };
+    writeJSON(KEY_STYLES, saved);
+
+    // Apply immediately
+    const block = blocks.get(selectedId);
+    if (!block) return;
+
+    const contentWrap = block.querySelector(".sf-layout-block-content");
+    if (!contentWrap) return;
+
+    const st = saved[selectedId];
+
+    contentWrap.style.fontFamily = st.fontFamily || "";
+    contentWrap.style.fontSize = st.fontSize ? (st.fontSize + "px") : "";
+
+    contentWrap.style.fontWeight = st.bold ? "700" : "";
+    contentWrap.style.fontStyle = st.italic ? "italic" : "";
+    contentWrap.style.textDecoration = st.underline ? "underline" : "";
+
+    block.classList.toggle("sf-layout-block-hidden", !!st.hidden);
+
+    // Keep toolbar toggles in sync
+    boldBtn.classList.toggle("is-active", !!st.bold);
+    italicBtn.classList.toggle("is-active", !!st.italic);
+    underBtn.classList.toggle("is-active", !!st.underline);
+  }
+
+  // Toolbar events
+  fontSelect.addEventListener("change", () => {
+    if (!selectedId) return;
+    updateStyleForSelected({ fontFamily: fontSelect.value });
+  });
+
+  sizeInput.addEventListener("input", () => {
+    if (!selectedId) return;
+
+    const n = parseInt(sizeInput.value, 10);
+    if (Number.isFinite(n) && n > 0) {
+      updateStyleForSelected({ fontSize: n });
+    } else if (sizeInput.value === "") {
+      updateStyleForSelected({ fontSize: null });
+    }
+  });
+
+  boldBtn.addEventListener("click", () => {
+    if (!selectedId) return;
+    const saved = readJSON(KEY_STYLES, {});
+    const st = saved[selectedId] || {};
+    updateStyleForSelected({ bold: !st.bold });
+  });
+
+  italicBtn.addEventListener("click", () => {
+    if (!selectedId) return;
+    const saved = readJSON(KEY_STYLES, {});
+    const st = saved[selectedId] || {};
+    updateStyleForSelected({ italic: !st.italic });
+  });
+
+  underBtn.addEventListener("click", () => {
+    if (!selectedId) return;
+    const saved = readJSON(KEY_STYLES, {});
+    const st = saved[selectedId] || {};
+    updateStyleForSelected({ underline: !st.underline });
+  });
+
+  bgInput.addEventListener("input", () => {
+    const color = bgInput.value;
+    surface.style.background = color;
+    localStorage.setItem(KEY_BG, color);
+  });
+
+  hideBtn.addEventListener("click", () => {
+    if (!selectedId) return;
+    const saved = readJSON(KEY_STYLES, {});
+    const st = saved[selectedId] || {};
+    updateStyleForSelected({ hidden: !st.hidden });
+  });
+
+  resetBtn.addEventListener("click", () => {
+    if (!selectedId) return;
+    const saved = readJSON(KEY_STYLES, {});
+    delete saved[selectedId];
+    writeJSON(KEY_STYLES, saved);
+    updateStyleForSelected({ fontFamily: "", fontSize: null, bold: false, italic: false, underline: false, hidden: false });
+  });
+
+  fitBtn.addEventListener("click", () => {
+    fitEnabled = !fitEnabled;
+    surface.classList.toggle("sf-surface-fit", fitEnabled);
+
+    // When switching modes, rebuild positions from current view
+    rebuildBlocks();
+  });
+
+  function startDrag(e, block) {
+    e.preventDefault();
+    block.classList.add("sf-layout-block--dragging");
+    block.style.zIndex = (++zCounter).toString();
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    const startLeft = parseFloat(block.style.left) || 0;
+    const startTop  = parseFloat(block.style.top) || 0;
+
+    block.setPointerCapture(e.pointerId);
+
+    function onMove(ev) {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+
+      // Keep within surface bounds (light clamp)
+      const newLeft = Math.max(0, startLeft + dx);
+      const newTop  = Math.max(0, startTop + dy);
+
+      block.style.left = newLeft + "px";
+      block.style.top  = newTop + "px";
+    }
+
+    function onUp(ev) {
+      block.classList.remove("sf-layout-block--dragging");
+      block.releasePointerCapture(ev.pointerId);
+
+      block.removeEventListener("pointermove", onMove);
+      block.removeEventListener("pointerup", onUp);
+
+      saveLayoutFromBlock(block);
+    }
+
+    block.addEventListener("pointermove", onMove);
+    block.addEventListener("pointerup", onUp);
+  }
+
+  function startResize(e, block) {
+    e.preventDefault();
+    block.classList.add("sf-layout-block--resizing");
+    block.style.zIndex = (++zCounter).toString();
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    const startW = parseFloat(block.style.width) || 320;
+    const startH = parseFloat(block.style.height) || 140;
+
+    block.setPointerCapture(e.pointerId);
+
+    function onMove(ev) {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+
+      const newW = Math.max(200, startW + dx);
+      const newH = Math.max(80,  startH + dy);
+
+      block.style.width = newW + "px";
+      block.style.height = newH + "px";
+    }
+
+    function onUp(ev) {
+      block.classList.remove("sf-layout-block--resizing");
+      block.releasePointerCapture(ev.pointerId);
+
+      block.removeEventListener("pointermove", onMove);
+      block.removeEventListener("pointerup", onUp);
+
+      saveLayoutFromBlock(block);
+    }
+
+    block.addEventListener("pointermove", onMove);
+    block.addEventListener("pointerup", onUp);
+  }
+
+  // ESC closes editor (nice UX)
+  document.addEventListener("keydown", function (e) {
+    if (!editor.classList.contains("is-open")) return;
+    if (e.key === "Escape") closeEditor();
+  });
+})();
 </script>
 
 {% endblock %}

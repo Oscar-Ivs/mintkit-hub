@@ -1175,3 +1175,217 @@ ul.messages li.danger {
     max-height: none;
     overflow: visible;
 }
+
+/* =========================================================
+   Storefront Layout Editor (overlay + blocks)
+   Notes: This is purely for the editor UI (does not affect public page).
+   ========================================================= */
+
+.sf-layout-editor-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: none;
+}
+
+.sf-layout-editor-overlay.is-open {
+  display: block;
+}
+
+.sf-layout-editor-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.45);
+}
+
+.sf-layout-editor-dialog {
+  position: relative;
+  width: min(1200px, calc(100% - 48px));
+  height: min(860px, calc(100% - 48px));
+  margin: 24px auto;
+  background: #f8fafc;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(2, 6, 23, 0.35);
+  display: flex;
+  flex-direction: column;
+}
+
+.sf-layout-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+  background: #f8fafc;
+}
+
+.sf-layout-editor-close {
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.sf-layout-editor-close:hover {
+  opacity: 1;
+}
+
+.sf-layout-editor-body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0; /* allows canvas scrolling */
+}
+
+/* Toolbar */
+.sf-layout-editor-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 14px;
+  background: #f1f5f9;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 14px;
+}
+
+.sf-toolbar-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.sf-toolbar-group select,
+.sf-toolbar-group input[type="number"],
+.sf-toolbar-group input[type="color"] {
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  background: #ffffff;
+  padding: 0 10px;
+}
+
+.sf-toolbar-inline-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.sf-toolbar-button {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: #eef2ff;
+  cursor: pointer;
+}
+
+.sf-toolbar-button:hover {
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+.sf-toolbar-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sf-toolbar-button-toggle.is-active {
+  border-color: rgba(79, 70, 229, 0.9);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.sf-toolbar-button-danger {
+  background: #fff1f2;
+  border-color: rgba(244, 63, 94, 0.35);
+}
+
+/* Canvas + surface (NO extra “side gutters” divs) */
+.sf-layout-editor-canvas {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #e9eff7;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.sf-layout-editor-surface {
+  position: relative;
+  min-height: 720px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  padding: 22px;
+}
+
+/* Fit mode: shrink content visually (blocks will rebuild positions) */
+.sf-layout-editor-surface.sf-surface-fit {
+  transform-origin: top left;
+  transform: scale(0.85);
+}
+
+/* Disable accidental selection while editing */
+body.sf-editor-lock {
+  overflow: hidden;
+}
+
+/* Blocks */
+.sf-layout-block {
+  position: absolute;
+  box-sizing: border-box;
+  border-radius: 14px;
+  border: 1px dashed rgba(129, 140, 248, 0.95);
+  padding: 12px 16px 18px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+  cursor: grab;
+  user-select: none;
+}
+
+.sf-layout-block--dragging,
+.sf-layout-block--resizing {
+  box-shadow: 0 18px 54px rgba(15, 23, 42, 0.28);
+}
+
+.sf-layout-block-selected {
+  border-style: solid;
+  border-color: rgba(79, 70, 229, 0.95);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18), 0 18px 54px rgba(15, 23, 42, 0.22);
+}
+
+.sf-layout-block-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.sf-layout-block-content {
+  /* Keep the block tighter – stops the “2x width empty block” feel */
+  display: inline-block;
+  max-width: 100%;
+}
+
+/* Resize handle */
+.sf-layout-resize-handle {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid #4f46e5;
+  background: #eef2ff;
+  cursor: se-resize;
+}
+
+.sf-layout-block-hidden {
+  opacity: 0.28;
+  filter: grayscale(0.7);
+}
