@@ -1,16 +1,31 @@
 {% extends "base.html" %}
 {% load static %}
+
+{# Disable the base wrapper styling for this one page #}
+{% block main_class %}storefront-public-main{% endblock %}
+
 {% block content %}
 
-<p class="text-muted mb-3">
-  Public storefront page
-</p>
+<style>
+  /* Base wrapper is still present, but has no container styling on this page */
+  .storefront-public-main{
+    padding: 0;
+    margin: 0;
+    max-width: none;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+</style>
 
-<div id="sf-public-surface" class="storefront-public-card" style="position: relative;">
+<div id="sf-public-surface"
+     class="storefront-public-card"
+     style="position: relative; overflow: hidden;">
+
   {% if storefront.logo %}
-  <div class="storefront-public-logo" data-sf-block="logo" data-sf-label="Logo">
-    <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
-  </div>
+    <div class="storefront-public-logo" data-sf-block="logo" data-sf-label="Logo">
+      <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo">
+    </div>
   {% endif %}
 
   <h1 class="storefront-public-title" data-sf-block="headline" data-sf-label="Headline">
@@ -18,57 +33,58 @@
   </h1>
 
   {% if storefront.description %}
-  <p class="storefront-public-body" data-sf-block="description" data-sf-label="Description">
-    {{ storefront.description }}
-  </p>
+    <p class="storefront-public-body" data-sf-block="description" data-sf-label="Description">
+      {{ storefront.description }}
+    </p>
   {% endif %}
 
   {% if storefront.contact_details %}
-  <h2 class="storefront-public-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
-    Contact details
-  </h2>
-  <p class="storefront-public-body" data-sf-block="contact_text" data-sf-label="Contact text">
-    {{ storefront.contact_details }}
-  </p>
+    <h2 class="storefront-public-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
+      Contact details
+    </h2>
+    <p class="storefront-public-body" data-sf-block="contact_text" data-sf-label="Contact text">
+      {{ storefront.contact_details }}
+    </p>
   {% endif %}
 
   {% if has_cards %}
-  <h2 class="storefront-public-section-title" data-sf-block="cards_title" data-sf-label="Featured cards title">
-    Featured digital cards
-  </h2>
+    <h2 class="storefront-public-section-title" data-sf-block="cards_title" data-sf-label="Featured cards title">
+      Featured digital cards
+    </h2>
 
-  <div class="sf-card-grid" data-sf-block="cards_grid" data-sf-label="Cards grid">
-    {% for card in storefront.cards.all %}
-    <article class="sf-card">
-      {% if card.image_url %}
-      <div class="sf-card-image-wrap">
-        <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
-      </div>
-      {% endif %}
+    <div class="sf-card-grid" data-sf-block="cards_grid" data-sf-label="Cards grid">
+      {% for card in storefront.cards.all %}
+        <article class="sf-card">
+          {% if card.image_url %}
+            <div class="sf-card-image-wrap">
+              <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
+            </div>
+          {% endif %}
 
-      <h4 class="sf-card-title">
-        {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
-        {% if card.price_label %}
-        <span class="sf-card-price">{{ card.price_label }}</span>
-        {% endif %}
-      </h4>
+          <h4 class="sf-card-title">
+            {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
+            {% if card.price_label %}
+              <span class="sf-card-price">{{ card.price_label }}</span>
+            {% endif %}
+          </h4>
 
-      {% if card.description %}
-      <p class="sf-card-text">{{ card.description }}</p>
-      {% endif %}
+          {% if card.description %}
+            <p class="sf-card-text">{{ card.description }}</p>
+          {% endif %}
 
-      {% if card.buy_url %}
-      <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-        class="btn btn-sm btn-primary storefront-preview-card-button">
-        Buy now
-      </a>
-      {% endif %}
-    </article>
-    {% endfor %}
-  </div>
+          {% if card.buy_url %}
+            <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+               class="btn btn-sm btn-primary storefront-preview-card-button">
+              Buy now
+            </a>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
   {% endif %}
 </div>
 
+{# Expecting layout_data to be: {"layout": {...}, "styles": {...}, "bg": "#rrggbb"} #}
 {{ layout_data|json_script:"sf-public-layout-data" }}
 
 <script>
@@ -85,40 +101,40 @@
   const styles = data.styles || {};
   const bg = data.bg || "#ffffff";
 
-  const hasAny =
-    Object.keys(layout).length ||
-    Object.keys(styles).length ||
-    (bg && bg !== "#ffffff");
-
-  if (!hasAny) return;
-
-  // Common fonts are injected once so Inter/Roboto/Montserrat always display
-  if (!document.getElementById("sf-google-fonts-public")) {
-    const link = document.createElement("link");
-    link.id = "sf-google-fonts-public";
-    link.rel = "stylesheet";
-    link.href =
-      "https://fonts.googleapis.com/css2?" +
-      "family=Inter:wght@400;500;600;700&" +
-      "family=Roboto:wght@400;500;700&" +
-      "family=Montserrat:wght@400;500;600;700&" +
-      "display=swap";
-    document.head.appendChild(link);
-  }
-
+  // Apply background
   surface.style.background = bg;
   surface.style.position = "relative";
 
+  // --- Auto-scale: if saved coords exceed the current surface width, scale down ---
+  let maxRight = 0;
+  let maxBottom = 0;
+
+  Object.keys(layout).forEach((key) => {
+    const l = layout[key] || {};
+    const x = Number(l.x || 0);
+    const y = Number(l.y || 0);
+    const w = Number(l.w || 0);
+    const h = Number(l.h || 0);
+    maxRight = Math.max(maxRight, x + w);
+    maxBottom = Math.max(maxBottom, y + h);
+  });
+
+  const surfaceWidth = surface.clientWidth || 1;
+  const scale = (maxRight > surfaceWidth && maxRight > 0)
+    ? (surfaceWidth / maxRight)
+    : 1;
+
   function applyTextStyles(container, st) {
     if (!container) return;
-    const px = st.fontSize ? (st.fontSize + "px") : "";
 
+    const px = st.fontSize ? (st.fontSize + "px") : "";
     container.style.fontFamily = st.fontFamily || "";
     container.style.fontSize = px;
     container.style.fontWeight = st.bold ? "700" : "";
     container.style.fontStyle = st.italic ? "italic" : "";
     container.style.textDecoration = st.underline ? "underline" : "";
 
+    // Force same styling onto inner text elements (prevents h1/h2 defaults overriding)
     const textNodes = container.querySelectorAll("h1,h2,h3,h4,h5,h6,p,span,a,small,li,label,strong,em");
     textNodes.forEach((el) => {
       el.style.fontFamily = st.fontFamily || "";
@@ -127,17 +143,9 @@
       el.style.fontStyle = st.italic ? "italic" : "";
       el.style.textDecoration = st.underline ? "underline" : "";
     });
-
-    const imgs = container.querySelectorAll("img");
-    imgs.forEach((img) => {
-      img.style.maxWidth = "100%";
-      img.style.height = "auto";
-      img.style.display = "block";
-    });
   }
 
-  let maxBottom = 0;
-
+  // Apply layout + styles
   surface.querySelectorAll("[data-sf-block]").forEach((el) => {
     const id = el.getAttribute("data-sf-block");
     const l = layout[id];
@@ -146,25 +154,30 @@
     if (st.hidden) {
       el.style.display = "none";
       return;
+    } else {
+      el.style.display = "";
     }
 
     if (l) {
-      el.style.position = "absolute";
-      el.style.left = (l.x || 0) + "px";
-      el.style.top = (l.y || 0) + "px";
-      if (l.w) el.style.width = l.w + "px";
-      if (l.h) el.style.minHeight = l.h + "px";
-      el.style.margin = "0";
+      const x = Number(l.x || 0) * scale;
+      const y = Number(l.y || 0) * scale;
+      const w = Number(l.w || 0) * scale;
+      const h = Number(l.h || 0) * scale;
 
-      const bottom = (l.y || 0) + (l.h || 0);
-      if (bottom > maxBottom) maxBottom = bottom;
+      el.style.position = "absolute";
+      el.style.left = x + "px";
+      el.style.top = y + "px";
+      if (w) el.style.width = w + "px";
+      if (h) el.style.minHeight = h + "px";
+      el.style.margin = "0";
     }
 
     applyTextStyles(el, st);
   });
 
+  // Ensure surface is tall enough for positioned elements
   if (maxBottom > 0) {
-    surface.style.minHeight = (maxBottom + 40) + "px";
+    surface.style.minHeight = (Math.ceil(maxBottom * scale) + 40) + "px";
   }
 })();
 </script>

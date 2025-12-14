@@ -7,7 +7,7 @@
     <title>MintKit Hub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
     <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
@@ -42,17 +42,10 @@
         </div>
     </header>
 
-    <main class="page-container">
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-
+    <main class="{% block main_class %}page-container{% endblock %}">
         {% block content %}{% endblock %}
     </main>
+
 </body>
 
 </html>

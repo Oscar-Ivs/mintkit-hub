@@ -1,4 +1,5 @@
 # storefronts/views.py
+
 import json
 
 from django.contrib import messages
@@ -14,9 +15,9 @@ from .models import Storefront, StorefrontLayout
 @login_required
 def my_storefront(request):
     """
-    Owner dashboard:
-    - preview on the left
-    - edit form on the right
+    Owner dashboard page:
+    - edit storefront fields
+    - manage cards
     - layout editor overlay saves via JSON endpoints
     """
     profile = request.user.profile
@@ -32,7 +33,7 @@ def my_storefront(request):
         },
     )
 
-    # Backfill slug if missing (older rows or newly created rows)
+    # Ensure slug exists (older rows or edge cases)
     if not storefront.slug:
         storefront.save()
 
@@ -50,16 +51,10 @@ def my_storefront(request):
             messages.success(request, "Storefront updated.")
             return redirect("my_storefront")
 
-        messages.error(
-            request,
-            "Please correct the errors below before saving your storefront.",
-        )
+        messages.error(request, "Please correct the errors below before saving your storefront.")
     else:
         form = StorefrontForm(instance=storefront)
-        card_formset = StorefrontCardFormSet(
-            instance=storefront,
-            prefix="cards",
-        )
+        card_formset = StorefrontCardFormSet(instance=storefront, prefix="cards")
 
     has_cards = storefront.cards.exists()
     public_url = request.build_absolute_uri(storefront.get_absolute_url())
@@ -79,9 +74,9 @@ def explore_storefronts(request):
     Public “Explore” page that lists storefronts marked as public.
 
     Supports:
-      - view mode: grid or list (remembered in the session)
-      - sorting: featured (default), name, newest (also remembered)
-      - filtering by business category and region
+    - view mode: grid or list (remembered in the session)
+    - sorting: featured (default), name, newest (also remembered)
+    - filtering by business category and region
     """
     # View mode (grid / list), remembered per-session
     stored_view = request.session.get("explore_view_mode", "list")
@@ -109,7 +104,7 @@ def explore_storefronts(request):
     category = request.GET.get("category", "all")
     region = request.GET.get("region", "all")
 
-    queryset = Storefront.objects.filter(is_active=True)
+    queryset = Storefront.objects.filter(is_active=True).select_related("profile")
 
     if category != "all" and category:
         queryset = queryset.filter(business_category=category)
@@ -117,16 +112,16 @@ def explore_storefronts(request):
     if region != "all" and region:
         queryset = queryset.filter(region=region)
 
-    # Apply ordering
+    # Apply ordering + label
     if sort == "name":
         queryset = queryset.order_by("headline", "id")
         sort_label = "Name A-Z"
     elif sort == "newest":
-        queryset = queryset.order_by("-id")
+        queryset = queryset.order_by("-created_at", "-id")
         sort_label = "Newest first"
     else:
-        sort = "featured"
-        queryset = queryset.order_by("-id")
+        # “featured” fallback (kept simple)
+        queryset = queryset.order_by("-created_at", "-id")
         sort_label = "Featured"
 
     context = {
@@ -152,22 +147,37 @@ def storefront_detail(request, slug):
     storefront = get_object_or_404(Storefront, slug=slug)
     has_cards = storefront.cards.exists()
 
-    # Load saved layout (if exists) so the public page can apply it
-    layout_obj = getattr(storefront, "layout_data", None)
-    layout_data = {
-        "layout": (layout_obj.layout if layout_obj and layout_obj.layout else {}),
-        "styles": (layout_obj.styles if layout_obj and layout_obj.styles else {}),
-        "bg": (layout_obj.bg if layout_obj and layout_obj.bg else "#ffffff"),
-    }
+    # Always use the same source as the editor endpoints
+    layout_obj, _ = StorefrontLayout.objects.get_or_create(storefront=storefront)
 
-    return render(
-        request,
-        "storefronts/storefront_detail.html",
-        {
-            "storefront": storefront,
-            "has_cards": has_cards,
-            "layout_data": layout_data,
-        },
+    layout = layout_obj.layout or {}
+    styles = layout_obj.styles or {}
+    bg = layout_obj.bg or "#ffffff"
+
+    # Provide BOTH shapes so template/JS versions don’t drift again:
+    # - layout_data payload for JS: { layout, styles, bg }
+    # - separate keys in case the template uses them directly
+    layout_payload = {"layout": layout, "styles": styles, "bg": bg}
+
+    context = {
+        "storefront": storefront,
+        "has_cards": has_cards,
+        "layout_data": layout_payload,
+        "layout": layout,
+        "styles": styles,
+        "bg": bg,
+    }
+    return render(request, "storefronts/storefront_detail.html", context)
+
+
+def _get_owned_storefront_or_404(request, storefront_id):
+    """
+    Helper: ensure the storefront belongs to the logged-in user.
+    """
+    return get_object_or_404(
+        Storefront,
+        id=storefront_id,
+        profile=request.user.profile,
     )
 
 
@@ -175,13 +185,9 @@ def storefront_detail(request, slug):
 @require_http_methods(["GET"])
 def storefront_layout_load(request, storefront_id):
     """
-    Load saved layout JSON for the logged-in storefront owner.
+    GET JSON: load saved layout/styles/bg for the owner's editor.
     """
-    storefront = get_object_or_404(
-        Storefront,
-        id=storefront_id,
-        profile=request.user.profile,
-    )
+    storefront = _get_owned_storefront_or_404(request, storefront_id)
     layout_obj, _ = StorefrontLayout.objects.get_or_create(storefront=storefront)
 
     return JsonResponse(
@@ -198,16 +204,12 @@ def storefront_layout_load(request, storefront_id):
 @require_http_methods(["POST"])
 def storefront_layout_save(request, storefront_id):
     """
-    Save layout JSON for the logged-in storefront owner.
+    POST JSON: save layout/styles/bg from the owner's editor.
 
     Expected JSON body:
       { "layout": {...}, "styles": {...}, "bg": "#ffffff" }
     """
-    storefront = get_object_or_404(
-        Storefront,
-        id=storefront_id,
-        profile=request.user.profile,
-    )
+    storefront = _get_owned_storefront_or_404(request, storefront_id)
     layout_obj, _ = StorefrontLayout.objects.get_or_create(storefront=storefront)
 
     try:
@@ -227,9 +229,4 @@ def storefront_layout_save(request, storefront_id):
     layout_obj.bg = bg or "#ffffff"
     layout_obj.save()
 
-    return JsonResponse(
-        {
-            "ok": True,
-            "updated_at": layout_obj.updated_at.isoformat() if layout_obj.updated_at else None,
-        }
-    )
+    return JsonResponse({"ok": True})
