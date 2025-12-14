@@ -434,7 +434,7 @@
        - Inject Google Fonts once
        - Re-apply after fonts are ready (fixes “needs 2 clicks”)
     6) Font size applies to headings too (Featured digital cards / Contact details etc.)
-    7) Dragging now clamps bottom too (cannot move blocks outside surface at bottom).
+    7) Page can grow vertically: drag/resize blocks below the current bottom and the surface expands.
     8) Save layout to the database (loads on open, saves via button).
   */
 
@@ -554,6 +554,29 @@
     let fitScale = 1;
 
     const blocks = new Map();
+
+    // --- Vertical growth (make the page taller when blocks are pushed down) ---
+    let surfaceBaseMinH = 0;
+
+    function ensureSurfaceMinHeight(extraPad = 120) {
+      if (!surface) return;
+
+      if (!surfaceBaseMinH) {
+        surfaceBaseMinH = Math.max(surface.offsetHeight || 0, window.innerHeight || 0);
+      }
+
+      let maxBottom = 0;
+      blocks.forEach((b) => {
+        const top = parseFloat(b.style.top) || 0;
+        const h = parseFloat(b.style.height) || b.offsetHeight || 0;
+        const bottom = top + h;
+        if (bottom > maxBottom) maxBottom = bottom;
+      });
+
+      const wanted = Math.max(surfaceBaseMinH, Math.ceil(maxBottom + extraPad));
+      surface.style.minHeight = wanted + "px";
+    }
+
 
     function clamp(n, min, max) {
       return Math.max(min, Math.min(max, n));
@@ -769,8 +792,6 @@
 
       const surfaceRect = surface.getBoundingClientRect();
       const surfaceW = surface.clientWidth;
-      const surfaceH = surface.clientHeight;
-
       marked.forEach((node) => {
         const id = node.getAttribute("data-sf-block");
         const label = node.getAttribute("data-sf-label") || id;
@@ -805,7 +826,7 @@
         const safeH = Math.max(minH, layout.h);
 
         const safeX = clamp(layout.x, 0, surfaceW - safeW - 10);
-        const safeY = clamp(layout.y, 0, Math.max(0, surfaceH - safeH - 10));
+        const safeY = clamp((layout.y ?? 0), 0, 8000);
 
         const block = document.createElement("div");
         block.className = "sf-layout-block";
@@ -855,6 +876,9 @@
       // Hide originals so only draggable blocks are visible
       content.style.display = "none";
 
+      // Grow the surface so blocks can be pushed further down
+      ensureSurfaceMinHeight();
+
       // Re-apply fit if enabled
       if (fitEnabled) computeAndApplyFit();
     }
@@ -895,8 +919,6 @@
     function saveLayoutFromBlock(block) {
       const id = block.getAttribute("data-block-id");
       const surfaceW = surface.clientWidth;
-      const surfaceH = surface.clientHeight;
-
       let x = parseFloat(block.style.left) || 0;
       let y = parseFloat(block.style.top) || 0;
       let w = parseFloat(block.style.width) || 300;
@@ -906,12 +928,15 @@
       w = clamp(w, 140, surfaceW - 20);
       x = clamp(x, 0, surfaceW - w - 10);
 
-      const maxY = Math.max(0, surfaceH - h - 10);
-      y = clamp(y, 0, maxY);
+      // Allow tall pages: only prevent negative values and cap to a sane maximum
+      y = clamp(y, 0, 8000);
 
       block.style.left = x + "px";
       block.style.top = y + "px";
       block.style.width = w + "px";
+
+      // Keep the surface tall enough to include this block
+      ensureSurfaceMinHeight();
 
       const saved = readJSON(KEY_LAYOUT, {});
       saved[id] = { x, y, w, h };
@@ -1027,13 +1052,19 @@
         const h = parseFloat(block.style.height) || 120;
 
         const surfaceW = surface.clientWidth;
-        const surfaceH = surface.clientHeight;
 
         const maxLeft = Math.max(0, surfaceW - w - 10);
-        const maxTop = Math.max(0, surfaceH - h - 10);
 
-        block.style.left = clamp(startLeft + dx, 0, maxLeft) + "px";
-        block.style.top = clamp(startTop + dy, 0, maxTop) + "px";
+        const nextLeft = clamp(startLeft + dx, 0, maxLeft);
+        const nextTop = clamp(startTop + dy, 0, 8000);
+
+        block.style.left = nextLeft + "px";
+        block.style.top = nextTop + "px";
+
+        // Allow the page to grow vertically when blocks are moved down
+        if (nextTop + h + 120 > (surface.offsetHeight || 0)) {
+          ensureSurfaceMinHeight();
+        }
       }
 
       function onUp(ev) {
@@ -1044,6 +1075,9 @@
         block.removeEventListener("pointerup", onUp);
 
         saveLayoutFromBlock(block);
+
+        // Keep the surface tall after moving the block
+        ensureSurfaceMinHeight();
 
         // If fit is ON, re-fit after changes (keeps preview accurate)
         if (fitEnabled) computeAndApplyFit();
@@ -1074,16 +1108,22 @@
         const dy = ev.clientY - startY;
 
         const surfaceW = surface.clientWidth;
-        const surfaceH = surface.clientHeight;
 
         const left = parseFloat(block.style.left) || 0;
         const top = parseFloat(block.style.top) || 0;
 
         const maxW = Math.max(minW, surfaceW - left - 10);
-        const maxH = Math.max(minH, surfaceH - top - 10);
 
-        block.style.width = clamp(startW + dx, minW, maxW) + "px";
-        block.style.height = clamp(startH + dy, minH, maxH) + "px";
+        const nextW = clamp(startW + dx, minW, maxW);
+        const nextH = clamp(startH + dy, minH, 8000);
+
+        block.style.width = nextW + "px";
+        block.style.height = nextH + "px";
+
+        // Allow the page to grow vertically when blocks are resized down
+        if (top + nextH + 120 > (surface.offsetHeight || 0)) {
+          ensureSurfaceMinHeight();
+        }
       }
 
       function onUp(ev) {
@@ -1094,6 +1134,9 @@
         block.removeEventListener("pointerup", onUp);
 
         saveLayoutFromBlock(block);
+
+        // Keep the surface tall after resizing the block
+        ensureSurfaceMinHeight();
 
         // If fit is ON, re-fit after changes
         if (fitEnabled) computeAndApplyFit();
