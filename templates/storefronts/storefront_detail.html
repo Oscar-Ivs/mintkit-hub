@@ -1,105 +1,172 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block content %}
 
-  {# Page-specific: remove the extra “card/container layer” coming from base layout #}
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const main = document.querySelector("main.page-container");
-      if (!main) return;
+<p class="text-muted mb-3">
+  Public storefront page
+</p>
 
-      // Flatten the base container for this page only (no CSS edits needed)
-      main.style.padding = "0";
-      main.style.background = "transparent";
-      main.style.boxShadow = "none";
-      main.style.borderRadius = "0";
-      main.style.maxWidth = "none";
-      main.style.margin = "0";
-    });
-  </script>
-
-  {# Keep the surface div (required by layout positioning) but remove the “extra layer” feel #}
-  <div id="sf-public-surface"
-       style="position: relative; width: 100%; min-height: 650px; margin: 0; padding: 0; background: transparent;">
-    {# The real storefront content that will be positioned by the public script #}
-
-    {% if storefront.logo %}
-      <div data-sf-block="logo" data-sf-label="LOGO">
-        <div class="storefront-public-logo">
-          <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline|default:'Storefront logo' }}">
-        </div>
-      </div>
-    {% endif %}
-
-    <div data-sf-block="headline" data-sf-label="HEADLINE">
-      <h1 class="page-title text-center">
-        {{ storefront.headline|default:"Your storefront headline" }}
-      </h1>
-    </div>
-
-    {% if storefront.description %}
-      <div data-sf-block="description" data-sf-label="DESCRIPTION">
-        <p class="lead text-center storefront-public-description">
-          {{ storefront.description }}
-        </p>
-      </div>
-    {% endif %}
-
-    {% if storefront.contact_details %}
-      <div data-sf-block="contact_title" data-sf-label="CONTACT TITLE">
-        <h2 class="storefront-section-heading">Contact details</h2>
-      </div>
-
-      <div data-sf-block="contact_text" data-sf-label="CONTACT TEXT">
-        <p>{{ storefront.contact_details|linebreaksbr }}</p>
-      </div>
-    {% endif %}
-
-    {% if cards %}
-      <div data-sf-block="cards_title" data-sf-label="FEATURED CARDS TITLE">
-        <h2 class="storefront-section-heading">Featured digital cards</h2>
-      </div>
-
-      <div data-sf-block="cards_grid" data-sf-label="CARDS GRID">
-        <div class="storefront-cards-grid">
-          {% for card in cards %}
-            <div class="storefront-card">
-              {% if card.image_url %}
-                <img src="{{ card.image_url }}" alt="{{ card.title }}" class="storefront-card-img">
-              {% endif %}
-              <div class="storefront-card-body">
-                <h3 class="storefront-card-title">{{ card.title }}</h3>
-                {% if card.price_label %}
-                  <p class="storefront-card-price">{{ card.price_label }}</p>
-                {% endif %}
-                {% if card.description %}
-                  <p class="storefront-card-desc">{{ card.description }}</p>
-                {% endif %}
-                {% if card.buy_url %}
-                  <a class="btn btn-primary" href="{{ card.buy_url }}" target="_blank" rel="noopener">
-                    Buy now
-                  </a>
-                {% endif %}
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-
+<div id="sf-public-surface" class="storefront-public-card" style="position: relative;">
+  {% if storefront.logo %}
+  <div class="storefront-public-logo" data-sf-block="logo" data-sf-label="Logo">
+    <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
   </div>
+  {% endif %}
 
-  {# Layout JSON for the public-page script (NO default filter here -> fixes the error) #}
-  <script id="sf-layout-data" type="application/json">
-    {{ layout|json_script:"sf-layout-data" }}
-  </script>
+  <h1 class="storefront-public-title" data-sf-block="headline" data-sf-label="Headline">
+    {{ storefront.headline|default:"Storefront" }}
+  </h1>
 
-  <script id="sf-style-data" type="application/json">
-    {{ styles|json_script:"sf-style-data" }}
-  </script>
+  {% if storefront.description %}
+  <p class="storefront-public-body" data-sf-block="description" data-sf-label="Description">
+    {{ storefront.description }}
+  </p>
+  {% endif %}
 
-  <script id="sf-bg-data" type="application/json">
-    {{ bg|json_script:"sf-bg-data" }}
-  </script>
+  {% if storefront.contact_details %}
+  <h2 class="storefront-public-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
+    Contact details
+  </h2>
+  <p class="storefront-public-body" data-sf-block="contact_text" data-sf-label="Contact text">
+    {{ storefront.contact_details }}
+  </p>
+  {% endif %}
+
+  {% if has_cards %}
+  <h2 class="storefront-public-section-title" data-sf-block="cards_title" data-sf-label="Featured cards title">
+    Featured digital cards
+  </h2>
+
+  <div class="sf-card-grid" data-sf-block="cards_grid" data-sf-label="Cards grid">
+    {% for card in storefront.cards.all %}
+    <article class="sf-card">
+      {% if card.image_url %}
+      <div class="sf-card-image-wrap">
+        <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
+      </div>
+      {% endif %}
+
+      <h4 class="sf-card-title">
+        {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
+        {% if card.price_label %}
+        <span class="sf-card-price">{{ card.price_label }}</span>
+        {% endif %}
+      </h4>
+
+      {% if card.description %}
+      <p class="sf-card-text">{{ card.description }}</p>
+      {% endif %}
+
+      {% if card.buy_url %}
+      <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+        class="btn btn-sm btn-primary storefront-preview-card-button">
+        Buy now
+      </a>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+{{ layout_data|json_script:"sf-public-layout-data" }}
+
+<script>
+(function () {
+  const dataEl = document.getElementById("sf-public-layout-data");
+  const surface = document.getElementById("sf-public-surface");
+  if (!dataEl || !surface) return;
+
+  let data;
+  try { data = JSON.parse(dataEl.textContent || "{}"); }
+  catch { return; }
+
+  const layout = data.layout || {};
+  const styles = data.styles || {};
+  const bg = data.bg || "#ffffff";
+
+  const hasAny =
+    Object.keys(layout).length ||
+    Object.keys(styles).length ||
+    (bg && bg !== "#ffffff");
+
+  if (!hasAny) return;
+
+  // Common fonts are injected once so Inter/Roboto/Montserrat always display
+  if (!document.getElementById("sf-google-fonts-public")) {
+    const link = document.createElement("link");
+    link.id = "sf-google-fonts-public";
+    link.rel = "stylesheet";
+    link.href =
+      "https://fonts.googleapis.com/css2?" +
+      "family=Inter:wght@400;500;600;700&" +
+      "family=Roboto:wght@400;500;700&" +
+      "family=Montserrat:wght@400;500;600;700&" +
+      "display=swap";
+    document.head.appendChild(link);
+  }
+
+  surface.style.background = bg;
+  surface.style.position = "relative";
+
+  function applyTextStyles(container, st) {
+    if (!container) return;
+    const px = st.fontSize ? (st.fontSize + "px") : "";
+
+    container.style.fontFamily = st.fontFamily || "";
+    container.style.fontSize = px;
+    container.style.fontWeight = st.bold ? "700" : "";
+    container.style.fontStyle = st.italic ? "italic" : "";
+    container.style.textDecoration = st.underline ? "underline" : "";
+
+    const textNodes = container.querySelectorAll("h1,h2,h3,h4,h5,h6,p,span,a,small,li,label,strong,em");
+    textNodes.forEach((el) => {
+      el.style.fontFamily = st.fontFamily || "";
+      el.style.fontSize = px;
+      el.style.fontWeight = st.bold ? "700" : "";
+      el.style.fontStyle = st.italic ? "italic" : "";
+      el.style.textDecoration = st.underline ? "underline" : "";
+    });
+
+    const imgs = container.querySelectorAll("img");
+    imgs.forEach((img) => {
+      img.style.maxWidth = "100%";
+      img.style.height = "auto";
+      img.style.display = "block";
+    });
+  }
+
+  let maxBottom = 0;
+
+  surface.querySelectorAll("[data-sf-block]").forEach((el) => {
+    const id = el.getAttribute("data-sf-block");
+    const l = layout[id];
+    const st = styles[id] || {};
+
+    if (st.hidden) {
+      el.style.display = "none";
+      return;
+    }
+
+    if (l) {
+      el.style.position = "absolute";
+      el.style.left = (l.x || 0) + "px";
+      el.style.top = (l.y || 0) + "px";
+      if (l.w) el.style.width = l.w + "px";
+      if (l.h) el.style.minHeight = l.h + "px";
+      el.style.margin = "0";
+
+      const bottom = (l.y || 0) + (l.h || 0);
+      if (bottom > maxBottom) maxBottom = bottom;
+    }
+
+    applyTextStyles(el, st);
+  });
+
+  if (maxBottom > 0) {
+    surface.style.minHeight = (maxBottom + 40) + "px";
+  }
+})();
+</script>
 
 {% endblock %}
