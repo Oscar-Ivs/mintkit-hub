@@ -1,73 +1,172 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block content %}
 
-<p class="back-link mb-3">
-  <a href="{% url 'explore_storefronts' %}">&larr; Back to Explore</a>
+<p class="text-muted mb-3">
+  Public storefront page
 </p>
 
-    {% if storefront.logo %}
-      <div class="storefront-public-logo">
-        <img src="{{ storefront.logo.url }}"
-             alt="{{ storefront.headline|default:'Storefront logo' }}">
+<div id="sf-public-surface" class="storefront-public-card" style="position: relative;">
+  {% if storefront.logo %}
+  <div class="storefront-public-logo" data-sf-block="logo" data-sf-label="Logo">
+    <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
+  </div>
+  {% endif %}
+
+  <h1 class="storefront-public-title" data-sf-block="headline" data-sf-label="Headline">
+    {{ storefront.headline|default:"Storefront" }}
+  </h1>
+
+  {% if storefront.description %}
+  <p class="storefront-public-body" data-sf-block="description" data-sf-label="Description">
+    {{ storefront.description }}
+  </p>
+  {% endif %}
+
+  {% if storefront.contact_details %}
+  <h2 class="storefront-public-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
+    Contact details
+  </h2>
+  <p class="storefront-public-body" data-sf-block="contact_text" data-sf-label="Contact text">
+    {{ storefront.contact_details }}
+  </p>
+  {% endif %}
+
+  {% if has_cards %}
+  <h2 class="storefront-public-section-title" data-sf-block="cards_title" data-sf-label="Featured cards title">
+    Featured digital cards
+  </h2>
+
+  <div class="sf-card-grid" data-sf-block="cards_grid" data-sf-label="Cards grid">
+    {% for card in storefront.cards.all %}
+    <article class="sf-card">
+      {% if card.image_url %}
+      <div class="sf-card-image-wrap">
+        <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
       </div>
-    {% endif %}
-
-    <h1 class="page-title text-center">
-      {{ storefront.headline|default:"Your storefront headline" }}
-    </h1>
-
-    {% if storefront.description %}
-      <p class="lead text-center storefront-public-description">
-        {{ storefront.description }}
-      </p>
-    {% endif %}
-
-    {% if storefront.contact_details %}
-      <h2 class="storefront-section-heading">Contact</h2>
-      <p>{{ storefront.contact_details|linebreaksbr }}</p>
-    {% endif %}
-
-    {# Featured cards, if any exist #}
-    {% with cards=storefront.cards.all %}
-      {% if cards %}
-        <section class="storefront-card-section">
-          <h2 class="storefront-section-heading">Featured digital cards</h2>
-
-          <div class="sf-card-grid">
-            {% for card in cards %}
-              <article class="sf-card">
-                {% if card.image_url %}
-                  <div class="sf-card-image-wrap">
-                    <img src="{{ card.image_url }}" alt="{{ card.title }}">
-                  </div>
-                {% endif %}
-
-                <div class="sf-card-body">
-                  <div class="sf-card-header">
-                    <span class="sf-card-title">{{ card.title }}</span>
-                    {% if card.price_label %}
-                      <span class="sf-card-price">{{ card.price_label }}</span>
-                    {% endif %}
-                  </div>
-
-                  {% if card.description %}
-                    <p class="sf-card-desc">{{ card.description }}</p>
-                  {% endif %}
-
-                  {% if card.buy_url %}
-                    <div class="sf-card-footer">
-                      <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-                        class="btn btn-xs btn-primary storefront-public-card-button">
-                        Buy now
-                      </a>
-                    </div>
-                  {% endif %}
-                </div>
-              </article>
-            {% endfor %}
-          </div>
-        </section>
       {% endif %}
-    {% endwith %}
+
+      <h4 class="sf-card-title">
+        {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
+        {% if card.price_label %}
+        <span class="sf-card-price">{{ card.price_label }}</span>
+        {% endif %}
+      </h4>
+
+      {% if card.description %}
+      <p class="sf-card-text">{{ card.description }}</p>
+      {% endif %}
+
+      {% if card.buy_url %}
+      <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+        class="btn btn-sm btn-primary storefront-preview-card-button">
+        Buy now
+      </a>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+{{ layout_data|json_script:"sf-public-layout-data" }}
+
+<script>
+(function () {
+  const dataEl = document.getElementById("sf-public-layout-data");
+  const surface = document.getElementById("sf-public-surface");
+  if (!dataEl || !surface) return;
+
+  let data;
+  try { data = JSON.parse(dataEl.textContent || "{}"); }
+  catch { return; }
+
+  const layout = data.layout || {};
+  const styles = data.styles || {};
+  const bg = data.bg || "#ffffff";
+
+  const hasAny =
+    Object.keys(layout).length ||
+    Object.keys(styles).length ||
+    (bg && bg !== "#ffffff");
+
+  if (!hasAny) return;
+
+  // Common fonts are injected once so Inter/Roboto/Montserrat always display
+  if (!document.getElementById("sf-google-fonts-public")) {
+    const link = document.createElement("link");
+    link.id = "sf-google-fonts-public";
+    link.rel = "stylesheet";
+    link.href =
+      "https://fonts.googleapis.com/css2?" +
+      "family=Inter:wght@400;500;600;700&" +
+      "family=Roboto:wght@400;500;700&" +
+      "family=Montserrat:wght@400;500;600;700&" +
+      "display=swap";
+    document.head.appendChild(link);
+  }
+
+  surface.style.background = bg;
+  surface.style.position = "relative";
+
+  function applyTextStyles(container, st) {
+    if (!container) return;
+    const px = st.fontSize ? (st.fontSize + "px") : "";
+
+    container.style.fontFamily = st.fontFamily || "";
+    container.style.fontSize = px;
+    container.style.fontWeight = st.bold ? "700" : "";
+    container.style.fontStyle = st.italic ? "italic" : "";
+    container.style.textDecoration = st.underline ? "underline" : "";
+
+    const textNodes = container.querySelectorAll("h1,h2,h3,h4,h5,h6,p,span,a,small,li,label,strong,em");
+    textNodes.forEach((el) => {
+      el.style.fontFamily = st.fontFamily || "";
+      el.style.fontSize = px;
+      el.style.fontWeight = st.bold ? "700" : "";
+      el.style.fontStyle = st.italic ? "italic" : "";
+      el.style.textDecoration = st.underline ? "underline" : "";
+    });
+
+    const imgs = container.querySelectorAll("img");
+    imgs.forEach((img) => {
+      img.style.maxWidth = "100%";
+      img.style.height = "auto";
+      img.style.display = "block";
+    });
+  }
+
+  let maxBottom = 0;
+
+  surface.querySelectorAll("[data-sf-block]").forEach((el) => {
+    const id = el.getAttribute("data-sf-block");
+    const l = layout[id];
+    const st = styles[id] || {};
+
+    if (st.hidden) {
+      el.style.display = "none";
+      return;
+    }
+
+    if (l) {
+      el.style.position = "absolute";
+      el.style.left = (l.x || 0) + "px";
+      el.style.top = (l.y || 0) + "px";
+      if (l.w) el.style.width = l.w + "px";
+      if (l.h) el.style.minHeight = l.h + "px";
+      el.style.margin = "0";
+
+      const bottom = (l.y || 0) + (l.h || 0);
+      if (bottom > maxBottom) maxBottom = bottom;
+    }
+
+    applyTextStyles(el, st);
+  });
+
+  if (maxBottom > 0) {
+    surface.style.minHeight = (maxBottom + 40) + "px";
+  }
+})();
+</script>
+
 {% endblock %}
