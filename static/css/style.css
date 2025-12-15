@@ -1924,3 +1924,38 @@ body.sf-editor-lock {
   opacity: 0.28;
   filter: grayscale(0.7);
 }
+
+/* ====== Edit business profile layout  ====== */
+.profile-layout{
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.profile-form-panel{
+  min-width: 0; /* prevents overflow squeezing */
+}
+
+@media (max-width: 700px){
+  .profile-layout{
+    grid-template-columns: 1fr; /* stack */
+  }
+
+  .profile-logo-panel{
+    justify-self: center;
+    text-align: center;
+  }
+
+  .profile-logo-img{
+    width: 100%;
+    max-width: 240px;
+    height: auto;
+  }
+
+  .profile-logo-placeholder{
+    width: 100%;
+    max-width: 240px;
+    margin: 0 auto;
+  }
+}
