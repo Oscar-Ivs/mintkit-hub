@@ -16,74 +16,100 @@
 
   /* Match the overall page background to the saved storefront background */
   body {
-    background: {{ bg_color|default:"#ffffff" }} !important;
+    background: {{ bg|default:"#ffffff" }} !important;
+  }
+
+  /* Full-bleed background wrapper (always spans the viewport width) */
+  .sf-public-bleed {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    overflow: hidden; /* prevents horizontal scroll from scaled content */
+  }
+
+  /* Centered stage wrapper: JS sets a pixel width/height to match the scaled stage */
+  #sf-public-stage-wrap {
+    position: relative;
+    margin: 0 auto;
+  }
+
+  /* The design stage (unscaled). JS scales this to fit smaller screens */
+  #sf-public-surface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: top left;
+    border-radius: 0;
+    box-shadow: none;
   }
 </style>
 
-<div
-  id="sf-public-surface"
-  style="position: relative; width: 100vw; margin-left: calc(50% - 50vw); border-radius: 0; box-shadow: none; overflow: hidden;"
->
-  {% if storefront.logo %}
-    <div class="storefront-public-logo" data-sf-block="logo" data-sf-label="Logo">
-      <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
+<div id="sf-public-bleed" class="sf-public-bleed">
+  <div id="sf-public-stage-wrap">
+    <div id="sf-public-surface">
+
+      {% if storefront.logo %}
+        <div class="storefront-public-logo" data-sf-block="logo" data-sf-label="Logo">
+          <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
+        </div>
+      {% endif %}
+
+      <h1 class="storefront-public-title" data-sf-block="headline" data-sf-label="Headline">
+        {{ storefront.headline|default:"Storefront" }}
+      </h1>
+
+      {% if storefront.description %}
+        <p class="storefront-public-body" data-sf-block="description" data-sf-label="Description">
+          {{ storefront.description }}
+        </p>
+      {% endif %}
+
+      {% if storefront.contact_details %}
+        <h2 class="storefront-public-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
+          Contact details
+        </h2>
+        <p class="storefront-public-body" data-sf-block="contact_text" data-sf-label="Contact text">
+          {{ storefront.contact_details }}
+        </p>
+      {% endif %}
+
+      {% if has_cards %}
+        <h2 class="storefront-public-section-title" data-sf-block="cards_title" data-sf-label="Featured cards title">
+          Featured digital cards
+        </h2>
+
+        <div class="sf-card-grid" data-sf-block="cards_grid" data-sf-label="Cards grid">
+          {% for card in storefront.cards.all %}
+            <article class="sf-card">
+              {% if card.image_url %}
+                <div class="sf-card-image-wrap">
+                  <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
+                </div>
+              {% endif %}
+
+              <h4 class="sf-card-title">
+                {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
+                {% if card.price_label %}
+                  <span class="sf-card-price">{{ card.price_label }}</span>
+                {% endif %}
+              </h4>
+
+              {% if card.description %}
+                <p class="sf-card-text">{{ card.description }}</p>
+              {% endif %}
+
+              {% if card.buy_url %}
+                <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+                   class="btn btn-sm btn-primary storefront-preview-card-button">
+                  Buy now
+                </a>
+              {% endif %}
+            </article>
+          {% endfor %}
+        </div>
+      {% endif %}
+
     </div>
-  {% endif %}
-
-  <h1 class="storefront-public-title" data-sf-block="headline" data-sf-label="Headline">
-    {{ storefront.headline|default:"Storefront" }}
-  </h1>
-
-  {% if storefront.description %}
-    <p class="storefront-public-body" data-sf-block="description" data-sf-label="Description">
-      {{ storefront.description }}
-    </p>
-  {% endif %}
-
-  {% if storefront.contact_details %}
-    <h2 class="storefront-public-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
-      Contact details
-    </h2>
-    <p class="storefront-public-body" data-sf-block="contact_text" data-sf-label="Contact text">
-      {{ storefront.contact_details }}
-    </p>
-  {% endif %}
-
-  {% if has_cards %}
-    <h2 class="storefront-public-section-title" data-sf-block="cards_title" data-sf-label="Featured cards title">
-      Featured digital cards
-    </h2>
-
-    <div class="sf-card-grid" data-sf-block="cards_grid" data-sf-label="Cards grid">
-      {% for card in storefront.cards.all %}
-        <article class="sf-card">
-          {% if card.image_url %}
-            <div class="sf-card-image-wrap">
-              <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
-            </div>
-          {% endif %}
-
-          <h4 class="sf-card-title">
-            {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
-            {% if card.price_label %}
-              <span class="sf-card-price">{{ card.price_label }}</span>
-            {% endif %}
-          </h4>
-
-          {% if card.description %}
-            <p class="sf-card-text">{{ card.description }}</p>
-          {% endif %}
-
-          {% if card.buy_url %}
-            <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-               class="btn btn-sm btn-primary storefront-preview-card-button">
-              Buy now
-            </a>
-          {% endif %}
-        </article>
-      {% endfor %}
-    </div>
-  {% endif %}
+  </div>
 </div>
 
 {{ layout_data|json_script:"sf-public-layout-data" }}
@@ -91,8 +117,10 @@
 <script>
 (function () {
   const dataEl = document.getElementById("sf-public-layout-data");
+  const bleed = document.getElementById("sf-public-bleed");
+  const stageWrap = document.getElementById("sf-public-stage-wrap");
   const surface = document.getElementById("sf-public-surface");
-  if (!dataEl || !surface) return;
+  if (!dataEl || !bleed || !stageWrap || !surface) return;
 
   let data;
   try { data = JSON.parse(dataEl.textContent || "{}"); }
@@ -109,6 +137,7 @@
 
   if (!hasAny) return;
 
+  // Load common fonts once.
   if (!document.getElementById("sf-google-fonts-public")) {
     const link = document.createElement("link");
     link.id = "sf-google-fonts-public";
@@ -122,11 +151,12 @@
     document.head.appendChild(link);
   }
 
-  surface.style.background = bg;
-  surface.style.position = "relative";
+  // Full-bleed background for the whole viewport width.
+  bleed.style.background = bg;
 
   function applyTextStyles(container, st) {
     if (!container) return;
+
     const px = st.fontSize ? (st.fontSize + "px") : "";
 
     container.style.fontFamily = st.fontFamily || "";
@@ -153,6 +183,7 @@
   }
 
   let maxBottom = 0;
+  let maxRight = 0;
 
   surface.querySelectorAll("[data-sf-block]").forEach((el) => {
     const id = el.getAttribute("data-sf-block");
@@ -172,16 +203,46 @@
       if (l.h) el.style.minHeight = l.h + "px";
       el.style.margin = "0";
 
-      const bottom = (l.y || 0) + (l.h || 0);
+      const bottom = (l.y || 0) + (l.h || el.offsetHeight || 0);
+      const right = (l.x || 0) + (l.w || el.offsetWidth || 0);
+
       if (bottom > maxBottom) maxBottom = bottom;
+      if (right > maxRight) maxRight = right;
     }
 
     applyTextStyles(el, st);
   });
 
-  // Keep at least one viewport height so it feels like a full page
-  const minH = Math.max(maxBottom + 40, window.innerHeight);
-  surface.style.minHeight = minH + "px";
+  // Design-space dimensions (used to create the “stage edge” like the editor).
+  const designW = Math.max(maxRight + 40, 520);
+  const designH = Math.max(maxBottom + 40, window.innerHeight);
+
+  surface.style.width = designW + "px";
+  surface.style.minHeight = designH + "px";
+  surface.style.background = bg;
+
+  function applyStageScale() {
+    const vw = document.documentElement.clientWidth || window.innerWidth;
+
+    // Scale down only (never scale up above 1).
+    const scale = Math.min(1, vw / designW);
+
+    const scaledW = Math.round(designW * scale);
+    const scaledH = Math.round(designH * scale);
+
+    // The wrapper takes the *real* page space (transforms do not).
+    stageWrap.style.width = scaledW + "px";
+    stageWrap.style.height = Math.max(scaledH, window.innerHeight) + "px";
+
+    // Scale the whole design surface (this scales X and Y together).
+    surface.style.transform = "scale(" + scale + ")";
+
+    // Make sure the full-bleed background covers the visible page height.
+    bleed.style.minHeight = Math.max(scaledH, window.innerHeight) + "px";
+  }
+
+  applyStageScale();
+  window.addEventListener("resize", applyStageScale);
 })();
 </script>
 
