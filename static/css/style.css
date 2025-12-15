@@ -100,6 +100,10 @@ main{
   margin-top: auto;
 }
 
+/* Sticky footer + prevent huge empty pages (e.g. Login) */
+html, body { height: 100%; }
+
+
 /* Navbar background image (Hub theme) */
 .navbar {
     background-image: linear-gradient(rgba(249, 250, 251, 0.72), rgba(249, 250, 251, 0.72)),
@@ -978,6 +982,33 @@ ul.messages li.danger {
     font-weight: 600;
     margin-top: 1.25rem;
     margin-bottom: 0.75rem;
+}
+
+.sf-public-link{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.sf-link-action{
+  border: 1px solid rgba(47, 95, 168, 0.35);
+  background: rgba(47, 95, 168, 0.06);
+  color: var(--mk-btn-bg);
+  padding: 0.25rem 0.55rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.sf-link-action:hover{
+  background: rgba(47, 95, 168, 0.12);
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.sf-link-status{
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 0.9rem;
 }
 
 /* ================= Storefront card EDIT form ================= */

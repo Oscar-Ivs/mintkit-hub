@@ -89,12 +89,73 @@
     </div>
     {% endif %}
 
-    <p class="text-muted sf-preview-url">
+    {% url 'storefront_detail' storefront.slug as public_path %}
+    {% with public_url=request.scheme|add:"://"|add:request.get_host|add:public_path %}
+    <p class="sf-public-link">
       Customers will see this page at
-      <a href="{{ public_url }}" target="_blank" rel="noopener">
-        {{ public_url }}
-      </a>
+      <a id="sf-public-url" href="{{ public_url }}" target="_blank" rel="noopener">{{ public_url }}</a>
+
+      <button type="button" class="sf-link-action" data-action="copy">Copy</button>
+      <button type="button" class="sf-link-action" data-action="share">Share</button>
+
+      <span class="sf-link-status" id="sf-link-status" aria-live="polite"></span>
     </p>
+    {% endwith %}
+
+    <script>
+      (function () {
+        const link = document.getElementById('sf-public-url');
+        const status = document.getElementById('sf-link-status');
+        if (!link) return;
+
+        function setStatus(msg) {
+          if (!status) return;
+          status.textContent = msg;
+          window.clearTimeout(setStatus._t);
+          setStatus._t = window.setTimeout(() => status.textContent = '', 1800);
+        }
+
+        async function copyUrl() {
+          const url = link.href;
+          try {
+            await navigator.clipboard.writeText(url);
+            setStatus('Copied!');
+          } catch (e) {
+            const tmp = document.createElement('textarea');
+            tmp.value = url;
+            tmp.setAttribute('readonly', '');
+            tmp.style.position = 'absolute';
+            tmp.style.left = '-9999px';
+            document.body.appendChild(tmp);
+            tmp.select();
+            document.execCommand('copy');
+            document.body.removeChild(tmp);
+            setStatus('Copied!');
+          }
+        }
+
+        async function shareUrl() {
+          const url = link.href;
+          if (navigator.share) {
+            try {
+              await navigator.share({ title: 'MintKit Storefront', url });
+              setStatus('Shared.');
+              return;
+            } catch (e) { }
+          }
+          await copyUrl();
+        }
+
+        document.querySelectorAll('.sf-link-action').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const action = btn.getAttribute('data-action');
+            if (action === 'share') shareUrl();
+            else copyUrl();
+          });
+        });
+      })();
+    </script>
+
   </section>
 
   {# ================= RIGHT: EDIT FORM ================= #}
