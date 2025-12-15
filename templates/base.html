@@ -36,7 +36,6 @@
             display: inline-flex;
             align-items: center;
             gap: 0;
-            /* remove any flex gap */
             padding: 0;
             text-decoration: none;
         }
@@ -49,22 +48,52 @@
         /* Hub badge: tight to logo + styled */
         .mk-hub-badge {
             font-family: "Diplomata", serif;
-            font-weight: 450;
-            /* Diplomata has limited weights; 200 won't really apply */
+            font-weight: 400;
             font-size: 1.2rem;
             line-height: 1;
             letter-spacing: 0.03em;
-
-            /* Pull closer to the logo */
             margin-left: 2px;
-            /* tweak: -6px to -16px */
-
-
+            white-space: nowrap;
         }
 
-        .mk-hub-badge::before {
-            margin-right: 0.25rem;
-            opacity: 0.75;
+        /* ======  Navbar links: “tab/block” style ====== */
+
+        /* Make both left nav links and right nav links consistent */
+        /* Tab/block styling (no filled active background) */
+        .navbar-links a,
+        .navbar-right a {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 10px 14px;
+            margin: 0 4px;
+
+            border-radius: 0;
+            text-decoration: none;
+
+            /* Default = welcoming blue */
+            color: var(--mk-btn-bg);
+            font-weight: 650;
+
+            /* underline area reserved (prevents jump) */
+            box-shadow: inset 0 -3px 0 transparent;
+
+            transition: color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+        }
+
+        /* Hover: very light tint only (optional) */
+        .navbar-links a:hover,
+        .navbar-right a:hover {
+            background: rgba(47, 95, 168, 0.06);
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        /* Active: black text + clean underline (no background fill) */
+        .navbar-links a.is-active,
+        .navbar-right a.is-active {
+            background: transparent;
+            color: rgba(0, 0, 0, 0.92);
+            box-shadow: inset 0 -3px 0 rgba(47, 95, 168, 0.75);
         }
     </style>
 
@@ -81,24 +110,44 @@
             </a>
 
             <nav class="navbar-links">
-                <a href="{% url 'home' %}">Home</a>
-                <a href="{% url 'about' %}">About</a>
-                <a href="{% url 'pricing' %}">Pricing</a>
-                <a href="{% url 'faq' %}">FAQ</a>
-                <a href="{% url 'explore_storefronts' %}">Explore</a>
-                <a href="{% url 'studio' %}">Studio</a>
+                <a href="{% url 'home' %}"
+                    class="{% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">Home</a>
+
+                <a href="{% url 'about' %}"
+                    class="{% if request.resolver_match.url_name == 'about' %}is-active{% endif %}">About</a>
+
+                <a href="{% url 'pricing' %}"
+                    class="{% if request.resolver_match.url_name == 'pricing' %}is-active{% endif %}">Pricing</a>
+
+                <a href="{% url 'faq' %}"
+                    class="{% if request.resolver_match.url_name == 'faq' %}is-active{% endif %}">FAQ</a>
+
+                <a href="{% url 'explore_storefronts' %}"
+                    class="{% if request.resolver_match.url_name == 'explore_storefronts' %}is-active{% endif %}">Explore</a>
+
+                <a href="{% url 'studio' %}"
+                    class="{% if request.resolver_match.url_name == 'studio' %}is-active{% endif %}">Studio</a>
             </nav>
         </div>
 
         <div class="navbar-right">
             {% if user.is_authenticated %}
             <span>Logged in as {{ user.username }}</span>
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            <a href="{% url 'my_storefront' %}">My storefront</a>
+
+            <a href="{% url 'dashboard' %}"
+                class="{% if request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}">Dashboard</a>
+
+            <a href="{% url 'my_storefront' %}"
+                class="{% if request.resolver_match.url_name == 'my_storefront' %}is-active{% endif %}">My
+                storefront</a>
+
             <a href="{% url 'logout' %}">Logout</a>
             {% else %}
-            <a href="{% url 'login' %}">Login</a>
-            <a href="{% url 'register' %}">Register</a>
+            <a href="{% url 'login' %}"
+                class="{% if request.resolver_match.url_name == 'login' %}is-active{% endif %}">Login</a>
+
+            <a href="{% url 'register' %}"
+                class="{% if request.resolver_match.url_name == 'register' %}is-active{% endif %}">Register</a>
             {% endif %}
         </div>
     </header>
