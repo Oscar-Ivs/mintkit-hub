@@ -34,6 +34,15 @@
                 display: none !important;
             }
         }
+
+        /* Transparent burger style (both burgers) */
+        .mk-burger {
+            background: rgba(255, 255, 255, 0.35) !important;
+            border: 1px solid rgba(255, 255, 255, 0.35) !important;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            opacity: 0.85;
+        }
     </style>
 </head>
 
@@ -212,12 +221,31 @@
 
                 /* Inline styles so CSS can’t hide/clip it */
                 floatingRightBtn.style.setProperty("position", "fixed", "important");
-                floatingRightBtn.style.setProperty("top", "14px", "important");
                 floatingRightBtn.style.setProperty("right", "14px", "important");
                 floatingRightBtn.style.setProperty("z-index", "99999", "important");
                 floatingRightBtn.style.setProperty("display", "none", "important");
 
+                /* Match transparent burger style */
+                floatingRightBtn.style.setProperty("background", "rgba(255, 255, 255, 0.35)", "important");
+                floatingRightBtn.style.setProperty("border", "1px solid rgba(255, 255, 255, 0.35)", "important");
+                floatingRightBtn.style.setProperty("backdrop-filter", "blur(6px)", "important");
+                floatingRightBtn.style.setProperty("-webkit-backdrop-filter", "blur(6px)", "important");
+                floatingRightBtn.style.setProperty("opacity", "0.85", "important");
+
                 document.body.appendChild(floatingRightBtn);
+            }
+
+            function positionFloatingRightBurger() {
+                const header = document.querySelector("header.navbar");
+                if (!header) return;
+
+                const headerRect = header.getBoundingClientRect();
+                const btnRect = floatingRightBtn.getBoundingClientRect();
+
+                if (btnRect.height === 0) return;
+
+                const top = headerRect.top + (headerRect.height - btnRect.height) / 2;
+                floatingRightBtn.style.setProperty("top", `${Math.max(8, Math.round(top))}px`, "important");
             }
 
             /* Visibility controller */
@@ -229,6 +257,9 @@
 
                     // keep original rightBtn hidden to avoid layout issues/duplicates
                     rightBtn.style.setProperty("display", "none", "important");
+
+                    // Center floating burger after it becomes visible
+                    requestAnimationFrame(positionFloatingRightBurger);
                 } else {
                     floatingRightBtn.style.setProperty("display", "none", "important");
                     rightDesktopItems.forEach((el) => el.style.removeProperty("display"));
@@ -289,7 +320,10 @@
             });
 
             /* Resize */
-            window.addEventListener("resize", applyVisibility);
+            window.addEventListener("resize", function () {
+                applyVisibility();
+                requestAnimationFrame(positionFloatingRightBurger);
+            });
 
             /* Close after choosing a link */
             leftMenu.querySelectorAll("a").forEach((a) => {
@@ -305,6 +339,7 @@
             });
 
             applyVisibility();
+            requestAnimationFrame(positionFloatingRightBurger);
         })();
     </script>
 
