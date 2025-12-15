@@ -349,6 +349,7 @@ The exact deployment stack will be documented once chosen (for example, a cloud 
 - Hosting platform name.
 - How static files are served.
 - Any additional services involved in production.
+---
 
 ### Third-Party Services, APIs & Scripts
 
@@ -365,6 +366,73 @@ MintKit Hub relies on a few external services and scripts:
 
 For a more detailed description of how Stripe and the external MintKit app fit together,
 see [docs/STRIPE_MINTKIT_INTEGRATION.md](docs/STRIPE_MINTKIT_INTEGRATION.md).
+
+# Client-side Scripts & External References  
+*(Layout Editor + Public Storefront Scaling)*
+
+The **Storefront Layout Editor** and the **Public Storefront scaled layout** behaviour are implemented with custom JavaScript, using standard browser Web APIs and Django template helpers. These scripts do not rely on external drag/drop libraries; instead, they use documented browser patterns and Django helpers.
+
+---
+
+## Storefront Layout Editor Script  
+*(My Storefront → Edit layout)*
+
+**Purpose:**
+- Allows storefront owners to drag, resize, and style content blocks (logo, headline, description, cards grid, contact blocks).
+- Supports “Fit” preview mode and saving layout, styles, and background to the database.
+
+**Key Web APIs / Patterns Referenced:**
+- DOM manipulation & events (drag/move/resize patterns)  
+- Fetch API (AJAX save/load)  
+- `window.localStorage` (draft/persistence patterns)  
+- CSS transforms (`scale`, `transform-origin`)  
+- Font Loading API (`document.fonts.ready`) for reliable font changes  
+- Element sizing and positioning (`getBoundingClientRect`)  
+
+**Notes on Originality / Adaptation:**
+- Custom implementation for this project, following common DOM manipulation patterns described in MDN Web Docs.  
+- Uses Django documentation for safe JSON embedding (e.g., `json_script`).  
+
+---
+
+## Public Storefront Scaled-Layout Script  
+*(Public Storefront page)*
+
+**Purpose:**
+- Applies saved positions, sizes, and styles from the Layout Editor.  
+- Ensures readability across screen sizes by scaling the entire design surface to fit smaller viewports.  
+
+---
+
+## References Used (Documentation / Patterns)
+
+- **MDN Web Docs (JavaScript / DOM / Web APIs)**  
+  Reference for DOM manipulation, event handling, and browser APIs such as:  
+  - Fetch API (saving/loading layout data)  
+  - localStorage (draft layout persistence)  
+  - Element sizing and positioning (`getBoundingClientRect`)  
+  - CSS transforms (scale + `transform-origin`)  
+
+- **Django Documentation**  
+  Reference for safely embedding structured JSON into templates using `json_script`  
+  (used by the Public Storefront to read saved layout/styles safely).  
+
+---
+
+## Project-Specific Customisations (Summary)
+
+- **Fit mode:** Uses scale calculations so the full layout can be previewed inside the editor canvas.  
+- **Font selection:** Injects Google Fonts once and applies typography consistently across headings and text nodes.  
+- **Editor surface growth:** Dynamically increases vertical space when blocks are moved/resized downward.  
+- **Public storefront scaling:** Applies saved positions/sizes and scales the design surface down on smaller screens for readability.  
+
+---
+
+## AI Support (Development Aid)
+
+Debugging and refactoring guidance was assisted by AI tooling. Final code was reviewed, integrated, and tested in the project codebase.
+
+
 
 
 </details>
