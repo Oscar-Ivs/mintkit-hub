@@ -1665,3 +1665,15 @@ body.sf-editor-lock {
             .footer-right { text-align: left; }
             .footer-social { justify-content: flex-start; }
         }
+
+
+        /* Resize Buy now button in linked cards to fit content */
+.sf-card .storefront-preview-card-button {
+  display: inline-block !important;
+  width: auto !important;            /* stop width:100% overrides */
+  max-width: none !important;        /* prevent arbitrary max-widths */
+  align-self: flex-start !important; /* escape flexbox stretching */
+  white-space: nowrap;               /* prevent wrapping that increases width */
+  padding: 0.25rem 0.5rem !important;/* tighter horizontal padding */
+  font-size: 0.9rem;                 /* optional: slightly smaller text */
+}
