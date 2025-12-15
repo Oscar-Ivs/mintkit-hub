@@ -140,6 +140,10 @@ html, body { height: 100%; }
   .mk-burger-right { display: inline-flex; }
 }
 
+@media (max-width: 420px) {
+  .mk-brand-logo { height: 34px; } /* if you set the img height in CSS */
+  .mk-hub-badge  { font-size: 1.05rem; }
+}
 
 /* Hub badge: tight to logo + styled */
 .mk-hub-badge {
@@ -824,7 +828,7 @@ ul.messages li.danger {
 }
 
 .profile-logo-img {
-    max-width: 100%;
+    max-width: 60%;
     height: auto;
     border-radius: 24px;
     box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
@@ -1013,7 +1017,7 @@ ul.messages li.danger {
 .storefront-public-card-image,
 .storefront-preview-card-image,
 .sf-card-image-wrap img {
-    width: 100%;
+    width: 50%;
     height: auto;
     border-radius: 12px;
     margin-bottom: 0.75rem;
@@ -1247,7 +1251,7 @@ ul.messages li.danger {
 }
 
 .explore-list-logo img {
-    width: 100%;
+    width: 60%;
     height: auto;
     border-radius: 12px;
     display: block;
@@ -1299,19 +1303,9 @@ ul.messages li.danger {
     margin-top: 0.3rem;
 }
 
-/* Logo in Explore list view */
-.explore-list-logo img {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-    display: block;
-    object-fit: contain;
-    background: #ffffff;
-}
-
 /* Shared placeholder for when no storefront logo is set */
 .explore-logo-placeholder {
-    width: 100%;
+    width: 50%;
     aspect-ratio: 16 / 9;
     border-radius: 12px;
     border: 1px dashed var(--mk-border-soft);
