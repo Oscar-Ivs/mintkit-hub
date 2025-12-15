@@ -20,6 +20,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Diplomata&display=swap" rel="stylesheet">
 
+    <!-- Hotfix: show RIGHT burger earlier (<=1100px) and hide RIGHT desktop links earlier -->
+    <style>
+        @media (max-width: 1100px) {
+            /* Force right burger visible even if global burger is hidden until 820px */
+            .mk-burger-right { display: inline-flex !important; }
+
+            /* Hide right-side desktop items earlier to prevent overflow */
+            .navbar-right .mk-desktop-only { display: none !important; }
+        }
+    </style>
 </head>
 
 <body>
@@ -67,6 +77,8 @@
     <div class="navbar-right">
         <!-- Right burger (account links) -->
         <button class="mk-burger mk-burger-right" type="button"
+        style="display: inline-flex !important;"
+
                 aria-label="Open account menu"
                 aria-controls="mkMobileRightMenu"
                 aria-expanded="false"
@@ -156,85 +168,142 @@
     const rightMenu = document.getElementById("mkMobileRightMenu");
     if (!leftBtn || !rightBtn || !leftMenu || !rightMenu) return;
 
-    function isMobileMode() {
+    const rightDesktopItems = document.querySelectorAll(".navbar-right .mk-desktop-only");
+
+    /* Breakpoints */
+    function leftMenuMode() {
         return window.matchMedia("(max-width: 820px)").matches;
+    }
+    function rightMenuMode() {
+        return window.matchMedia("(max-width: 1100px)").matches;
     }
 
     function closeMenu(btn, menu) {
         menu.hidden = true;
         btn.setAttribute("aria-expanded", "false");
     }
-
     function openMenu(btn, menu) {
         menu.hidden = false;
         btn.setAttribute("aria-expanded", "true");
     }
 
-    function toggleMenu(btn, menu, otherBtn, otherMenu) {
-        if (!isMobileMode()) return;
+    function toggleMenu(btn, menu, otherBtn, otherMenu, canOpenFn) {
+        if (!canOpenFn()) return;
 
         const isOpen = !menu.hidden;
-
-        /* Only one menu open at a time */
-        closeMenu(otherBtn, otherMenu);
+        closeMenu(otherBtn, otherMenu); // only one menu open
 
         if (isOpen) closeMenu(btn, menu);
         else openMenu(btn, menu);
     }
 
+    /* Create a floating RIGHT burger (cannot be clipped by navbar layout) */
+    let floatingRightBtn = document.getElementById("mkRightBurgerFloating");
+    if (!floatingRightBtn) {
+        floatingRightBtn = document.createElement("button");
+        floatingRightBtn.type = "button";
+        floatingRightBtn.id = "mkRightBurgerFloating";
+        floatingRightBtn.className = "mk-burger mk-burger-right";
+        floatingRightBtn.setAttribute("aria-label", "Open account menu");
+        floatingRightBtn.setAttribute("aria-controls", "mkMobileRightMenu");
+        floatingRightBtn.setAttribute("aria-expanded", "false");
+        floatingRightBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+
+        /* Inline styles so CSS can’t hide/clip it */
+        floatingRightBtn.style.setProperty("position", "fixed", "important");
+        floatingRightBtn.style.setProperty("top", "14px", "important");
+        floatingRightBtn.style.setProperty("right", "14px", "important");
+        floatingRightBtn.style.setProperty("z-index", "99999", "important");
+        floatingRightBtn.style.setProperty("display", "none", "important");
+
+        document.body.appendChild(floatingRightBtn);
+    }
+
+    /* Visibility controller */
+    function applyVisibility() {
+        // RIGHT at <=1100: show floating burger, hide desktop account links
+        if (rightMenuMode()) {
+            floatingRightBtn.style.setProperty("display", "inline-flex", "important");
+            rightDesktopItems.forEach((el) => el.style.setProperty("display", "none", "important"));
+
+            // keep original rightBtn hidden to avoid layout issues/duplicates
+            rightBtn.style.setProperty("display", "none", "important");
+        } else {
+            floatingRightBtn.style.setProperty("display", "none", "important");
+            rightDesktopItems.forEach((el) => el.style.removeProperty("display"));
+
+            // restore original rightBtn (desktop layout)
+            rightBtn.style.removeProperty("display");
+
+            closeMenu(floatingRightBtn, rightMenu);
+            closeMenu(rightBtn, rightMenu);
+        }
+
+        // LEFT behavior unchanged (uses original left burger)
+        if (!leftMenuMode()) {
+            closeMenu(leftBtn, leftMenu);
+        }
+    }
+
+    /* Wire up clicks */
     leftBtn.addEventListener("click", function (e) {
         e.stopPropagation();
-        toggleMenu(leftBtn, leftMenu, rightBtn, rightMenu);
+        toggleMenu(leftBtn, leftMenu, floatingRightBtn, rightMenu, leftMenuMode);
     });
 
     rightBtn.addEventListener("click", function (e) {
         e.stopPropagation();
-        toggleMenu(rightBtn, rightMenu, leftBtn, leftMenu);
+        toggleMenu(rightBtn, rightMenu, leftBtn, leftMenu, rightMenuMode);
+    });
+
+    floatingRightBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        toggleMenu(floatingRightBtn, rightMenu, leftBtn, leftMenu, rightMenuMode);
     });
 
     /* Close when clicking outside */
     document.addEventListener("click", function (e) {
-        if (!isMobileMode()) return;
+        if (!leftMenuMode() && !rightMenuMode()) return;
 
         const clickedInside =
             leftMenu.contains(e.target) ||
             rightMenu.contains(e.target) ||
             leftBtn.contains(e.target) ||
-            rightBtn.contains(e.target);
+            rightBtn.contains(e.target) ||
+            floatingRightBtn.contains(e.target);
 
         if (!clickedInside) {
             closeMenu(leftBtn, leftMenu);
             closeMenu(rightBtn, rightMenu);
+            closeMenu(floatingRightBtn, rightMenu);
         }
     });
 
-    /* Close on Escape */
+    /* Escape closes */
     document.addEventListener("keydown", function (e) {
         if (e.key !== "Escape") return;
         closeMenu(leftBtn, leftMenu);
         closeMenu(rightBtn, rightMenu);
+        closeMenu(floatingRightBtn, rightMenu);
     });
 
-    /* Reset menus when leaving mobile mode */
-    window.addEventListener("resize", function () {
-        if (!isMobileMode()) {
-            closeMenu(leftBtn, leftMenu);
-            closeMenu(rightBtn, rightMenu);
-        }
-    });
+    /* Resize */
+    window.addEventListener("resize", applyVisibility);
 
-    /* Close menus after selecting a link */
+    /* Close after choosing a link */
     leftMenu.querySelectorAll("a").forEach((a) => {
         a.addEventListener("click", function () {
             closeMenu(leftBtn, leftMenu);
         });
     });
-
     rightMenu.querySelectorAll("a").forEach((a) => {
         a.addEventListener("click", function () {
             closeMenu(rightBtn, rightMenu);
+            closeMenu(floatingRightBtn, rightMenu);
         });
     });
+
+    applyVisibility();
 })();
 </script>
 

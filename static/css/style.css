@@ -138,6 +138,11 @@ html, body { height: 100%; }
 @media (max-width: 1100px) {
   .navbar-right { display: none; }     /* or hide just the links */
   .mk-burger-right { display: inline-flex; }
+   /* Collapse account links sooner (prevents username/logout spilling out) */
+  .navbar-right .mk-desktop-only { display: none !important; }
+
+  /* Show ONLY the right burger at this breakpoint */
+  .mk-burger-right { display: inline-flex; }
 }
 
 @media (max-width: 420px) {
@@ -1052,7 +1057,7 @@ ul.messages li.danger {
 .storefront-public-card-image,
 .storefront-preview-card-image,
 .sf-card-image-wrap img {
-    width: 50%;
+    width: 90%;
     height: auto;
     border-radius: 12px;
     margin-bottom: 0.75rem;
