@@ -367,72 +367,65 @@ MintKit Hub relies on a few external services and scripts:
 For a more detailed description of how Stripe and the external MintKit app fit together,
 see [docs/STRIPE_MINTKIT_INTEGRATION.md](docs/STRIPE_MINTKIT_INTEGRATION.md).
 
-# Client-side Scripts & External References  
+#### Client-side Scripts & External References  
 *(Layout Editor + Public Storefront Scaling)*
 
-The **Storefront Layout Editor** and the **Public Storefront scaled layout** behaviour are implemented with custom JavaScript, using standard browser Web APIs and Django template helpers. These scripts do not rely on external drag/drop libraries; instead, they use documented browser patterns and Django helpers.
+The **Storefront Layout Editor** and the **Public Storefront scaled layout** behaviour are implemented with custom JavaScript, using standard browser Web APIs and Django template helpers. These scripts do not rely on external drag/drop libraries; instead, they follow documented browser patterns and Django helpers.
 
 ---
 
-## Storefront Layout Editor Script  
+##### Storefront Layout Editor script  
 *(My Storefront → Edit layout)*
 
 **Purpose:**
 - Allows storefront owners to drag, resize, and style content blocks (logo, headline, description, cards grid, contact blocks).
 - Supports “Fit” preview mode and saving layout, styles, and background to the database.
 
-**Key Web APIs / Patterns Referenced:**
-- DOM manipulation & events (drag/move/resize patterns)  
-- Fetch API (AJAX save/load)  
-- `window.localStorage` (draft/persistence patterns)  
-- CSS transforms (`scale`, `transform-origin`)  
-- Font Loading API (`document.fonts.ready`) for reliable font changes  
-- Element sizing and positioning (`getBoundingClientRect`)  
+**Key Web APIs / patterns referenced:**
+- DOM manipulation & pointer events (drag/move/resize patterns)
+- Fetch API (AJAX save/load)
+- `window.localStorage` (draft/persistence patterns)
+- CSS transforms (`scale`, `transform-origin`)
+- Font Loading API (`document.fonts.ready`) for reliable font changes
+- Element sizing and positioning (`getBoundingClientRect`)
 
-**Notes on Originality / Adaptation:**
-- Custom implementation for this project, following common DOM manipulation patterns described in MDN Web Docs.  
-- Uses Django documentation for safe JSON embedding (e.g., `json_script`).  
+**Notes on originality / adaptation:**
+- Custom implementation for this project, following common patterns described in MDN Web Docs.
+- Uses Django documentation for safe JSON embedding (e.g., `json_script`).
 
 ---
 
-## Public Storefront Scaled-Layout Script  
+##### Public Storefront scaled-layout script  
 *(Public Storefront page)*
 
 **Purpose:**
-- Applies saved positions, sizes, and styles from the Layout Editor.  
-- Ensures readability across screen sizes by scaling the entire design surface to fit smaller viewports.  
+- Applies saved positions, sizes, and styles from the Layout Editor.
+- Ensures readability across screen sizes by scaling the entire design surface to fit smaller viewports.
 
 ---
 
-## References Used (Documentation / Patterns)
+##### References used (documentation / patterns)
 
 - **MDN Web Docs (JavaScript / DOM / Web APIs)**  
-  Reference for DOM manipulation, event handling, and browser APIs such as:  
-  - Fetch API (saving/loading layout data)  
-  - localStorage (draft layout persistence)  
-  - Element sizing and positioning (`getBoundingClientRect`)  
-  - CSS transforms (scale + `transform-origin`)  
+  Reference for DOM manipulation, event handling, and browser APIs such as Fetch, localStorage, and transforms.
 
-- **Django Documentation**  
-  Reference for safely embedding structured JSON into templates using `json_script`  
-  (used by the Public Storefront to read saved layout/styles safely).  
+- **Django documentation**  
+  Reference for safely embedding structured JSON into templates using `json_script`.
 
 ---
 
-## Project-Specific Customisations (Summary)
+##### Project-specific customisations (summary)
 
-- **Fit mode:** Uses scale calculations so the full layout can be previewed inside the editor canvas.  
-- **Font selection:** Injects Google Fonts once and applies typography consistently across headings and text nodes.  
-- **Editor surface growth:** Dynamically increases vertical space when blocks are moved/resized downward.  
-- **Public storefront scaling:** Applies saved positions/sizes and scales the design surface down on smaller screens for readability.  
+- **Fit mode:** Uses scale calculations so the full layout can be previewed inside the editor canvas.
+- **Font selection:** Injects Google Fonts once and applies typography consistently across headings and text nodes.
+- **Editor surface growth:** Dynamically increases vertical space when blocks are moved/resized downward.
+- **Public storefront scaling:** Applies saved positions/sizes and scales the design surface down on smaller screens.
 
 ---
 
-## AI Support (Development Aid)
+##### AI support (development aid)
 
 Debugging and refactoring guidance was assisted by AI tooling. Final code was reviewed, integrated, and tested in the project codebase.
-
-
 
 
 </details>
@@ -755,31 +748,20 @@ This section collects recurring issues encountered during development and deploy
 ### Layout Editor / Storefront Layout — common issues
 
 **Layout Editor: cannot push blocks lower (page height feels “fixed”)**
-- _Cause_: The editor surface has a fixed/minimum height, so dragging/resizing can clamp blocks near the bottom.
-- _Fix_: Recalculate the lowest block edge (`maxBottom`) and increase the editor surface `min-height` dynamically (e.g. an `ensureSurfaceMinHeight()` helper). This allows the page to “grow” vertically as blocks are pushed down.
-
-**Layout Editor: font changes require 2 clicks / headings don’t update**
-- _Cause_: Web fonts may not be loaded when styles are applied, and only container styles may be updated (not nested headings/text).
-- _Fix_: Inject the required Google Fonts once, then re-apply styles after fonts finish loading (Font Loading API). Apply font styles to common text nodes inside each block (headings, p, span, links, etc.).
-
-**Public Storefront: layout looks correct in “Fit” preview but shifts/crops on different screens**
-- _Cause_: The public page uses absolute-positioned “design-space” coordinates; without scaling/wrapping, wide screens can show large empty margins and smaller screens can crop content.
-- _Fix_: Compute design dimensions from the layout (maxRight/maxBottom), then scale the entire surface down to fit the viewport width (never scaling above 1). Put the scaled surface inside a wrapper that has the *real* width/height (because CSS transforms don’t affect layout flow), and recompute on window resize.
-
-**Layout Editor: cannot push blocks lower (page height feels fixed)**
-
 - _Cause_: The editor surface had a fixed/minimum height, so dragging/resizing near the bottom felt clamped.
-- _Fix_: Recalculate the lowest block edge and increase the surface `min-height` dynamically when blocks are moved/resized below the current bottom. This allows the layout page to grow vertically.
+- _Fix_: Recalculate the lowest block edge (`maxBottom`) and increase the surface `min-height` dynamically when blocks are moved/resized below the current bottom (e.g. an `ensureSurfaceMinHeight()` helper). This allows the layout page to grow vertically.
 
 **Layout Editor: “Fit” preview looks wrong (too tall / scroll does not match)**
-
 - _Cause_: Fit mode applied a visual scale but the surrounding container height/scroll area did not reflect the scaled surface size.
-- _Fix_: Compute a scale factor to fit the whole surface into the visible canvas width, then update the surface/container dimensions so scroll behaviour matches the scaled preview.
+- _Fix_: Compute a scale factor to fit the whole surface into the visible canvas width/height, then update surface/container sizing so scrolling reflects the scaled preview.
 
-**Public Storefront: saved layout not matching “Fit” / layout not applied**
+**Layout Editor: font changes require extra click / headings don’t update**
+- _Cause_: Web fonts may not be loaded when styles are applied, and only container styles may be updated (not nested headings/text).
+- _Fix_: Inject Google Fonts once, then re-apply styles after fonts finish loading (`document.fonts.ready`). Apply styles to common text nodes inside each block (headings, p, span, links, etc.).
 
-- _Cause_: Layout data must be embedded safely into the template; parsing can fail if JSON is not embedded correctly.
-- _Fix_: Embed layout/styles using Django `json_script` and read via `JSON.parse(...)` on the client, then apply absolute positions/sizes and use a responsive scale-down approach for smaller screens.
+**Public Storefront: saved layout not matching “Fit” / layout shifts or crops on different screens**
+- _Cause_: Public storefront uses absolute-positioned “design-space” coordinates; without correct JSON embedding and scaling, wide screens show excess margins and smaller screens can crop content.
+- _Fix_: Embed layout/styles via Django `json_script` and parse with `JSON.parse(...)`, then apply absolute positions/sizes. Compute the design surface bounds and scale the surface down to fit smaller viewports (never scaling above 1), recalculating on window resize.
 
 
 </details>
