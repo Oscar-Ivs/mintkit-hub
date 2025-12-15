@@ -444,6 +444,33 @@ Source / reference:
 Custom script written for this project, based on common responsive navigation patterns and standard DOM APIs.
 Reference material: MDN Web Docs (DOM `classList`, event listeners, ARIA attributes).
 
+---
+
+### Public Storefront Link — Copy / Share Buttons (JS)
+
+**Purpose:**  
+On the “My storefront” page, users can quickly copy their public storefront URL or share it using the device share sheet.
+
+**How it works (high level):**
+- **Copy** uses the browser Clipboard API to copy the URL string.
+- **Share** uses the Web Share API where supported (mainly mobile browsers). If unsupported, the button can be hidden/disabled.
+
+**Browser APIs used:**
+- `navigator.clipboard.writeText()` (Clipboard API)
+- `navigator.share()` (Web Share API)
+
+**Notes / limitations:**
+- Clipboard API generally requires **HTTPS** (localhost is usually allowed for development).
+- Web Share API availability varies by browser/device; it is commonly supported on mobile.
+
+**Source / attribution:**
+- Script logic inspired by standard DOM event patterns and Web API usage examples from MDN documentation.
+- Implementation was adapted to MintKit Hub UI and layout.
+
+**UX detail:**
+- After a successful copy action, the UI should provide feedback (e.g., temporary “Copied!” label, small toast message, or button text change).
+
+
 
 </details>
 
