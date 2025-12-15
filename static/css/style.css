@@ -273,6 +273,22 @@ html, body { height: 100%; }
 .mk-mobile-menu-left { left: 12px; }
 .mk-mobile-menu-right { right: 12px; }
 
+/* Keep navbar visible while scrolling (so burgers stay "in" the navbar) */
+/* Make navbar truly persistent */
+header.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 9999;
+}
+
+/* Push page content below the fixed navbar */
+body {
+    padding-top: var(--mk-nav-h, 72px);
+}
+
 /* ====== Footer ====== */
 .site-footer {
     background-image: linear-gradient(rgba(249, 250, 251, 0.72), rgba(249, 250, 251, 0.72)),

@@ -249,6 +249,14 @@
             }
 
             /* Visibility controller */
+
+            function syncNavOffset() {
+                const header = document.querySelector("header.navbar");
+                if (!header) return;
+                document.documentElement.style.setProperty("--mk-nav-h", `${header.offsetHeight}px`);
+            }
+
+
             function applyVisibility() {
                 // RIGHT at <=1100: show floating burger, hide desktop account links
                 if (rightMenuMode()) {
