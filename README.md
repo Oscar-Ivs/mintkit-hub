@@ -807,6 +807,14 @@ This section collects recurring issues encountered during development and deploy
 - _Cause_: Public storefront uses absolute-positioned “design-space” coordinates; without correct JSON embedding and scaling, wide screens show excess margins and smaller screens can crop content.
 - _Fix_: Embed layout/styles via Django `json_script` and parse with `JSON.parse(...)`, then apply absolute positions/sizes. Compute the design surface bounds and scale the surface down to fit smaller viewports (never scaling above 1), recalculating on window resize.
 
+**My storefront: mobile layout not 100% polished (very small screens)**
+- _Cause_: The preview/edit panel layout still has minor width/spacing constraints at ~320px, so it can feel slightly narrower than ideal.
+- _Fix_: Refine the `.sf-grid` / panel responsive rules to ensure both panels use full available width on tiny screens (review max-width, padding, and grid breakpoints).
+
+**Navbar: responsive account menu uses floating burger workaround at some widths**
+- _Cause_: Desktop account links can overflow at mid-width breakpoints, so the account burger is injected and positioned to stay usable.
+- _Fix_: Replace workaround with a single consistent responsive navbar layout (agreed breakpoints + one collapse strategy) and remove injected button logic.
+
 
 </details>
 
