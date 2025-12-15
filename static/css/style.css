@@ -81,6 +81,25 @@ a:hover {
 
 /* ---------------- Navbar + Footer (Hub theme) ---------------- */
 
+/* Push footer to bottom if content is short */
+html, body{
+  height: 100%;
+}
+
+body{
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main{
+  flex: 1 0 auto;
+}
+
+.site-footer{
+  margin-top: auto;
+}
+
 /* Navbar background image (Hub theme) */
 .navbar {
     background-image: linear-gradient(rgba(249, 250, 251, 0.72), rgba(249, 250, 251, 0.72)),
@@ -343,7 +362,7 @@ a:hover {
 /* ---------------- Page shell ---------------- */
 
 .page-container {
-    max-width: 1180px; /* a bit wider so the storefront feels less cramped */
+    max-width: 1280px; /* a bit wider so the storefront feels less cramped */
     margin: 1.5rem auto 2.5rem;
     padding: 1.75rem 2.5rem;
     background-color: var(--mk-card-bg);
@@ -1061,7 +1080,7 @@ ul.messages li.danger {
 .explore-filters-right {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.7rem;
     font-size: 0.9rem;
 }
 
