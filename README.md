@@ -427,6 +427,23 @@ The **Storefront Layout Editor** and the **Public Storefront scaled layout** beh
 
 Debugging and refactoring guidance was assisted by AI tooling. Final code was reviewed, integrated, and tested in the project codebase.
 
+---
+
+### Responsive navbar (burger menus)
+
+Purpose:
+A small vanilla JavaScript toggle script is used to show/hide navigation links on tablet/mobile.  
+It supports two toggles (left menu + right user/account menu) to prevent the navbar wrapping on small screens.
+
+Implementation notes (project-specific changes):
+- Two independent menus (left + right), each with its own toggle button and panel.
+- Uses `classList.toggle()` to control visibility via CSS classes.
+- Uses basic accessibility attributes (`aria-label`, optional `aria-expanded`) to keep buttons screen-reader friendly.
+
+Source / reference:
+Custom script written for this project, based on common responsive navigation patterns and standard DOM APIs.
+Reference material: MDN Web Docs (DOM `classList`, event listeners, ARIA attributes).
+
 
 </details>
 
