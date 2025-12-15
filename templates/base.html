@@ -13,7 +13,7 @@
 
     <!-- Font Awesome (social icons + burger icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-          referrerpolicy="no-referrer">
+        referrerpolicy="no-referrer">
 
     <!-- Optional brand font (used only for Hub badge) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,289 +23,291 @@
     <!-- Hotfix: show RIGHT burger earlier (<=1100px) and hide RIGHT desktop links earlier -->
     <style>
         @media (max-width: 1100px) {
+
             /* Force right burger visible even if global burger is hidden until 820px */
-            .mk-burger-right { display: inline-flex !important; }
+            .mk-burger-right {
+                display: inline-flex !important;
+            }
 
             /* Hide right-side desktop items earlier to prevent overflow */
-            .navbar-right .mk-desktop-only { display: none !important; }
+            .navbar-right .mk-desktop-only {
+                display: none !important;
+            }
         }
     </style>
 </head>
 
 <body>
 
-{% block site_header %}
-<header class="navbar">
-    <div class="navbar-left">
-        <!-- Left burger (site navigation) -->
-        <button class="mk-burger mk-burger-left" type="button"
-                aria-label="Open navigation menu"
-                aria-controls="mkMobileLeftMenu"
-                aria-expanded="false"
-                id="mkLeftBurger">
-            <i class="fa-solid fa-bars"></i>
-        </button>
+    {% block site_header %}
+    <header class="navbar">
+        <div class="navbar-left">
+            <!-- Left burger (site navigation) -->
+            <button class="mk-burger mk-burger-left" type="button" aria-label="Open navigation menu"
+                aria-controls="mkMobileLeftMenu" aria-expanded="false" id="mkLeftBurger">
+                <i class="fa-solid fa-bars"></i>
+            </button>
 
-        <!-- Brand (logo + Hub together) -->
-        <a href="{% url 'home' %}" class="navbar-brand mk-brand-wrap">
-            <img src="{% static 'img/Logo_small.webp' %}" alt="MintKit Hub logo" class="mk-brand-logo">
-            <span class="mk-hub-badge">-Hub</span>
-        </a>
+            <!-- Brand (logo + Hub together) -->
+            <a href="{% url 'home' %}" class="navbar-brand mk-brand-wrap">
+                <img src="{% static 'img/Logo_small.webp' %}" alt="MintKit Hub logo" class="mk-brand-logo"
+                    style="filter: contrast(1.25) brightness(0.9);">
 
-        <!-- Desktop links -->
-        <nav class="navbar-links mk-desktop-only">
-            <a href="{% url 'home' %}"
-               class="{% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">Home</a>
+                <span class="mk-hub-badge" style="color: black;">-Hub</span>
+            </a>
 
-            <a href="{% url 'about' %}"
-               class="{% if request.resolver_match.url_name == 'about' %}is-active{% endif %}">About</a>
+            <!-- Desktop links -->
+            <nav class="navbar-links mk-desktop-only">
+                <a href="{% url 'home' %}"
+                    class="{% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">Home</a>
 
-            <a href="{% url 'pricing' %}"
-               class="{% if request.resolver_match.url_name == 'pricing' %}is-active{% endif %}">Pricing</a>
+                <a href="{% url 'about' %}"
+                    class="{% if request.resolver_match.url_name == 'about' %}is-active{% endif %}">About</a>
 
-            <a href="{% url 'faq' %}"
-               class="{% if request.resolver_match.url_name == 'faq' %}is-active{% endif %}">FAQ</a>
+                <a href="{% url 'pricing' %}"
+                    class="{% if request.resolver_match.url_name == 'pricing' %}is-active{% endif %}">Pricing</a>
 
-            <a href="{% url 'explore_storefronts' %}"
-               class="{% if request.resolver_match.url_name == 'explore_storefronts' %}is-active{% endif %}">Explore</a>
+                <a href="{% url 'faq' %}"
+                    class="{% if request.resolver_match.url_name == 'faq' %}is-active{% endif %}">FAQ</a>
 
-            <a href="{% url 'studio' %}"
-               class="{% if request.resolver_match.url_name == 'studio' %}is-active{% endif %}">Studio</a>
-        </nav>
-    </div>
+                <a href="{% url 'explore_storefronts' %}"
+                    class="{% if request.resolver_match.url_name == 'explore_storefronts' %}is-active{% endif %}">Explore</a>
 
-    <div class="navbar-right">
-        <!-- Right burger (account links) -->
-        <button class="mk-burger mk-burger-right" type="button"
-        style="display: inline-flex !important;"
+                <a href="{% url 'studio' %}"
+                    class="{% if request.resolver_match.url_name == 'studio' %}is-active{% endif %}">Studio</a>
+            </nav>
+        </div>
 
-                aria-label="Open account menu"
-                aria-controls="mkMobileRightMenu"
-                aria-expanded="false"
+        <div class="navbar-right">
+            <!-- Right burger (account links) -->
+            <button class="mk-burger mk-burger-right" type="button" style="display: inline-flex !important;"
+                aria-label="Open account menu" aria-controls="mkMobileRightMenu" aria-expanded="false"
                 id="mkRightBurger">
-            <i class="fa-solid fa-bars"></i>
-        </button>
+                <i class="fa-solid fa-bars"></i>
+            </button>
 
-        {% if user.is_authenticated %}
+            {% if user.is_authenticated %}
             <span class="mk-desktop-only">Logged in as {{ user.username }}</span>
 
             <a href="{% url 'dashboard' %}"
-               class="mk-desktop-only {% if request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}">Dashboard</a>
+                class="mk-desktop-only {% if request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}">Dashboard</a>
 
             <a href="{% url 'my_storefront' %}"
-               class="mk-desktop-only {% if request.resolver_match.url_name == 'my_storefront' %}is-active{% endif %}">My storefront</a>
+                class="mk-desktop-only {% if request.resolver_match.url_name == 'my_storefront' %}is-active{% endif %}">My
+                storefront</a>
 
             <a href="{% url 'logout' %}" class="mk-desktop-only">Logout</a>
-        {% else %}
+            {% else %}
             <a href="{% url 'login' %}"
-               class="mk-desktop-only {% if request.resolver_match.url_name == 'login' %}is-active{% endif %}">Login</a>
+                class="mk-desktop-only {% if request.resolver_match.url_name == 'login' %}is-active{% endif %}">Login</a>
 
             <a href="{% url 'register' %}"
-               class="mk-desktop-only {% if request.resolver_match.url_name == 'register' %}is-active{% endif %}">Register</a>
-        {% endif %}
-    </div>
+                class="mk-desktop-only {% if request.resolver_match.url_name == 'register' %}is-active{% endif %}">Register</a>
+            {% endif %}
+        </div>
 
-    <!-- Mobile dropdown: left -->
-    <div id="mkMobileLeftMenu" class="mk-mobile-menu mk-mobile-menu-left" hidden>
-        <a href="{% url 'home' %}">Home</a>
-        <a href="{% url 'about' %}">About</a>
-        <a href="{% url 'pricing' %}">Pricing</a>
-        <a href="{% url 'faq' %}">FAQ</a>
-        <a href="{% url 'explore_storefronts' %}">Explore</a>
-        <a href="{% url 'studio' %}">Studio</a>
-    </div>
+        <!-- Mobile dropdown: left -->
+        <div id="mkMobileLeftMenu" class="mk-mobile-menu mk-mobile-menu-left" hidden>
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'about' %}">About</a>
+            <a href="{% url 'pricing' %}">Pricing</a>
+            <a href="{% url 'faq' %}">FAQ</a>
+            <a href="{% url 'explore_storefronts' %}">Explore</a>
+            <a href="{% url 'studio' %}">Studio</a>
+        </div>
 
-    <!-- Mobile dropdown: right -->
-    <div id="mkMobileRightMenu" class="mk-mobile-menu mk-mobile-menu-right" hidden>
-        {% if user.is_authenticated %}
+        <!-- Mobile dropdown: right -->
+        <div id="mkMobileRightMenu" class="mk-mobile-menu mk-mobile-menu-right" hidden>
+            {% if user.is_authenticated %}
             <a href="{% url 'dashboard' %}">Dashboard</a>
             <a href="{% url 'my_storefront' %}">My storefront</a>
             <div class="mk-mobile-sep"></div>
             <a href="{% url 'logout' %}">Logout</a>
-        {% else %}
+            {% else %}
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'register' %}">Register</a>
-        {% endif %}
-    </div>
-</header>
-{% endblock %}
-
-<main class="{% block main_class %}page-container{% endblock %}">
-    {% block content %}{% endblock %}
-</main>
-
-{% block site_footer %}
-<footer class="site-footer">
-    <div class="site-footer-inner">
-        <div class="footer-left">
-            <a href="mailto:support@mintkit.co.uk">support@mintkit.co.uk</a>
+            {% endif %}
         </div>
+    </header>
+    {% endblock %}
 
-        <div class="footer-social">
-            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
-                <i class="fa-brands fa-instagram"></i>
-            </a>
-            <a href="https://x.com/" target="_blank" rel="noopener" aria-label="X">
-                <i class="fa-brands fa-x-twitter"></i>
-            </a>
-            <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
-                <i class="fa-brands fa-facebook-f"></i>
-            </a>
+    <main class="{% block main_class %}page-container{% endblock %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block site_footer %}
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-left">
+                <a href="mailto:support@mintkit.co.uk">support@mintkit.co.uk</a>
+            </div>
+
+            <div class="footer-social">
+                <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://x.com/" target="_blank" rel="noopener" aria-label="X">
+                    <i class="fa-brands fa-x-twitter"></i>
+                </a>
+                <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </a>
+            </div>
+
+            <div class="footer-right">
+                © 2025 MintKit. All rights reserved.
+            </div>
         </div>
+    </footer>
+    {% endblock %}
 
-        <div class="footer-right">
-            © 2025 MintKit. All rights reserved.
-        </div>
-    </div>
-</footer>
-{% endblock %}
+    <script>
+        (function () {
+            const leftBtn = document.getElementById("mkLeftBurger");
+            const rightBtn = document.getElementById("mkRightBurger");
+            const leftMenu = document.getElementById("mkMobileLeftMenu");
+            const rightMenu = document.getElementById("mkMobileRightMenu");
+            if (!leftBtn || !rightBtn || !leftMenu || !rightMenu) return;
 
-<script>
-(function () {
-    const leftBtn = document.getElementById("mkLeftBurger");
-    const rightBtn = document.getElementById("mkRightBurger");
-    const leftMenu = document.getElementById("mkMobileLeftMenu");
-    const rightMenu = document.getElementById("mkMobileRightMenu");
-    if (!leftBtn || !rightBtn || !leftMenu || !rightMenu) return;
+            const rightDesktopItems = document.querySelectorAll(".navbar-right .mk-desktop-only");
 
-    const rightDesktopItems = document.querySelectorAll(".navbar-right .mk-desktop-only");
+            /* Breakpoints */
+            function leftMenuMode() {
+                return window.matchMedia("(max-width: 820px)").matches;
+            }
+            function rightMenuMode() {
+                return window.matchMedia("(max-width: 1100px)").matches;
+            }
 
-    /* Breakpoints */
-    function leftMenuMode() {
-        return window.matchMedia("(max-width: 820px)").matches;
-    }
-    function rightMenuMode() {
-        return window.matchMedia("(max-width: 1100px)").matches;
-    }
+            function closeMenu(btn, menu) {
+                menu.hidden = true;
+                btn.setAttribute("aria-expanded", "false");
+            }
+            function openMenu(btn, menu) {
+                menu.hidden = false;
+                btn.setAttribute("aria-expanded", "true");
+            }
 
-    function closeMenu(btn, menu) {
-        menu.hidden = true;
-        btn.setAttribute("aria-expanded", "false");
-    }
-    function openMenu(btn, menu) {
-        menu.hidden = false;
-        btn.setAttribute("aria-expanded", "true");
-    }
+            function toggleMenu(btn, menu, otherBtn, otherMenu, canOpenFn) {
+                if (!canOpenFn()) return;
 
-    function toggleMenu(btn, menu, otherBtn, otherMenu, canOpenFn) {
-        if (!canOpenFn()) return;
+                const isOpen = !menu.hidden;
+                closeMenu(otherBtn, otherMenu); // only one menu open
 
-        const isOpen = !menu.hidden;
-        closeMenu(otherBtn, otherMenu); // only one menu open
+                if (isOpen) closeMenu(btn, menu);
+                else openMenu(btn, menu);
+            }
 
-        if (isOpen) closeMenu(btn, menu);
-        else openMenu(btn, menu);
-    }
+            /* Create a floating RIGHT burger (cannot be clipped by navbar layout) */
+            let floatingRightBtn = document.getElementById("mkRightBurgerFloating");
+            if (!floatingRightBtn) {
+                floatingRightBtn = document.createElement("button");
+                floatingRightBtn.type = "button";
+                floatingRightBtn.id = "mkRightBurgerFloating";
+                floatingRightBtn.className = "mk-burger mk-burger-right";
+                floatingRightBtn.setAttribute("aria-label", "Open account menu");
+                floatingRightBtn.setAttribute("aria-controls", "mkMobileRightMenu");
+                floatingRightBtn.setAttribute("aria-expanded", "false");
+                floatingRightBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
 
-    /* Create a floating RIGHT burger (cannot be clipped by navbar layout) */
-    let floatingRightBtn = document.getElementById("mkRightBurgerFloating");
-    if (!floatingRightBtn) {
-        floatingRightBtn = document.createElement("button");
-        floatingRightBtn.type = "button";
-        floatingRightBtn.id = "mkRightBurgerFloating";
-        floatingRightBtn.className = "mk-burger mk-burger-right";
-        floatingRightBtn.setAttribute("aria-label", "Open account menu");
-        floatingRightBtn.setAttribute("aria-controls", "mkMobileRightMenu");
-        floatingRightBtn.setAttribute("aria-expanded", "false");
-        floatingRightBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+                /* Inline styles so CSS can’t hide/clip it */
+                floatingRightBtn.style.setProperty("position", "fixed", "important");
+                floatingRightBtn.style.setProperty("top", "14px", "important");
+                floatingRightBtn.style.setProperty("right", "14px", "important");
+                floatingRightBtn.style.setProperty("z-index", "99999", "important");
+                floatingRightBtn.style.setProperty("display", "none", "important");
 
-        /* Inline styles so CSS can’t hide/clip it */
-        floatingRightBtn.style.setProperty("position", "fixed", "important");
-        floatingRightBtn.style.setProperty("top", "14px", "important");
-        floatingRightBtn.style.setProperty("right", "14px", "important");
-        floatingRightBtn.style.setProperty("z-index", "99999", "important");
-        floatingRightBtn.style.setProperty("display", "none", "important");
+                document.body.appendChild(floatingRightBtn);
+            }
 
-        document.body.appendChild(floatingRightBtn);
-    }
+            /* Visibility controller */
+            function applyVisibility() {
+                // RIGHT at <=1100: show floating burger, hide desktop account links
+                if (rightMenuMode()) {
+                    floatingRightBtn.style.setProperty("display", "inline-flex", "important");
+                    rightDesktopItems.forEach((el) => el.style.setProperty("display", "none", "important"));
 
-    /* Visibility controller */
-    function applyVisibility() {
-        // RIGHT at <=1100: show floating burger, hide desktop account links
-        if (rightMenuMode()) {
-            floatingRightBtn.style.setProperty("display", "inline-flex", "important");
-            rightDesktopItems.forEach((el) => el.style.setProperty("display", "none", "important"));
+                    // keep original rightBtn hidden to avoid layout issues/duplicates
+                    rightBtn.style.setProperty("display", "none", "important");
+                } else {
+                    floatingRightBtn.style.setProperty("display", "none", "important");
+                    rightDesktopItems.forEach((el) => el.style.removeProperty("display"));
 
-            // keep original rightBtn hidden to avoid layout issues/duplicates
-            rightBtn.style.setProperty("display", "none", "important");
-        } else {
-            floatingRightBtn.style.setProperty("display", "none", "important");
-            rightDesktopItems.forEach((el) => el.style.removeProperty("display"));
+                    // restore original rightBtn (desktop layout)
+                    rightBtn.style.removeProperty("display");
 
-            // restore original rightBtn (desktop layout)
-            rightBtn.style.removeProperty("display");
+                    closeMenu(floatingRightBtn, rightMenu);
+                    closeMenu(rightBtn, rightMenu);
+                }
 
-            closeMenu(floatingRightBtn, rightMenu);
-            closeMenu(rightBtn, rightMenu);
-        }
+                // LEFT behavior unchanged (uses original left burger)
+                if (!leftMenuMode()) {
+                    closeMenu(leftBtn, leftMenu);
+                }
+            }
 
-        // LEFT behavior unchanged (uses original left burger)
-        if (!leftMenuMode()) {
-            closeMenu(leftBtn, leftMenu);
-        }
-    }
+            /* Wire up clicks */
+            leftBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                toggleMenu(leftBtn, leftMenu, floatingRightBtn, rightMenu, leftMenuMode);
+            });
 
-    /* Wire up clicks */
-    leftBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        toggleMenu(leftBtn, leftMenu, floatingRightBtn, rightMenu, leftMenuMode);
-    });
+            rightBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                toggleMenu(rightBtn, rightMenu, leftBtn, leftMenu, rightMenuMode);
+            });
 
-    rightBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        toggleMenu(rightBtn, rightMenu, leftBtn, leftMenu, rightMenuMode);
-    });
+            floatingRightBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                toggleMenu(floatingRightBtn, rightMenu, leftBtn, leftMenu, rightMenuMode);
+            });
 
-    floatingRightBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        toggleMenu(floatingRightBtn, rightMenu, leftBtn, leftMenu, rightMenuMode);
-    });
+            /* Close when clicking outside */
+            document.addEventListener("click", function (e) {
+                if (!leftMenuMode() && !rightMenuMode()) return;
 
-    /* Close when clicking outside */
-    document.addEventListener("click", function (e) {
-        if (!leftMenuMode() && !rightMenuMode()) return;
+                const clickedInside =
+                    leftMenu.contains(e.target) ||
+                    rightMenu.contains(e.target) ||
+                    leftBtn.contains(e.target) ||
+                    rightBtn.contains(e.target) ||
+                    floatingRightBtn.contains(e.target);
 
-        const clickedInside =
-            leftMenu.contains(e.target) ||
-            rightMenu.contains(e.target) ||
-            leftBtn.contains(e.target) ||
-            rightBtn.contains(e.target) ||
-            floatingRightBtn.contains(e.target);
+                if (!clickedInside) {
+                    closeMenu(leftBtn, leftMenu);
+                    closeMenu(rightBtn, rightMenu);
+                    closeMenu(floatingRightBtn, rightMenu);
+                }
+            });
 
-        if (!clickedInside) {
-            closeMenu(leftBtn, leftMenu);
-            closeMenu(rightBtn, rightMenu);
-            closeMenu(floatingRightBtn, rightMenu);
-        }
-    });
+            /* Escape closes */
+            document.addEventListener("keydown", function (e) {
+                if (e.key !== "Escape") return;
+                closeMenu(leftBtn, leftMenu);
+                closeMenu(rightBtn, rightMenu);
+                closeMenu(floatingRightBtn, rightMenu);
+            });
 
-    /* Escape closes */
-    document.addEventListener("keydown", function (e) {
-        if (e.key !== "Escape") return;
-        closeMenu(leftBtn, leftMenu);
-        closeMenu(rightBtn, rightMenu);
-        closeMenu(floatingRightBtn, rightMenu);
-    });
+            /* Resize */
+            window.addEventListener("resize", applyVisibility);
 
-    /* Resize */
-    window.addEventListener("resize", applyVisibility);
+            /* Close after choosing a link */
+            leftMenu.querySelectorAll("a").forEach((a) => {
+                a.addEventListener("click", function () {
+                    closeMenu(leftBtn, leftMenu);
+                });
+            });
+            rightMenu.querySelectorAll("a").forEach((a) => {
+                a.addEventListener("click", function () {
+                    closeMenu(rightBtn, rightMenu);
+                    closeMenu(floatingRightBtn, rightMenu);
+                });
+            });
 
-    /* Close after choosing a link */
-    leftMenu.querySelectorAll("a").forEach((a) => {
-        a.addEventListener("click", function () {
-            closeMenu(leftBtn, leftMenu);
-        });
-    });
-    rightMenu.querySelectorAll("a").forEach((a) => {
-        a.addEventListener("click", function () {
-            closeMenu(rightBtn, rightMenu);
-            closeMenu(floatingRightBtn, rightMenu);
-        });
-    });
-
-    applyVisibility();
-})();
-</script>
+            applyVisibility();
+        })();
+    </script>
 
 </body>
+
 </html>
