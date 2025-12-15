@@ -684,6 +684,36 @@ This section collects recurring issues encountered during development and deploy
 
   - _Fix_: Updated the Storefront.save() method so that it always generates a unique slug if one is missing, based on the storefront headline or the profile username. The my_storefront view now also calls storefront.save() whenever it detects a missing slug. This backfills slugs for existing rows and prevents NoReverseMatch errors for new users.
 
+### Layout Editor / Storefront Layout — common issues
+
+**Layout Editor: cannot push blocks lower (page height feels “fixed”)**
+- _Cause_: The editor surface has a fixed/minimum height, so dragging/resizing can clamp blocks near the bottom.
+- _Fix_: Recalculate the lowest block edge (`maxBottom`) and increase the editor surface `min-height` dynamically (e.g. an `ensureSurfaceMinHeight()` helper). This allows the page to “grow” vertically as blocks are pushed down.
+
+**Layout Editor: font changes require 2 clicks / headings don’t update**
+- _Cause_: Web fonts may not be loaded when styles are applied, and only container styles may be updated (not nested headings/text).
+- _Fix_: Inject the required Google Fonts once, then re-apply styles after fonts finish loading (Font Loading API). Apply font styles to common text nodes inside each block (headings, p, span, links, etc.).
+
+**Public Storefront: layout looks correct in “Fit” preview but shifts/crops on different screens**
+- _Cause_: The public page uses absolute-positioned “design-space” coordinates; without scaling/wrapping, wide screens can show large empty margins and smaller screens can crop content.
+- _Fix_: Compute design dimensions from the layout (maxRight/maxBottom), then scale the entire surface down to fit the viewport width (never scaling above 1). Put the scaled surface inside a wrapper that has the *real* width/height (because CSS transforms don’t affect layout flow), and recompute on window resize.
+
+**Layout Editor: cannot push blocks lower (page height feels fixed)**
+
+- _Cause_: The editor surface had a fixed/minimum height, so dragging/resizing near the bottom felt clamped.
+- _Fix_: Recalculate the lowest block edge and increase the surface `min-height` dynamically when blocks are moved/resized below the current bottom. This allows the layout page to grow vertically.
+
+**Layout Editor: “Fit” preview looks wrong (too tall / scroll does not match)**
+
+- _Cause_: Fit mode applied a visual scale but the surrounding container height/scroll area did not reflect the scaled surface size.
+- _Fix_: Compute a scale factor to fit the whole surface into the visible canvas width, then update the surface/container dimensions so scroll behaviour matches the scaled preview.
+
+**Public Storefront: saved layout not matching “Fit” / layout not applied**
+
+- _Cause_: Layout data must be embedded safely into the template; parsing can fail if JSON is not embedded correctly.
+- _Fix_: Embed layout/styles using Django `json_script` and read via `JSON.parse(...)` on the client, then apply absolute positions/sizes and use a responsive scale-down approach for smaller screens.
+
+
 </details>
 
 
