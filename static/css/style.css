@@ -2158,10 +2158,10 @@ body.sf-editor-lock {
   object-position: center;
 }
 
-/* GRID: prevent cards from stretching too wide on desktop */
+/* Explore GRID: fill available width inside .page-container */
 .explore-grid.sf-card-grid {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 340px));
-  justify-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* allows stretching */
+  justify-content: stretch; /* remove centering “narrow grid” effect */
 }
 
 /* Make description feel less “plain” via tighter clamp */
