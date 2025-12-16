@@ -83,12 +83,12 @@
         {# Prefer profile logo; fall back to storefront logo; then placeholder #}
         {% if sf.profile and sf.profile.logo %}
           <a href="{% url 'storefront_detail' sf.slug %}">
-            <img src="{{ sf.profile.logo.url }}"
-                 alt="{{ sf.profile.business_name|default:sf.headline|default:sf.profile.user.username }}">
+            <img src="{{ sf.logo.url }}" alt="{{ sf.headline|default:'Storefront logo' }}">
           </a>
         {% elif sf.logo %}
           <a href="{% url 'storefront_detail' sf.slug %}">
-            <img src="{{ sf.logo.url }}" alt="{{ sf.headline|default:'Storefront logo' }}">
+            <img src="{{ sf.profile.logo.url }}"
+                 alt="{{ sf.profile.business_name|default:sf.headline|default:sf.profile.user.username }}">
           </a>
         {% else %}
           <div class="explore-logo-placeholder">No image yet</div>
@@ -171,7 +171,7 @@
   {% endif %}
 
   {# ---------- Pagination ---------- #}
-  {% if page_obj and page_obj.paginator.num_pages > 1 %}
+  {% if page_obj and page_obj.has_other_pages %}
     <div class="explore-pagination">
       {% if page_obj.has_previous %}
         <a class="btn btn-secondary"
