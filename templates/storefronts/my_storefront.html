@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
 
 <header class="sf-header">
@@ -265,8 +267,16 @@
       {{ card_formset.management_form }}
       <details class="sf-card-formset-wrapper">
         <summary class="sf-card-summary">
-          Featured digital cards (optional)
+          <div class="sf-card-summary-content">
+            <span class="sf-card-summary-left">
+              <label>Featured digital cards (optional)</label>
+            </span>
+            <span class="sf-card-summary-right">
+              <img src="{% static 'img/logo-blue.webp' %}" alt="Featured cards preview" class="sf-card-summary-thumb">
+            </span>
+          </div>
         </summary>
+
 
         <p class="text-muted small">
           Add up to three MintKit cards to highlight on your storefront.
