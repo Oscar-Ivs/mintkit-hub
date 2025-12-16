@@ -59,6 +59,7 @@
     </div>
 
     <input type="hidden" name="view" value="{{ view_mode }}">
+
     <select name="sort" id="sort" class="explore-sort-select" onchange="this.form.submit()">
       <option value="featured" {% if sort == "featured" %}selected{% endif %}>
         Featured (default)
@@ -74,100 +75,98 @@
 </form>
 
 {% if storefronts %}
+
   {% if view_mode == "list" %}
-  {# ---------- LIST VIEW ---------- #}
-  <div class="explore-list">
-    {% for sf in storefronts %}
-    <article class="explore-list-item">
-      <div class="explore-list-logo">
-        {# Prefer profile logo; fall back to storefront logo; then placeholder #}
-        {% if sf.profile and sf.profile.logo %}
-          <a href="{% url 'storefront_detail' sf.slug %}">
-            <img src="{{ sf.logo.url }}" alt="{{ sf.headline|default:'Storefront logo' }}">
-          </a>
-        {% elif sf.logo %}
-          <a href="{% url 'storefront_detail' sf.slug %}">
-            <img src="{{ sf.profile.logo.url }}"
-                 alt="{{ sf.profile.business_name|default:sf.headline|default:sf.profile.user.username }}">
-          </a>
-        {% else %}
-          <div class="explore-logo-placeholder">No image yet</div>
-        {% endif %}
-      </div>
+    {# ---------- LIST VIEW ---------- #}
+    <div class="explore-list">
+      {% for sf in storefronts %}
+        <article class="explore-list-item">
 
-      <div class="explore-list-body">
-        <h2 class="explore-list-title">
-          <a href="{% url 'storefront_detail' sf.slug %}">
-            {{ sf.headline|default:"Untitled storefront" }}
-          </a>
-        </h2>
+          <div class="explore-list-logo">
+            <a href="{% url 'storefront_detail' sf.slug %}" class="explore-logo-link">
+              {% if sf.logo %}
+                <img src="{{ sf.logo.url }}" alt="{{ sf.headline|default:'Storefront logo' }}">
+              {% elif sf.profile and sf.profile.logo %}
+                <img src="{{ sf.profile.logo.url }}" alt="{{ sf.profile.business_name|default:'Business logo' }}">
+              {% else %}
+                <div class="explore-logo-placeholder">No image yet</div>
+              {% endif %}
+            </a>
+          </div>
 
-        {% if sf.description %}
-        <p class="explore-list-desc">
-          {{ sf.description|truncatewords:32 }}
-        </p>
-        {% endif %}
+          <div class="explore-list-body">
+            <h2 class="explore-list-title">
+              <a href="{% url 'storefront_detail' sf.slug %}">
+                {{ sf.headline|default:"Untitled storefront" }}
+              </a>
+            </h2>
 
-        <div class="explore-list-meta">
-          <span class="explore-meta-pill">Owner: {{ sf.profile.user.username }}</span>
-          <span class="explore-meta-pill">Category: {{ sf.get_business_category_display }}</span>
-          <span class="explore-meta-pill">Region: {{ sf.get_region_display }}</span>
-          {% if sf.contact_details %}
-            <span class="explore-meta-pill">Contact details provided</span>
-          {% endif %}
-        </div>
+            {% if sf.description %}
+              <p class="explore-list-desc">
+                {{ sf.description|truncatewords:32 }}
+              </p>
+            {% endif %}
 
-        <a href="{% url 'storefront_detail' sf.slug %}"
-           class="btn btn-primary storefront-card-button explore-list-cta">
-          View storefront
-        </a>
-      </div>
-    </article>
-    {% endfor %}
-  </div>
+            <div class="explore-list-meta">
+              <span class="explore-meta-pill">Owner: {{ sf.profile.user.username }}</span>
+              <span class="explore-meta-pill">Category: {{ sf.get_business_category_display }}</span>
+              <span class="explore-meta-pill">Region: {{ sf.get_region_display }}</span>
+              {% if sf.contact_details %}
+                <span class="explore-meta-pill">Contact details provided</span>
+              {% endif %}
+            </div>
+
+            <a href="{% url 'storefront_detail' sf.slug %}"
+               class="btn btn-primary storefront-card-button explore-list-cta">
+              View storefront
+            </a>
+          </div>
+
+        </article>
+      {% endfor %}
+    </div>
 
   {% else %}
-  {# ---------- GRID VIEW ---------- #}
-  <div class="explore-grid sf-card-grid">
-    {% for sf in storefronts %}
-    <article class="sf-card">
-      <div class="sf-card-image-wrap">
-        {% if sf.profile and sf.profile.logo %}
-          <a href="{% url 'storefront_detail' sf.slug %}">
-            <img src="{{ sf.profile.logo.url }}"
-                 alt="{{ sf.profile.business_name|default:sf.headline|default:sf.profile.user.username }}">
+    {# ---------- GRID VIEW ---------- #}
+    <div class="explore-grid sf-card-grid">
+      {% for sf in storefronts %}
+        <article class="sf-card">
+
+          <div class="sf-card-image-wrap">
+            <a href="{% url 'storefront_detail' sf.slug %}" class="explore-logo-link">
+              {% if sf.logo %}
+                <img src="{{ sf.logo.url }}" alt="{{ sf.headline|default:'Storefront logo' }}">
+              {% elif sf.profile and sf.profile.logo %}
+                <img src="{{ sf.profile.logo.url }}" alt="{{ sf.profile.business_name|default:'Business logo' }}">
+              {% else %}
+                <div class="explore-logo-placeholder">No image yet</div>
+              {% endif %}
+            </a>
+          </div>
+
+          <h2 class="sf-card-title">
+            <span>{{ sf.headline|default:"Untitled storefront" }}</span>
+          </h2>
+
+          <div class="explore-card-meta">
+            <span class="explore-meta-pill">Category: {{ sf.get_business_category_display }}</span>
+            <span class="explore-meta-pill">Region: {{ sf.get_region_display }}</span>
+          </div>
+
+          {% if sf.description %}
+            <p class="sf-card-desc">
+              {{ sf.description|truncatewords:24 }}
+            </p>
+          {% endif %}
+
+          <a href="{% url 'storefront_detail' sf.slug %}"
+             class="btn btn-primary storefront-card-button sf-card-button">
+            View storefront
           </a>
-        {% elif sf.logo %}
-          <a href="{% url 'storefront_detail' sf.slug %}">
-            <img src="{{ sf.logo.url }}" alt="{{ sf.headline|default:'Storefront logo' }}">
-          </a>
-        {% else %}
-          <div class="explore-logo-placeholder">No image yet</div>
-        {% endif %}
-      </div>
 
-      <h2 class="sf-card-title">
-        <span>{{ sf.headline|default:"Untitled storefront" }}</span>
-      </h2>
-
-      <div class="explore-card-meta">
-        <span class="explore-meta-pill">Category: {{ sf.get_business_category_display }}</span>
-        <span class="explore-meta-pill">Region: {{ sf.get_region_display }}</span>
-      </div>
-
-      {% if sf.description %}
-      <p class="sf-card-desc">
-        {{ sf.description|truncatewords:24 }}
-      </p>
-      {% endif %}
-
-      <a href="{% url 'storefront_detail' sf.slug %}"
-         class="btn btn-primary storefront-card-button sf-card-button">
-        View storefront
-      </a>
-    </article>
-    {% endfor %}
-  </div>
+        </article>
+      {% endfor %}
+    </div>
   {% endif %}
 
   {# ---------- Pagination ---------- #}
@@ -182,9 +181,7 @@
         <span class="btn btn-secondary is-disabled">Previous</span>
       {% endif %}
 
-      <span class="explore-page-indicator">
-        {{ page_obj.number }}
-      </span>
+      <span class="explore-page-indicator">{{ page_obj.number }}</span>
 
       {% if page_obj.has_next %}
         <a class="btn btn-secondary"
