@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
+from django.core.paginator import Paginator
+
 
 from .forms import StorefrontForm, StorefrontCardFormSet
 from .models import Storefront, StorefrontLayout
@@ -124,8 +126,17 @@ def explore_storefronts(request):
         queryset = queryset.order_by("-created_at", "-id")
         sort_label = "Featured"
 
+    # Pagination
+    per_page = 10 if view_mode == "list" else 8  # tweak numbers anytime
+    paginator = Paginator(queryset, per_page)
+    page_number = request.GET.get("page") or 1
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        "storefronts": list(queryset),
+        "storefronts": list(page_obj.object_list),
+        "page_obj": page_obj,
+        "total_count": paginator.count,
+
         "view_mode": view_mode,
         "sort": sort,
         "sort_label": sort_label,
@@ -134,6 +145,7 @@ def explore_storefronts(request):
         "category_choices": Storefront.BUSINESS_CATEGORY_CHOICES,
         "region_choices": Storefront.REGION_CHOICES,
     }
+
     return render(request, "storefronts/explore_storefronts.html", context)
 
 
