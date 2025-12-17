@@ -2081,15 +2081,22 @@ body.sf-editor-lock {
   border-radius: 18px;
   overflow: hidden;
   margin: 0 0 12px;
+
+  /* Keeps wide logos looking “normal” inside a square box */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fb opacity(0.6);
 }
 
 .dashboard-profile-logo img{
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;   /* key change: prevents cropping */
   object-position: center;
   display: block;
 }
+
 
 /* ===== Explore: consistent thumbnails + nicer card proportions ===== */
 
