@@ -1034,13 +1034,12 @@ ul.messages li.danger {
 
 /* Public card grid (and preview grid uses same look) */
 
-/* Cards stay between 220–330px wide and are centred.
-   - 1 card  -> nicely centred, not full-width
+/* Cards stay between 220–330px wide and are centred (public + preview grids).
+   - 1 card  ->centred, not full-width
    - 2–3 cards -> sit side by side at a comfortable size
 */
 .storefront-card-public-grid,
-.storefront-card-preview-grid,
-.sf-card-grid {
+.storefront-card-preview-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 330px));
     justify-content: center;
@@ -2014,7 +2013,7 @@ body.sf-editor-lock {
   background: rgba(255,255,255,0.7);
 }
 
-/* Explore LIST thumbnails: center nicely, consistent size */
+/* Explore LIST thumbnails: center, consistent size */
 .explore-list-logo{
   width: 88px;
   height: 88px;
@@ -2237,7 +2236,7 @@ body.sf-editor-lock {
   overflow: hidden;
 }
 
-/* Keep button aligned nicely even if descriptions vary */
+/* Keep button aligned even if descriptions vary */
 .explore-grid .sf-card {
   display: flex;
   flex-direction: column;
@@ -2247,127 +2246,76 @@ body.sf-editor-lock {
   margin-top: auto;
 }
 
-.sf-card-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* keeps left and right apart */
-  padding-inline: 1rem;           /* optional: adds breathing room */
-}
-
-.sf-card-summary-left {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  flex-grow: 1;                   /* allows text to take up space */
-}
-
-.sf-card-summary-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-shrink: 0;                 /* prevents image from shrinking */
-  margin-left: 2rem;             /* pushes image to the right */
-}
-
-.sf-card-summary {
-  padding: 0.5rem 1rem;
-}
-
-.sf-card-summary-content {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.sf-card-summary-left {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.sf-card-summary-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding-right: 1rem; /* controls how far from edge */
-}
-
-.sf-card-summary-thumb {
-  width: 72px;
-  height: 44px;
-  border-radius: 10px;
-  object-fit: cover;
-  border: 1px solid rgba(47, 95, 168, 0.25);
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
-}
 
 /* ======= Featured cards summary styling ======= */
+
+/* Hide the default <details>/<summary> marker (custom chevron is used instead) */
+.sf-card-formset-wrapper summary {
+    list-style: none;
+}
+
+.sf-card-formset-wrapper summary::-webkit-details-marker {
+    display: none;
+}
+
 .sf-card-summary {
-  padding: 0.5rem 1rem;
-  cursor: pointer; /* makes it clear it's clickable */
+    padding: 0.5rem 1rem;
+    cursor: pointer; /* makes it clear it is clickable */
 }
 
-/* Flex container for text + image */
 .sf-card-summary-content {
-  display: flex;
-  align-items: center;       /* vertical centering */
-  justify-content: flex-start; /* keep items together */
-  gap: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-/* Left side (text) */
 .sf-card-summary-left {
-  flex-grow: 1;              /* pushes image away from text */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-/* Label with bullet/chevron */
 .sf-card-summary-left label {
-  position: relative;
-  padding-left: 1.2rem;
-  font-weight: 600;
-  font-size: 1rem;
-  color: rgba(0,0,0,0.85);
+    position: relative;
+    padding-left: 1.2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: rgba(0, 0, 0, 0.85);
 }
 
 .sf-card-summary-left label::before {
-  content: '▸'; /* chevron/bullet */
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1rem;
-  color: #2f5fa8;
-  transition: transform 0.2s ease; /* animate rotation */
+    content: '▸'; /* chevron */
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: #2f5fa8;
+    transition: transform 0.2s ease;
 }
 
 /* Rotate chevron when <details> is open */
 .sf-card-formset-wrapper[open] .sf-card-summary-left label::before {
-  transform: translateY(-50%) rotate(90deg);
+    transform: translateY(-50%) rotate(90deg);
 }
 
-/* Hover effect */
 .sf-card-summary:hover .sf-card-summary-left label {
-  color: #1a3f7c !important;
+    color: #1a3f7c;
 }
 
-/* Right side (thumbnail image) */
 .sf-card-summary-right {
-  display: flex;
-  align-items: center;
-  margin-left: auto;         /* pushes image to the right */
-  padding-right: 0.5rem;     /* keeps it off the hard edge */
+    margin-left: auto; /* pushes the thumbnail to the far right */
+    display: flex;
+    align-items: center;
+    padding-right: 0.5rem; /* keeps it off the hard edge */
 }
 
-/* Thumbnail image styling */
 .sf-card-summary-thumb {
-  width: 72px;
-  height: 44px;
-  border-radius: 10px;
-  object-fit: cover;
-  border: 1px solid rgba(47, 95, 168, 0.25);
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    width: 72px;
+    height: 44px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid rgba(47, 95, 168, 0.25);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
 }

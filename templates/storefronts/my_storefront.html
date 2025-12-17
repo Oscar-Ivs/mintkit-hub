@@ -94,7 +94,7 @@
     {% url 'storefront_detail' storefront.slug as public_path %}
     {% with public_url=request.scheme|add:"://"|add:request.get_host|add:public_path %}
     <p class="sf-public-link">
-      Customers will see this page at
+      Customers will see this page at:
       <a id="sf-public-url" href="{{ public_url }}" target="_blank" rel="noopener">{{ public_url }}</a>
 
       <button type="button" class="sf-link-action" data-action="copy">Copy</button>
