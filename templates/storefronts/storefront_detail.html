@@ -7,7 +7,7 @@
 {% block content %}
 
 <style>
-    /* Public storefront has no navbar, so remove the global "fixed-nav" padding */
+  /* Public storefront has no navbar, so remove the global "fixed-nav" padding */
   body {
     padding-top: 0 !important;
   }
@@ -31,14 +31,21 @@
 
   /* Match the overall page background to the saved storefront background */
   body {
-    background: {{ bg|default:"#ffffff" }} !important;
+    background: {
+        {
+        bg|default: "#ffffff"
+      }
+    }
+
+    !important;
   }
 
   /* Full-bleed background wrapper (always spans the viewport width) */
   .sf-public-bleed {
     width: 100vw;
     margin-left: calc(50% - 50vw);
-    overflow: hidden; /* prevents horizontal scroll from scaled content */
+    overflow: hidden;
+    /* prevents horizontal scroll from scaled content */
   }
 
   /* Centered stage wrapper: JS sets a pixel width/height to match the scaled stage */
@@ -63,9 +70,9 @@
     <div id="sf-public-surface">
 
       {% if storefront.logo %}
-        <div class="storefront-public-logo" data-sf-block="logo" data-sf-label="Logo">
-          <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
-        </div>
+      <div class="storefront-public-logo" data-sf-block="logo" data-sf-label="Logo">
+        <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
+      </div>
       {% endif %}
 
       <h1 class="storefront-public-title" data-sf-block="headline" data-sf-label="Headline">
@@ -73,54 +80,54 @@
       </h1>
 
       {% if storefront.description %}
-        <p class="storefront-public-body" data-sf-block="description" data-sf-label="Description">
-          {{ storefront.description }}
-        </p>
+      <p class="storefront-public-body" data-sf-block="description" data-sf-label="Description">
+        {{ storefront.description }}
+      </p>
       {% endif %}
 
       {% if storefront.contact_details %}
-        <h2 class="storefront-public-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
-          Contact details
-        </h2>
-        <p class="storefront-public-body" data-sf-block="contact_text" data-sf-label="Contact text">
-          {{ storefront.contact_details }}
-        </p>
+      <h2 class="storefront-public-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
+        Contact details
+      </h2>
+      <p class="storefront-public-body" data-sf-block="contact_text" data-sf-label="Contact text">
+        {{ storefront.contact_details }}
+      </p>
       {% endif %}
 
       {% if has_cards %}
-        <h2 class="storefront-public-section-title" data-sf-block="cards_title" data-sf-label="Featured cards title">
-          Featured digital cards
-        </h2>
+      <h2 class="storefront-public-section-title" data-sf-block="cards_title" data-sf-label="Featured cards title">
+        Featured digital cards
+      </h2>
 
-        <div class="sf-card-grid" data-sf-block="cards_grid" data-sf-label="Cards grid">
-          {% for card in storefront.cards.all %}
-            <article class="sf-card">
-              {% if card.image_url %}
-                <div class="sf-card-image-wrap">
-                  <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
-                </div>
-              {% endif %}
+      <div class="sf-card-grid" data-sf-label="Cards grid">
+        {% for card in storefront.cards.all|slice:":3" %}
+        <article class="sf-card" data-sf-block="card_{{ forloop.counter }}" data-sf-label="Card {{ forloop.counter }}">
+          {% if card.image_url %}
+          <div class="sf-card-image-wrap">
+            <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
+          </div>
+          {% endif %}
 
-              <h4 class="sf-card-title">
-                {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
-                {% if card.price_label %}
-                  <span class="sf-card-price">{{ card.price_label }}</span>
-                {% endif %}
-              </h4>
+          <h4 class="sf-card-title">
+            {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
+            {% if card.price_label %}
+            <span class="sf-card-price">{{ card.price_label }}</span>
+            {% endif %}
+          </h4>
 
-              {% if card.description %}
-                <p class="sf-card-text">{{ card.description }}</p>
-              {% endif %}
+          {% if card.description %}
+          <p class="sf-card-text">{{ card.description }}</p>
+          {% endif %}
 
-              {% if card.buy_url %}
-                <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-                   class="btn btn-sm btn-primary storefront-preview-card-button">
-                  Buy now
-                </a>
-              {% endif %}
-            </article>
-          {% endfor %}
-        </div>
+          {% if card.buy_url %}
+          <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+            class="btn btn-sm btn-primary storefront-preview-card-button">
+            Buy now
+          </a>
+          {% endif %}
+        </article>
+        {% endfor %}
+      </div>
       {% endif %}
 
     </div>
@@ -130,206 +137,206 @@
 {{ layout_data|json_script:"sf-public-layout-data" }}
 
 <script>
-(function () {
-  const dataEl = document.getElementById("sf-public-layout-data");
-  const bleed = document.getElementById("sf-public-bleed");
-  const stageWrap = document.getElementById("sf-public-stage-wrap");
-  const surface = document.getElementById("sf-public-surface");
-  if (!dataEl || !bleed || !stageWrap || !surface) return;
+  (function () {
+    const dataEl = document.getElementById("sf-public-layout-data");
+    const bleed = document.getElementById("sf-public-bleed");
+    const stageWrap = document.getElementById("sf-public-stage-wrap");
+    const surface = document.getElementById("sf-public-surface");
+    if (!dataEl || !bleed || !stageWrap || !surface) return;
 
-  let data;
-  try { data = JSON.parse(dataEl.textContent || "{}"); }
-  catch { return; }
+    let data;
+    try { data = JSON.parse(dataEl.textContent || "{}"); }
+    catch { return; }
 
-  const layout = data.layout || {};
-  const styles = data.styles || {};
-  const bg = data.bg || "#ffffff";
+    const layout = data.layout || {};
+    const styles = data.styles || {};
+    const bg = data.bg || "#ffffff";
 
-  const hasLayout = Object.keys(layout).length > 0;
-  const hasStyles = Object.keys(styles).length > 0;
+    const hasLayout = Object.keys(layout).length > 0;
+    const hasStyles = Object.keys(styles).length > 0;
 
-  // Load common fonts once (public storefront + fallback).
-  if (!document.getElementById("sf-google-fonts-public")) {
-    const link = document.createElement("link");
-    link.id = "sf-google-fonts-public";
-    link.rel = "stylesheet";
-    link.href =
-      "https://fonts.googleapis.com/css2?" +
-      "family=Inter:wght@400;500;600;700&" +
-      "family=Roboto:wght@400;500;700&" +
-      "family=Montserrat:wght@400;500;600;700&" +
-      "display=swap";
-    document.head.appendChild(link);
-  }
+    // Load common fonts once (public storefront + fallback).
+    if (!document.getElementById("sf-google-fonts-public")) {
+      const link = document.createElement("link");
+      link.id = "sf-google-fonts-public";
+      link.rel = "stylesheet";
+      link.href =
+        "https://fonts.googleapis.com/css2?" +
+        "family=Inter:wght@400;500;600;700&" +
+        "family=Roboto:wght@400;500;700&" +
+        "family=Montserrat:wght@400;500;600;700&" +
+        "display=swap";
+      document.head.appendChild(link);
+    }
 
-  // Full-bleed background (always applied).
-  bleed.style.background = bg;
+    // Full-bleed background (always applied).
+    bleed.style.background = bg;
 
-  function applyTextStyles(container, st) {
-    if (!container) return;
+    function applyTextStyles(container, st) {
+      if (!container) return;
 
-    const px = st.fontSize ? (st.fontSize + "px") : "";
+      const px = st.fontSize ? (st.fontSize + "px") : "";
 
-    container.style.fontFamily = st.fontFamily || "";
-    container.style.fontSize = px;
-    container.style.fontWeight = st.bold ? "700" : "";
-    container.style.fontStyle = st.italic ? "italic" : "";
-    container.style.textDecoration = st.underline ? "underline" : "";
+      container.style.fontFamily = st.fontFamily || "";
+      container.style.fontSize = px;
+      container.style.fontWeight = st.bold ? "700" : "";
+      container.style.fontStyle = st.italic ? "italic" : "";
+      container.style.textDecoration = st.underline ? "underline" : "";
 
-    const textNodes = container.querySelectorAll(
-      "h1,h2,h3,h4,h5,h6,p,span,a,small,li,label,strong,em"
-    );
-    textNodes.forEach((el) => {
-      el.style.fontFamily = st.fontFamily || "";
-      el.style.fontSize = px;
-      el.style.fontWeight = st.bold ? "700" : "";
-      el.style.fontStyle = st.italic ? "italic" : "";
-      el.style.textDecoration = st.underline ? "underline" : "";
-    });
+      const textNodes = container.querySelectorAll(
+        "h1,h2,h3,h4,h5,h6,p,span,a,small,li,label,strong,em"
+      );
+      textNodes.forEach((el) => {
+        el.style.fontFamily = st.fontFamily || "";
+        el.style.fontSize = px;
+        el.style.fontWeight = st.bold ? "700" : "";
+        el.style.fontStyle = st.italic ? "italic" : "";
+        el.style.textDecoration = st.underline ? "underline" : "";
+      });
 
-    const imgs = container.querySelectorAll("img");
-    imgs.forEach((img) => {
-      img.style.maxWidth = "100%";
-      img.style.height = "auto";
-      img.style.display = "block";
-    });
-  }
+      const imgs = container.querySelectorAll("img");
+      imgs.forEach((img) => {
+        img.style.maxWidth = "100%";
+        img.style.height = "auto";
+        img.style.display = "block";
+      });
+    }
 
-  const blocks = Array.from(surface.querySelectorAll("[data-sf-block]"));
+    const blocks = Array.from(surface.querySelectorAll("[data-sf-block]"));
 
-  // ===== Fallback: no saved layout yet -> normal flow (prevents blank page) =====
-  if (!hasLayout) {
-    bleed.style.overflow = "visible";
+    // ===== Fallback: no saved layout yet -> normal flow (prevents blank page) =====
+    if (!hasLayout) {
+      bleed.style.overflow = "visible";
 
-    stageWrap.style.width = "100%";
-    stageWrap.style.maxWidth = "1280px";
-    stageWrap.style.height = "auto";
+      stageWrap.style.width = "100%";
+      stageWrap.style.maxWidth = "1280px";
+      stageWrap.style.height = "auto";
+      stageWrap.style.margin = "0 auto";
+      stageWrap.style.position = "relative";
+
+      surface.style.position = "relative";
+      surface.style.width = "auto";
+      surface.style.minHeight = "auto";
+      surface.style.transform = "none";
+      surface.style.transformOrigin = "0 0";
+      surface.style.background = "transparent";
+
+      // Apply hidden flags + text styles even without saved layout.
+      if (hasStyles) {
+        blocks.forEach((el) => {
+          const id = el.getAttribute("data-sf-block");
+          const st = styles[id] || {};
+          if (st.hidden) {
+            el.style.display = "none";
+            return;
+          }
+          applyTextStyles(el, st);
+        });
+      }
+
+      return;
+    }
+
+    // ===== Layout exists -> stage mode (absolute positioned + fit scaling) =====
+    bleed.style.overflow = "hidden";
     stageWrap.style.margin = "0 auto";
     stageWrap.style.position = "relative";
 
-    surface.style.position = "relative";
-    surface.style.width = "auto";
-    surface.style.minHeight = "auto";
-    surface.style.transform = "none";
+    surface.style.position = "absolute";
     surface.style.transformOrigin = "0 0";
-    surface.style.background = "transparent";
 
-    // Apply hidden flags + text styles even without saved layout.
-    if (hasStyles) {
+    let designW = 520;
+    let designH = window.innerHeight;
+
+    function applyLayoutAndMeasure() {
+      let maxBottom = 0;
+      let maxRight = 0;
+
       blocks.forEach((el) => {
         const id = el.getAttribute("data-sf-block");
+        const l = layout[id];
         const st = styles[id] || {};
+
         if (st.hidden) {
           el.style.display = "none";
           return;
         }
+
+        el.style.display = "";
+
+        if (l) {
+          el.style.position = "absolute";
+          el.style.left = (l.x || 0) + "px";
+          el.style.top = (l.y || 0) + "px";
+          if (l.w) el.style.width = l.w + "px";
+          if (l.h) el.style.minHeight = l.h + "px";
+          el.style.margin = "0";
+        }
+
         applyTextStyles(el, st);
+
+        // Use rendered size (prevents clipping when content grows, e.g. multiple cards).
+        if (l) {
+          const actualH = Math.max(l.h || 0, el.scrollHeight || el.offsetHeight || 0);
+          const actualW = Math.max(l.w || 0, el.scrollWidth || el.offsetWidth || 0);
+
+          maxBottom = Math.max(maxBottom, (l.y || 0) + actualH);
+          maxRight = Math.max(maxRight, (l.x || 0) + actualW);
+        }
       });
+
+      designW = Math.max(maxRight + 40, 520);
+      designH = Math.max(maxBottom + 40, window.innerHeight);
+
+      surface.style.width = designW + "px";
+      surface.style.minHeight = designH + "px";
+      surface.style.background = bg;
     }
 
-    return;
-  }
+    function applyStageScale() {
+      const vw = document.documentElement.clientWidth || window.innerWidth;
 
-  // ===== Layout exists -> stage mode (absolute positioned + fit scaling) =====
-  bleed.style.overflow = "hidden";
-  stageWrap.style.margin = "0 auto";
-  stageWrap.style.position = "relative";
+      // Scale down only (never scale up above 1).
+      const scale = Math.min(1, vw / designW);
 
-  surface.style.position = "absolute";
-  surface.style.transformOrigin = "0 0";
+      const scaledW = Math.round(designW * scale);
+      const scaledH = Math.round(designH * scale);
 
-  let designW = 520;
-  let designH = window.innerHeight;
+      // The wrapper takes the real page space (transforms do not).
+      stageWrap.style.width = scaledW + "px";
+      stageWrap.style.height = Math.max(scaledH, window.innerHeight) + "px";
 
-  function applyLayoutAndMeasure() {
-    let maxBottom = 0;
-    let maxRight = 0;
+      // Scale the whole design surface.
+      surface.style.transform = "scale(" + scale + ")";
 
-    blocks.forEach((el) => {
-      const id = el.getAttribute("data-sf-block");
-      const l = layout[id];
-      const st = styles[id] || {};
+      // Ensure full-bleed background covers the visible page height.
+      bleed.style.minHeight = Math.max(scaledH, window.innerHeight) + "px";
+    }
 
-      if (st.hidden) {
-        el.style.display = "none";
-        return;
-      }
+    function refreshStage() {
+      applyLayoutAndMeasure();
+      applyStageScale();
+    }
 
-      el.style.display = "";
+    refreshStage();
 
-      if (l) {
-        el.style.position = "absolute";
-        el.style.left = (l.x || 0) + "px";
-        el.style.top = (l.y || 0) + "px";
-        if (l.w) el.style.width = l.w + "px";
-        if (l.h) el.style.minHeight = l.h + "px";
-        el.style.margin = "0";
-      }
-
-      applyTextStyles(el, st);
-
-      // Use rendered size (prevents clipping when content grows, e.g. multiple cards).
-      if (l) {
-        const actualH = Math.max(l.h || 0, el.scrollHeight || el.offsetHeight || 0);
-        const actualW = Math.max(l.w || 0, el.scrollWidth || el.offsetWidth || 0);
-
-        maxBottom = Math.max(maxBottom, (l.y || 0) + actualH);
-        maxRight  = Math.max(maxRight,  (l.x || 0) + actualW);
-      }
+    // Re-measure after images load (card thumbnails can change height).
+    surface.querySelectorAll("img").forEach((img) => {
+      if (img.complete) return;
+      img.addEventListener("load", refreshStage, { once: true });
     });
 
-    designW = Math.max(maxRight + 40, 520);
-    designH = Math.max(maxBottom + 40, window.innerHeight);
+    // Re-measure once after fonts have a chance to apply.
+    window.setTimeout(refreshStage, 150);
 
-    surface.style.width = designW + "px";
-    surface.style.minHeight = designH + "px";
-    surface.style.background = bg;
-  }
-
-  function applyStageScale() {
-    const vw = document.documentElement.clientWidth || window.innerWidth;
-
-    // Scale down only (never scale up above 1).
-    const scale = Math.min(1, vw / designW);
-
-    const scaledW = Math.round(designW * scale);
-    const scaledH = Math.round(designH * scale);
-
-    // The wrapper takes the real page space (transforms do not).
-    stageWrap.style.width = scaledW + "px";
-    stageWrap.style.height = Math.max(scaledH, window.innerHeight) + "px";
-
-    // Scale the whole design surface.
-    surface.style.transform = "scale(" + scale + ")";
-
-    // Ensure full-bleed background covers the visible page height.
-    bleed.style.minHeight = Math.max(scaledH, window.innerHeight) + "px";
-  }
-
-  function refreshStage() {
-    applyLayoutAndMeasure();
-    applyStageScale();
-  }
-
-  refreshStage();
-
-  // Re-measure after images load (card thumbnails can change height).
-  surface.querySelectorAll("img").forEach((img) => {
-    if (img.complete) return;
-    img.addEventListener("load", refreshStage, { once: true });
-  });
-
-  // Re-measure once after fonts have a chance to apply.
-  window.setTimeout(refreshStage, 150);
-
-  // Resize: scale immediately; then re-measure once (text wrapping / late loads).
-  let resizeTimer = null;
-  window.addEventListener("resize", () => {
-    applyStageScale();
-    window.clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(refreshStage, 150);
-  });
-})();
+    // Resize: scale immediately; then re-measure once (text wrapping / late loads).
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      applyStageScale();
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(refreshStage, 150);
+    });
+  })();
 </script>
 
 {% endblock %}
