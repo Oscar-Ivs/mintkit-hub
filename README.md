@@ -815,6 +815,31 @@ This section collects recurring issues encountered during development and deploy
 - _Cause_: Desktop account links can overflow at mid-width breakpoints, so the account burger is injected and positioned to stay usable.
 - _Fix_: Replace workaround with a single consistent responsive navbar layout (agreed breakpoints + one collapse strategy) and remove injected button logic.
 
+**Public Storefront: saved layout not matching "Fit" / layout shifts or crops on different screens**
+- _Cause_: Public storefront uses absolute-positioned “design-space” coordinates; without correct JSON embedding + scaling, wide screens show excess margins and smaller screens can crop content.
+- _Fix_: Embed layout/styles via Django `json_script` and parse with `JSON.parse(...)`, then apply absolute positions/sizes. Compute design surface bounds and scale the surface down to fit smaller viewports (never scale above 1), recalculating on window resize.
+- _Extra fix_: Add a fallback when no layout exists yet (prevents blank public pages for new users until something is moved/saved in the editor).
+
+**Featured cards: multiple cards behave like one big block / hard to position in editor**
+- _Cause_: Featured cards are rendered inside one `cards_grid` block, so only the container can be positioned; inner cards naturally stack and change the block height.
+- _Fix : Split into separate draggable blocks (e.g. `cards_grid_1`, `cards_grid_2`, `cards_grid_3`) so each card can be positioned independently.
+
+**Public Storefront: extra top padding caused by global body padding-top**
+- _Cause_: Global `body { padding-top: var(--mk-nav-h, 72px); }` is required for fixed navbar.
+- _Fix_: Override padding only on public storefront page (e.g. `body.storefront-public { padding-top: 10px; }` or similar), without affecting the rest of the site.
+
+**My storefront: mobile layout not 100% polished (very small screens)**
+- _Cause_: The preview/edit panel layout still has minor width/spacing constraints at ~320px, so it can feel slightly narrower than ideal.
+- _Fix_: Refine the `.sf-grid` / panel responsive rules to ensure both panels use full available width on tiny screens (review max-width, padding, and grid breakpoints).
+
+**Dashboard/Edit profile: business profile image looks cropped or letterboxed**
+- _Cause_: Fixed aspect-ratio container forces either `object-fit: cover` (cropping) or `contain` (empty bars).
+- _Fix options_:
+  - Use `object-fit: cover` for a clean square avatar (accept slight crop).
+  - Or keep `contain` but remove/soften the background behind the image to avoid obvious “white bars”.
+  - Or enforce/auto-crop uploaded images to square at upload time (best consistency).
+
+
 
 </details>
 
