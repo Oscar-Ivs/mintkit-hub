@@ -148,7 +148,7 @@
   const hasLayout = Object.keys(layout).length > 0;
   const hasStyles = Object.keys(styles).length > 0;
 
-  // Load common fonts once.
+  // Load common fonts once (public storefront + fallback).
   if (!document.getElementById("sf-google-fonts-public")) {
     const link = document.createElement("link");
     link.id = "sf-google-fonts-public";
@@ -195,27 +195,28 @@
     });
   }
 
+  const blocks = Array.from(surface.querySelectorAll("[data-sf-block]"));
+
   // ===== Fallback: no saved layout yet -> normal flow (prevents blank page) =====
   if (!hasLayout) {
-    // Allow normal document height (no clipping).
     bleed.style.overflow = "visible";
 
-    // Keep content centered and responsive.
     stageWrap.style.width = "100%";
     stageWrap.style.maxWidth = "1280px";
     stageWrap.style.height = "auto";
     stageWrap.style.margin = "0 auto";
+    stageWrap.style.position = "relative";
 
-    // Normal flow surface (no absolute positioning, no scaling).
     surface.style.position = "relative";
     surface.style.width = "auto";
     surface.style.minHeight = "auto";
     surface.style.transform = "none";
+    surface.style.transformOrigin = "0 0";
     surface.style.background = "transparent";
 
-    // Apply hidden flags + text styles even without layout.
+    // Apply hidden flags + text styles even without saved layout.
     if (hasStyles) {
-      surface.querySelectorAll("[data-sf-block]").forEach((el) => {
+      blocks.forEach((el) => {
         const id = el.getAttribute("data-sf-block");
         const st = styles[id] || {};
         if (st.hidden) {
@@ -232,46 +233,58 @@
   // ===== Layout exists -> stage mode (absolute positioned + fit scaling) =====
   bleed.style.overflow = "hidden";
   stageWrap.style.margin = "0 auto";
+  stageWrap.style.position = "relative";
+
   surface.style.position = "absolute";
+  surface.style.transformOrigin = "0 0";
 
-  let maxBottom = 0;
-  let maxRight = 0;
+  let designW = 520;
+  let designH = window.innerHeight;
 
-  surface.querySelectorAll("[data-sf-block]").forEach((el) => {
-    const id = el.getAttribute("data-sf-block");
-    const l = layout[id];
-    const st = styles[id] || {};
+  function applyLayoutAndMeasure() {
+    let maxBottom = 0;
+    let maxRight = 0;
 
-    if (st.hidden) {
-      el.style.display = "none";
-      return;
-    }
+    blocks.forEach((el) => {
+      const id = el.getAttribute("data-sf-block");
+      const l = layout[id];
+      const st = styles[id] || {};
 
-    if (l) {
-      el.style.position = "absolute";
-      el.style.left = (l.x || 0) + "px";
-      el.style.top = (l.y || 0) + "px";
-      if (l.w) el.style.width = l.w + "px";
-      if (l.h) el.style.minHeight = l.h + "px";
-      el.style.margin = "0";
+      if (st.hidden) {
+        el.style.display = "none";
+        return;
+      }
 
-      const bottom = (l.y || 0) + (l.h || el.offsetHeight || 0);
-      const right  = (l.x || 0) + (l.w || el.offsetWidth || 0);
+      el.style.display = "";
 
-      if (bottom > maxBottom) maxBottom = bottom;
-      if (right > maxRight) maxRight = right;
-    }
+      if (l) {
+        el.style.position = "absolute";
+        el.style.left = (l.x || 0) + "px";
+        el.style.top = (l.y || 0) + "px";
+        if (l.w) el.style.width = l.w + "px";
+        if (l.h) el.style.minHeight = l.h + "px";
+        el.style.margin = "0";
+      }
 
-    applyTextStyles(el, st);
-  });
+      applyTextStyles(el, st);
 
-  // Design-space dimensions (used to create the “stage edge” like the editor).
-  const designW = Math.max(maxRight + 40, 520);
-  const designH = Math.max(maxBottom + 40, window.innerHeight);
+      // Use rendered size (prevents clipping when content grows, e.g. multiple cards).
+      if (l) {
+        const actualH = Math.max(l.h || 0, el.scrollHeight || el.offsetHeight || 0);
+        const actualW = Math.max(l.w || 0, el.scrollWidth || el.offsetWidth || 0);
 
-  surface.style.width = designW + "px";
-  surface.style.minHeight = designH + "px";
-  surface.style.background = bg;
+        maxBottom = Math.max(maxBottom, (l.y || 0) + actualH);
+        maxRight  = Math.max(maxRight,  (l.x || 0) + actualW);
+      }
+    });
+
+    designW = Math.max(maxRight + 40, 520);
+    designH = Math.max(maxBottom + 40, window.innerHeight);
+
+    surface.style.width = designW + "px";
+    surface.style.minHeight = designH + "px";
+    surface.style.background = bg;
+  }
 
   function applyStageScale() {
     const vw = document.documentElement.clientWidth || window.innerWidth;
@@ -289,12 +302,33 @@
     // Scale the whole design surface.
     surface.style.transform = "scale(" + scale + ")";
 
-    // Make sure the full-bleed background covers the visible page height.
+    // Ensure full-bleed background covers the visible page height.
     bleed.style.minHeight = Math.max(scaledH, window.innerHeight) + "px";
   }
 
-  applyStageScale();
-  window.addEventListener("resize", applyStageScale);
+  function refreshStage() {
+    applyLayoutAndMeasure();
+    applyStageScale();
+  }
+
+  refreshStage();
+
+  // Re-measure after images load (card thumbnails can change height).
+  surface.querySelectorAll("img").forEach((img) => {
+    if (img.complete) return;
+    img.addEventListener("load", refreshStage, { once: true });
+  });
+
+  // Re-measure once after fonts have a chance to apply.
+  window.setTimeout(refreshStage, 150);
+
+  // Resize: scale immediately; then re-measure once (text wrapping / late loads).
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    applyStageScale();
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(refreshStage, 150);
+  });
 })();
 </script>
 
