@@ -2328,7 +2328,7 @@ body.sf-editor-lock {
 .sf-card-grid[data-sf-block="cards_grid"] .sf-card{
   width: 100%;
   max-width: 420px;
-  background: rgba(243, 244, 255, 0.38) !important; /* overrides the solid background */
+  background: rgba(243, 244, 255, 0.40) !important; /* overrides the solid background */
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   border: 1px solid rgba(47, 95, 168, 0.18);
@@ -2342,3 +2342,19 @@ body.sf-editor-lock {
   border-top: 1px solid rgba(47, 95, 168, 0.14);
   color: rgba(0, 0, 0, 0.75);
 }
+
+/* Featured cards: add a subtle separator so the card feels less "one-block" */
+.sf-card-desc,
+.sf-card-text {
+  border-top: 1px solid rgba(47, 95, 168, 0.18);
+  border-bottom: 1px solid rgba(47, 95, 168, 0.18);
+  margin-top: 0.65rem;
+  padding-top: 0.75rem;
+}
+
+/* Preview card: keep it centered inside its resizable block */
+.storefront-preview-card {
+  margin-left: auto;
+  margin-right: auto;
+}
+

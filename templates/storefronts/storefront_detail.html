@@ -7,6 +7,17 @@
 {% block content %}
 
 <style>
+    /* Public storefront has no navbar, so remove the global "fixed-nav" padding */
+  body {
+    padding-top: 0 !important;
+  }
+
+  /* Add a small top breathing space for the canvas */
+  #sf-public-stage-wrap {
+    padding-top: 12px;
+    box-sizing: border-box;
+  }
+  
   /* Full-bleed public storefront (remove the "page inside a page" container look) */
   main.page-container {
     max-width: none !important;
