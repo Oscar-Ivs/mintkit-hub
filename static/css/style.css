@@ -20,8 +20,12 @@
     --mk-info-text: #075985;
     --mk-error-bg: #fee2e2;
     --mk-error-text: #991b1b;
-}
 
+    --mk-about-watermark-opacity: 0.15; /* adjust: 0.06–0.15 */
+    --mk-about-watermark-size: clamp(520px, 80vw, 980px);
+
+}
+  
 /* Basic reset */
 * {
     box-sizing: border-box;
@@ -482,6 +486,43 @@ body {
     border: 1px solid var(--mk-border-soft);
     box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
 }
+
+/* ======= Watermark pages (About / Pricing / FAQ) ======= */
+/* Add "mk-watermark" to the <main> container via the main_class block. */
+.page-container.mk-watermark {
+  position: relative;
+  overflow: hidden;
+
+  /* Tweak these 3 values */
+  --mk-watermark-opacity: 0.15; /* try 0.05 - 0.12 */
+  --mk-watermark-size: min(980px, 90vw);
+  --mk-watermark-rotate: -12deg;
+
+  /* Fine-tune placement */
+  --mk-watermark-x: 70%;
+  --mk-watermark-y: 34%;
+}
+
+.page-container.mk-watermark::before {
+  content: "";
+  position: absolute;
+  inset: -10% -15%;
+  background-image: url("../img/card-21.webp"); /* if needed: use /static/img/card.webp */
+  background-repeat: no-repeat;
+  background-position: var(--mk-watermark-x) var(--mk-watermark-y);
+  background-size: var(--mk-watermark-size);
+  opacity: var(--mk-watermark-opacity);
+  transform: rotate(var(--mk-watermark-rotate));
+  pointer-events: none;
+  z-index: 0;
+  filter: saturate(0.9) contrast(0.95);
+}
+
+.page-container.mk-watermark > * {
+  position: relative;
+  z-index: 1;
+}
+
 
 /* Django messages */
 
@@ -2378,3 +2419,45 @@ body.sf-editor-lock {
   margin-top: auto !important;
 }
 
+/* ---------------- About page watermark background ---------------- */
+
+.about-page {
+    position: relative;
+    z-index: 0;
+
+    /* Slight translucency so the watermark shows through the card container */
+    background: rgba(249, 250, 251, 0.92);
+}
+
+/* Watermark spans the whole page (outside + through the About container) */
+.about-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+
+    /* Image URL is injected from the About template via data attribute */
+    background-repeat: no-repeat;
+    background-position: center 160px;
+    background-size: var(--mk-about-watermark-size) auto;
+    opacity: var(--mk-about-watermark-opacity);
+    filter: saturate(1.05) contrast(1.05);
+}
+
+/* Reads watermark URL from the About page only (safe on other pages) */
+.about-watermark-src {
+    display: none;
+}
+
+.about-watermark-src[data-about-watermark] {
+    /* no visual output; used by the rule below */
+}
+
+.about-page:has(.about-watermark-src[data-about-watermark])::before {
+    background-image: url(attr(data-about-watermark url));
+}
+
+.about-page::before {
+    background-image: url("../img/card-21.webp");
+}

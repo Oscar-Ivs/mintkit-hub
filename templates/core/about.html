@@ -1,38 +1,39 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block main_class %}page-container about-page{% endblock %}
 
 {% block content %}
   <h1>About MintKit Hub</h1>
 
   <p>
-    MintKit Hub is your control centre for creating and managing
-    <strong>digital gift cards, tickets and vouchers</strong>.
-    It connects a familiar Web 2 experience (this dashboard) with
-    Web&nbsp;3 technology running on the blockchain.
+    MintKit Hub is the control centre for creating and managing digital gift cards, tickets and vouchers.
+    It connects a familiar Web 2 dashboard experience (this site) with Web 3 technology running on blockchain infrastructure.
   </p>
 
   <h2>Two parts, one platform</h2>
 
   <h3>MintKit Hub (this site)</h3>
   <ul>
-    <li>Sign up and manage your business profile.</li>
-    <li>Create and edit your public storefront page.</li>
-    <li>Configure which digital cards you want to offer.</li>
-    <li>Connect payments via Stripe.</li>
-    <li>View basic stats and manage your subscription.</li>
+    <li>Sign up and manage a business profile.</li>
+    <li>Create and edit a public storefront page.</li>
+    <li>Choose which digital cards to feature on the storefront.</li>
+    <li>Connect payments (Stripe integration).</li>
+    <li>View basic stats and manage a subscription.</li>
   </ul>
 
-  <h3>MintKit Studio (on-chain Minting Studio)</h3>
+  <h3>MintKit Studio (on-chain minting studio)</h3>
   <ul>
-    <li>Secure minting of your digital cards as NFTs/tokens.</li>
+    <li>Secure minting of digital cards as NFTs/tokens.</li>
     <li>Asset storage on dedicated blockchain infrastructure.</li>
     <li>Admin tools for testing, previewing and managing cards.</li>
-    <li>Future features such as advanced analytics and options for
-        offline redemption of cards.</li>
+    <li>Future options for analytics and offline redemption flows.</li>
   </ul>
 
   <h2>Who is MintKit for?</h2>
-  <p>MintKit is designed for small businesses and creators who want to offer
-     modern digital cards without building their own Web 3 stack:</p>
+  <p>
+    MintKit is designed for small businesses and creators who want to offer modern digital cards without building their own Web 3 stack:
+  </p>
   <ul>
     <li>Hairdressers, beauty salons and barbers.</li>
     <li>Cafés, restaurants and food trucks.</li>
@@ -43,19 +44,12 @@
 
   <h2>How it works in practice</h2>
   <ol>
-    <li>You create a business profile and storefront here in MintKit Hub.</li>
-    <li>You define one or more digital cards (gift cards, tickets or vouchers).</li>
-    <li>Your customers buy cards via your storefront (Stripe payments).</li>
-    <li>Each card is linked to a secure asset minted via MintKit Studio.</li>
-    <li>The customer receives an email with a direct link to the digital card
-        and a dynamic QR code.</li>
+    <li>Create a business profile and storefront in MintKit Hub.</li>
+    <li>Add one or more featured digital cards (gift cards, tickets, vouchers).</li>
+    <li>Share the public storefront link with customers.</li>
+    <li>Customers buy through the storefront (payments), and cards are issued and managed through the platform.</li>
   </ol>
 
-  <p>
-    For the college project, some parts are implemented as working stubs
-    (for example Stripe and advanced analytics). The core flows - business
-    profile, storefront management and the bridge to MintKit Studio - are
-    the focus of this version.
-  </p>
-
+  {# About page watermark image source (kept in HTML so paths stay correct) #}
+  <div class="about-watermark-src" data-about-watermark="{% static 'img/card.webp' %}"></div>
 {% endblock %}

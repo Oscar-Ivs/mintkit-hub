@@ -1,7 +1,10 @@
 {% extends "base.html" %}
+{# Enables the same subtle watermark background used on About #}
+{% block main_class %}page-container mk-watermark{% endblock %}
+
 
 {% block content %}
-  <h1>Frequently Asked Questions</h1>
+  <h1 class="page-title">Frequently Asked Questions</h1>
 
   <p>
     This page answers common questions about how MintKit Hub and the MintKit Studio

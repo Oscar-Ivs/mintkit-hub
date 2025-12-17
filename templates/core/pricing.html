@@ -1,11 +1,14 @@
 {% extends "base.html" %}
+{# Enables the same subtle watermark background used on About #}
+{% block main_class %}page-container mk-watermark{% endblock %}
+
 
 {% block content %}
 
-<h1>Pricing</h1>
+<h1 class="page-title">Pricing</h1>
 
-<p>
-  MintKit Hub starts with a simple two–step model:
+<p class="lead">
+  MintKit Hub starts with a simple two-step model:
   a short <strong>free trial</strong> so you can set everything up,
   then an affordable <strong>Basic</strong> plan.  
   A more advanced <strong>Pro</strong> tier is planned for the future.
@@ -52,7 +55,7 @@
         <li>Higher minting allowance for real customers.</li>
         <li>Up to <strong>5 collections</strong>.</li>
         <li>Up to <strong>100 active cards</strong> in total
-            (for example 20 cards × 5 batches).</li>
+            (for example 20 cards x 5 batches).</li>
         <li>Email support with reasonable response time.</li>
       </ul>
 
@@ -68,7 +71,7 @@
       <p class="fee-note">Planned fee: <strong>5%</strong> per paid transaction</p>
 
       <ul>
-        <li>Higher card limits (for example 250–500 active cards).</li>
+        <li>Higher card limits (for example 250-500 active cards).</li>
         <li>Larger batch sizes for busy businesses.</li>
         <li>Priority support and faster response times.</li>
         <li>Richer analytics on sales and redemptions.</li>
@@ -77,7 +80,7 @@
       </ul>
 
       <p class="cta muted">
-        Shown for roadmap purposes – not implemented in this project.
+        Shown for roadmap purposes - not implemented in this project.
       </p>
     </section>
   </div>
