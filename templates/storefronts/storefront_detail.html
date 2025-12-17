@@ -17,7 +17,7 @@
     padding-top: 12px;
     box-sizing: border-box;
   }
-  
+
   /* Full-bleed public storefront (remove the "page inside a page" container look) */
   main.page-container {
     max-width: none !important;
@@ -145,12 +145,8 @@
   const styles = data.styles || {};
   const bg = data.bg || "#ffffff";
 
-  const hasAny =
-    Object.keys(layout).length ||
-    Object.keys(styles).length ||
-    (bg && bg !== "#ffffff");
-
-  if (!hasAny) return;
+  const hasLayout = Object.keys(layout).length > 0;
+  const hasStyles = Object.keys(styles).length > 0;
 
   // Load common fonts once.
   if (!document.getElementById("sf-google-fonts-public")) {
@@ -166,7 +162,7 @@
     document.head.appendChild(link);
   }
 
-  // Full-bleed background for the whole viewport width.
+  // Full-bleed background (always applied).
   bleed.style.background = bg;
 
   function applyTextStyles(container, st) {
@@ -180,7 +176,9 @@
     container.style.fontStyle = st.italic ? "italic" : "";
     container.style.textDecoration = st.underline ? "underline" : "";
 
-    const textNodes = container.querySelectorAll("h1,h2,h3,h4,h5,h6,p,span,a,small,li,label,strong,em");
+    const textNodes = container.querySelectorAll(
+      "h1,h2,h3,h4,h5,h6,p,span,a,small,li,label,strong,em"
+    );
     textNodes.forEach((el) => {
       el.style.fontFamily = st.fontFamily || "";
       el.style.fontSize = px;
@@ -196,6 +194,45 @@
       img.style.display = "block";
     });
   }
+
+  // ===== Fallback: no saved layout yet -> normal flow (prevents blank page) =====
+  if (!hasLayout) {
+    // Allow normal document height (no clipping).
+    bleed.style.overflow = "visible";
+
+    // Keep content centered and responsive.
+    stageWrap.style.width = "100%";
+    stageWrap.style.maxWidth = "1280px";
+    stageWrap.style.height = "auto";
+    stageWrap.style.margin = "0 auto";
+
+    // Normal flow surface (no absolute positioning, no scaling).
+    surface.style.position = "relative";
+    surface.style.width = "auto";
+    surface.style.minHeight = "auto";
+    surface.style.transform = "none";
+    surface.style.background = "transparent";
+
+    // Apply hidden flags + text styles even without layout.
+    if (hasStyles) {
+      surface.querySelectorAll("[data-sf-block]").forEach((el) => {
+        const id = el.getAttribute("data-sf-block");
+        const st = styles[id] || {};
+        if (st.hidden) {
+          el.style.display = "none";
+          return;
+        }
+        applyTextStyles(el, st);
+      });
+    }
+
+    return;
+  }
+
+  // ===== Layout exists -> stage mode (absolute positioned + fit scaling) =====
+  bleed.style.overflow = "hidden";
+  stageWrap.style.margin = "0 auto";
+  surface.style.position = "absolute";
 
   let maxBottom = 0;
   let maxRight = 0;
@@ -219,7 +256,7 @@
       el.style.margin = "0";
 
       const bottom = (l.y || 0) + (l.h || el.offsetHeight || 0);
-      const right = (l.x || 0) + (l.w || el.offsetWidth || 0);
+      const right  = (l.x || 0) + (l.w || el.offsetWidth || 0);
 
       if (bottom > maxBottom) maxBottom = bottom;
       if (right > maxRight) maxRight = right;
@@ -245,11 +282,11 @@
     const scaledW = Math.round(designW * scale);
     const scaledH = Math.round(designH * scale);
 
-    // The wrapper takes the *real* page space (transforms do not).
+    // The wrapper takes the real page space (transforms do not).
     stageWrap.style.width = scaledW + "px";
     stageWrap.style.height = Math.max(scaledH, window.innerHeight) + "px";
 
-    // Scale the whole design surface (this scales X and Y together).
+    // Scale the whole design surface.
     surface.style.transform = "scale(" + scale + ")";
 
     // Make sure the full-bleed background covers the visible page height.
