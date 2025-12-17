@@ -2358,3 +2358,16 @@ body.sf-editor-lock {
   margin-right: auto;
 }
 
+/* Prevent cards grid from stretching cards vertically when the block is tall */
+.sf-card-grid[data-sf-block="cards_grid"] {
+  align-content: start;
+  align-items: start;
+  justify-items: center;
+  justify-content: center;
+}
+
+.sf-card .storefront-preview-card-button,
+.sf-card .storefront-public-card-button {
+  margin-top: auto !important;
+}
+
