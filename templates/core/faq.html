@@ -1,234 +1,170 @@
 {% extends "base.html" %}
-{# Enables the same subtle watermark background used on About #}
-{% block main_class %}page-container mk-watermark{% endblock %}
-
+{# Same subtle watermark background used on About/Pricing #}
+{% block main_class %}page-container mk-watermark mk-faq-page{% endblock %}
 
 {% block content %}
-  <h1 class="page-title">Frequently Asked Questions</h1>
-
-  <p>
-    This page answers common questions about how MintKit Hub and the MintKit Studio
-    app fit together - first in simple terms, then (optionally) with more technical
-    details for anyone who is curious.
-  </p>
-
-  <!-- 1. Getting started -->
-  <h2>Getting started</h2>
-
-  <section class="faq-group">
-    <h3>Do my customers need a MintKit account?</h3>
-    <p>
-      <strong>Short answer:</strong>
-      No. Your customers only see your public storefront and the digital cards or
-      tickets they receive by email. They don't need to register or install an app.
+  <header class="mk-page-head">
+    <h1 class="mk-page-title">Frequently Asked Questions</h1>
+    <p class="mk-page-lead">
+      Quick answers on the left. Deeper technical overview on the right for anyone who wants to understand how MintKit works.
     </p>
-    <details class="faq-advanced">
-      <summary>Show technical details</summary>
-      <p>
-        When a customer buys a card or ticket, MintKit creates a unique, secret
-        link for that specific asset. That link is sent by email and can be opened
-        in a normal browser on phone or desktop. Under the hood, the card is
-        backed by a token/NFT on a blockchain, but the customer never has to deal
-        with seed phrases, wallets or exchanges.
-      </p>
-    </details>
-  </section>
+  </header>
 
-  <section class="faq-group">
-    <h3>What is the difference between MintKit Hub and MintKit Studio?</h3>
-    <p>
-      <strong>Short answer:</strong>
-      MintKit Hub (this website) is where you manage your account, subscription
-      and storefront. MintKit Studio is a separate app where the actual digital
-      gift cards, tickets and vouchers are created, minted and managed.
-    </p>
-    <details class="faq-advanced">
-      <summary>Show technical details</summary>
-      <p>
-        MintKit Hub is a classic Web 2 Django site (accounts, forms,
-        Stripe, storefront management). MintKit Studio runs on a blockchain
-        platform and handles the “heavy” cryptographic work - minting tokens,
-        storing card metadata and serving secure QR codes. Hub simply controls
-        who is allowed to open Studio and keeps a record of which business
-        profile is linked to which on-chain identity.
-      </p>
-    </details>
-  </section>
+  <div class="mk-faq-layout">
 
-  <!-- 2. Payments & pricing -->
-  <h2>Payments & pricing</h2>
+    <!-- LEFT: FAQ (simple, click-to-reveal) -->
+    <section class="mk-faq-left" aria-label="Frequently asked questions">
+      <div class="mk-faq-section">
+        <h2 class="mk-section-title">Getting started</h2>
 
-  <section class="faq-group">
-    <h3>How do I pay for MintKit?</h3>
-    <p>
-      <strong>Short answer:</strong>
-      You subscribe to a plan (after a free trial) using Stripe. Payments are
-      taken in normal currency.
-    </p>
-    <details class="faq-advanced">
-      <summary>Show technical details</summary>
-      <p>
-        Stripe handles all card details on its own hosted pages. MintKit Hub only
-        stores the minimum Stripe IDs needed to know which plan you are on and
-        whether your subscription is active. Blockchain transaction fees and
-        storage costs are bundled into MintKit's platform fee and are never billed
-        to you separately.
-      </p>
-    </details>
-  </section>
+        <details class="mk-faq-item">
+          <summary class="mk-faq-q">Do my customers need a MintKit account?</summary>
+          <div class="mk-faq-a">
+            <p><strong>Short answer:</strong> No. Customers use your public storefront and open their card/ticket in a normal browser (phone or desktop).</p>
+          </div>
+        </details>
 
-  <section class="faq-group">
-    <h3>What happens when my free trial ends?</h3>
-    <p>
-      <strong>Short answer:</strong>
-      You can upgrade to a paid plan to keep full access. If you don't upgrade,
-      your storefront stays in place but access to MintKit Studio and minting
-      tools is limited or paused.
-    </p>
-    <details class="faq-advanced">
-      <summary>Show technical details</summary>
-      <p>
-        Internally, MintKit Hub stores the start and end date of your trial.
-        Once the trial passes and there is no active subscription, the
-        app will restrict user from editing/creating/minting or managing digital cards. Existing cards remain valid; you
-        simply cannot create new ones or manage existing ones until you re-activate a plan.
-      </p>
-    </details>
-  </section>
+        <details class="mk-faq-item">
+          <summary class="mk-faq-q">Do I need crypto, a wallet, or to buy tokens?</summary>
+          <div class="mk-faq-a">
+            <p><strong>Short answer:</strong> No. The goal is a normal SaaS-style experience. Any blockchain complexity stays behind the scenes.</p>
+          </div>
+        </details>
 
-  <!-- 3. Storefronts & customers -->
-  <h2>Storefronts & customers</h2>
+        <details class="mk-faq-item">
+          <summary class="mk-faq-q">What is the difference between MintKit Hub and MintKit Studio?</summary>
+          <div class="mk-faq-a">
+            <p><strong>Short answer:</strong> Hub is the website for accounts, storefront and subscriptions. Studio is the separate app where digital products are created and managed.</p>
+          </div>
+        </details>
+      </div>
 
-  <section class="faq-group">
-    <h3>Can I hide my storefront while I am still setting things up?</h3>
-    <p>
-      <strong>Short answer:</strong>
-      Yes. You can keep your storefront inactive so only you can see it. When you are ready you switch it to active and it becomes
-      publicly visible.
-    </p>
-  </section>
+      <div class="mk-faq-section">
+        <h2 class="mk-section-title">Payments and plans</h2>
 
-  <section class="faq-group">
-    <h3>What happens when a customer buys a card or ticket?</h3>
-    <p>
-      <strong>Short answer:</strong>
-      The customer pays through Stripe, and then receives an email containing a
-      secure link and QR code for their digital card or ticket.
-    </p>
-    <details class="faq-advanced">
-      <summary>Show technical details</summary>
-      <p>
-        Depending on the chosen flow, cards can be pre-minted in batches or
-        minted “on claim” when a customer activates their purchase via email.
-        Either way, each card is represented by a unique on-chain token and
-        linked to a short, human-friendly web page that the customer uses in
-        everyday life.
-      </p>
-    </details>
-  </section>
+        <details class="mk-faq-item">
+          <summary class="mk-faq-q">How do plans work in this college project?</summary>
+          <div class="mk-faq-a">
+            <p><strong>Short answer:</strong> A Free Trial is shown first, then a Basic plan. A Pro tier is displayed as “coming soon” to show the roadmap.</p>
+            <p class="mk-faq-muted">Note: Stripe wiring is represented in the UI, with full billing flows intended for a later phase.</p>
+          </div>
+        </details>
 
-  <!-- 4. For the curious / technical -->
-  <h2>For the curious & technically minded</h2>
+        <details class="mk-faq-item">
+          <summary class="mk-faq-q">What happens when the free trial ends?</summary>
+          <div class="mk-faq-a">
+            <p><strong>Short answer:</strong> Upgrading keeps full access. Without an active plan, editing/creating in Studio is intended to be limited or paused.</p>
+          </div>
+        </details>
 
-  <section class="faq-group">
-    <h3>Why does MintKit use a blockchain at all?</h3>
-    <p>
-      <strong>Short answer:</strong>
-      To give your digital cards properties that normal databases can't easily
-      guarantee - uniqueness, tamper-resistance, and long-term verifiability -
-      while still keeping the experience simple for you and your customers.
-    </p>
-    <details class="faq-advanced">
-      <summary>Show technical details</summary>
-      <p>
-        MintKit Studio runs on a modern smart-contract platform based on the
-        Internet Computer (ICP) blockchain. Your project lives inside isolated
-        smart-contract containers (“canisters”) that are replicated across
-        multiple independent nodes in different data centres. There is no single
-        database or traditional web server that can be accidentally wiped.
-      </p>
-      <p>
-        Each card or ticket is effectively an NFT or token with structured
-        metadata (value, expiry, status, usage history). Smart-contract logic
-        enforces basic rules such as:
-      </p>
-      <ul>
-        <li>only one active owner at a time,</li>
-        <li>limited lifetime or expiry date,</li>
-        <li>single-use or multi-use access, and</li>
-        <li>optional transfer or resale limits (planned feature).</li>
-      </ul>
-    </details>
-  </section>
+        <details class="mk-faq-item">
+          <summary class="mk-faq-q">How do customers pay?</summary>
+          <div class="mk-faq-a">
+            <p><strong>Short answer:</strong> The intended flow is Stripe checkout in normal currency, then the customer receives access to the purchased digital product.</p>
+          </div>
+        </details>
+      </div>
 
-  <section class="faq-group">
-    <h3>Can tickets be tied to a person, place or time?</h3>
-    <p>
-      <strong>Short answer:</strong>
-      The current project focuses on simple “show and scan” digital cards. The
-      roadmap includes tighter controls such as name-locking, time windows or
-      location hints for specific card types.
-    </p>
-    <details class="faq-advanced">
-      <summary>Show technical details</summary>
-      <p>
-        Because the underlying token logic is programmable, future versions can
-        support richer policies, for example:
-      </p>
-      <ul>
-        <li>
-          Linking a ticket to an email, phone number or verified identity
-          (so resale is limited or recorded).
-        </li>
-        <li>
-          Time-window access (valid only between specific dates or event times).
-        </li>
-        <li>
-          Geo-hints or venue-bound passes that are intended to be scanned only
-          in certain locations.
-        </li>
-        <li>
-          Rules around resale - for example, a maximum markup, or a limited
-          number of allowed transfers.
-        </li>
-      </ul>
-      <p>
-        These features build on the same cryptographic foundation without
-        changing the basic experience for the end user: they still just tap a
-        link or show a QR code.
-      </p>
-    </details>
-  </section>
+      <div class="mk-faq-section">
+        <h2 class="mk-section-title">Storefront and redemption</h2>
 
-  <!-- 5. End-to-end explanation -->
-  <h2>How everything fits together (A-Z overview)</h2>
+        <details class="mk-faq-item">
+          <summary class="mk-faq-q">Can the storefront be hidden while setting up?</summary>
+          <div class="mk-faq-a">
+            <p><strong>Short answer:</strong> Yes. Keep it inactive while building, then switch it on when ready.</p>
+          </div>
+        </details>
 
-  <details class="faq-advanced">
-    <summary>Click to see the full end-to-end flow</summary>
-    <ol>
-      <li>You register on <strong>MintKit Hub</strong> and create your profile.</li>
-      <li>You set up your <strong>storefront</strong> (name, description, logo, basic text).</li>
-      <li>You start a <strong>trial</strong> or subscription via Stripe.</li>
-      <li>From your dashboard you open <strong>MintKit Studio</strong>, which knows which
-          business profile and subscription plan you belong to.</li>
-      <li>In Studio you design your digital products - gift cards, tickets or vouchers -
-          and decide which ones should appear on your storefront.</li>
-      <li>
-        Customers visit your storefront, follow links to buy, pay via Stripe and
-        receive an email with a secure card/ticket link backed by a token on the
-        blockchain.
-      </li>
-      <li>
-        When the card is used or scanned, Studio checks the token's status and
-        business rules (valid, expired, already used, transferable, etc.) and
-        responds accordingly.
-      </li>
-      <li>
-        In future versions, Hub and Studio will exchange more data - for
-        example simple stats such as total cards minted, sold and redeemed -
-        so you can see a high-level view directly on your MintKit Hub dashboard.
-      </li>
-    </ol>
-  </details>
+        <details class="mk-faq-item">
+          <summary class="mk-faq-q">What happens when a customer buys a card or ticket?</summary>
+          <div class="mk-faq-a">
+            <p><strong>Short answer:</strong> The customer completes payment, then receives access (typically via an email link) to view and use their card/ticket.</p>
+            <p class="mk-faq-muted">Planned: email delivery + QR scan redemption flows.</p>
+          </div>
+        </details>
 
+        <details class="mk-faq-item">
+          <summary class="mk-faq-q">Can tickets be restricted by time, person, or location?</summary>
+          <div class="mk-faq-a">
+            <p><strong>Short answer:</strong> Not fully in the current submission. This is part of the longer-term roadmap (time windows, identity linking, geo-hints).</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- RIGHT: Technical overview (bigger topics, collapsible) -->
+    <aside class="mk-faq-right" aria-label="Technical overview">
+      <div class="mk-tech-panel">
+        <h2 class="mk-tech-title">Technical overview</h2>
+        <p class="mk-tech-lead">
+          This section explains the architecture and planned security/payment features using more technical language.
+        </p>
+
+        <details class="mk-tech-block" open>
+          <summary class="mk-tech-q">Architecture: Hub (Web2)</summary>
+          <div class="mk-tech-a">
+            <ul class="mk-tech-list">
+              <li>Django application for accounts, forms, and storefront management</li>
+              <li>Plan/subscription concept designed around Stripe (billing wiring staged)</li>
+              <li>Acts as the “control centre” and entry point for business users</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="mk-tech-block">
+          <summary class="mk-tech-q">Architecture: Studio (on-chain)</summary>
+          <div class="mk-tech-a">
+            <ul class="mk-tech-list">
+              <li>Runs on the Internet Computer (ICP) using canisters (smart-contract containers)</li>
+              <li>Handles minting/issuing of digital assets and enforcing rules (status, expiry, redemption)</li>
+              <li>Designed so Hub can link a business profile to an on-chain identity (planned integration)</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="mk-tech-block">
+          <summary class="mk-tech-q">Planned security upgrades</summary>
+          <div class="mk-tech-a">
+            <ul class="mk-tech-list">
+              <li><strong>VetKeys</strong> (planned): encrypt/selectively reveal sensitive metadata without exposing it publicly</li>
+              <li><strong>Geo-hints</strong> (planned): venue/location-aware scanning rules for certain ticket types</li>
+              <li><strong>Identity linking</strong> (planned): optional tying tickets to an email/phone/verified identity</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="mk-tech-block">
+          <summary class="mk-tech-q">Planned payments beyond Stripe</summary>
+          <div class="mk-tech-a">
+            <ul class="mk-tech-list">
+              <li><strong>x402 micropayments</strong> (planned): smaller programmatic payments for specific actions/automation</li>
+              <li>Goal: flexible pricing models (subscriptions + per-usage where it makes sense)</li>
+            </ul>
+          </div>
+        </details>
+
+        <div class="mk-tech-foot">
+          <h3 class="mk-tech-subtitle">Scope note (college submission)</h3>
+          <p class="mk-tech-muted">
+            The submission focuses on account/profile management, storefront creation + public view, pricing UI, and clear separation between Hub and Studio.
+            Advanced automation, full billing flows, and deeper Hub↔Studio linking are described as roadmap items.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  {# Optional: keep only one FAQ open at a time (no dependency, tiny script) #}
+  <script>
+    (function () {
+      const items = document.querySelectorAll(".mk-faq-left .mk-faq-item");
+      items.forEach((d) => {
+        d.addEventListener("toggle", () => {
+          if (!d.open) return;
+          items.forEach((other) => { if (other !== d) other.open = false; });
+        });
+      });
+    })();
+  </script>
 {% endblock %}

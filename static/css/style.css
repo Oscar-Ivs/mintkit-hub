@@ -2790,3 +2790,171 @@ body.sf-editor-lock {
 .mk-feature {
   align-items: flex-start;
 }
+
+/* ======= FAQ page (two-column layout + accordion + technical panel) ======== */
+
+.mk-faq-layout{
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(280px, 1fr);
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (max-width: 992px){
+  .mk-faq-layout{ grid-template-columns: 1fr; }
+}
+
+/* Left column sections */
+.mk-faq-section{
+  margin-top: 1.25rem;
+}
+
+.mk-faq-section:first-child{
+  margin-top: 0;
+}
+
+/* FAQ accordion cards */
+.mk-faq-item{
+  border: 1px solid rgba(47, 95, 168, 0.16);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.05);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  margin: 0.75rem 0;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+}
+
+.mk-faq-item:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.10);
+  border-color: rgba(47, 95, 168, 0.22);
+}
+
+.mk-faq-item[open]{
+  border-color: rgba(47, 95, 168, 0.30);
+}
+
+.mk-faq-q{
+  list-style: none;
+  cursor: pointer;
+  padding: 0.95rem 1.1rem;
+  font-weight: 750;
+  position: relative;
+}
+
+.mk-faq-q::-webkit-details-marker{ display: none; }
+
+/* Chevron */
+.mk-faq-q::after{
+  content: "▸";
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.8;
+  transition: transform 140ms ease, opacity 140ms ease;
+}
+
+.mk-faq-item[open] .mk-faq-q::after{
+  transform: translateY(-50%) rotate(90deg);
+  opacity: 1;
+}
+
+.mk-faq-a{
+  padding: 0 1.1rem 1rem 1.1rem;
+  border-top: 1px solid rgba(47, 95, 168, 0.12);
+  color: rgba(15, 23, 42, 0.86);
+}
+
+.mk-faq-muted{
+  margin-top: 0.5rem;
+  color: rgba(15, 23, 42, 0.65);
+  font-size: 0.95rem;
+}
+
+/* Right column technical panel */
+.mk-tech-panel{
+  border: 1px solid rgba(47, 95, 168, 0.14);
+  border-radius: 18px;
+  padding: 1.15rem 1.15rem 1.25rem;
+  background: rgba(245, 247, 251, 0.05);
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
+/* Optional sticky feel on desktop (keeps panel visible while scrolling) */
+@media (min-width: 993px){
+  .mk-tech-panel{
+    position: sticky;
+    top: calc(var(--mk-nav-h, 72px) + 18px);
+  }
+}
+
+.mk-tech-title{
+  margin: 0 0 0.4rem 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.mk-tech-lead{
+  margin: 0 0 0.9rem 0;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.mk-tech-block{
+  border: 1px solid rgba(47, 95, 168, 0.12);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  margin: 0.65rem 0;
+  overflow: hidden;
+}
+
+.mk-tech-q{
+  list-style: none;
+  cursor: pointer;
+  padding: 0.75rem 0.9rem;
+  font-weight: 700;
+  position: relative;
+}
+
+.mk-tech-q::-webkit-details-marker{ display: none; }
+
+.mk-tech-q::after{
+  content: "▾";
+  position: absolute;
+  right: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.75;
+}
+
+.mk-tech-a{
+  padding: 0 0.9rem 0.85rem;
+  border-top: 1px solid rgba(47, 95, 168, 0.10);
+  color: rgba(15, 23, 42, 0.84);
+}
+
+.mk-tech-list{
+  margin: 0.65rem 0 0 1.1rem;
+}
+
+.mk-tech-foot{
+  margin-top: 0.9rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(47, 95, 168, 0.12);
+}
+
+.mk-tech-subtitle{
+  margin: 0 0 0.35rem 0;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.mk-tech-muted{
+  margin: 0;
+  color: rgba(15, 23, 42, 0.70);
+  font-size: 0.95rem;
+}
