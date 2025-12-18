@@ -2778,7 +2778,7 @@ body.sf-editor-lock {
 }
 
 /* Slightly lighter typography (less “heavy”) */
-.mk-plan-name { font-weight: 700; }
+.mk-plan-name { font-weight: 650; }
 .mk-price-amount { font-size: 1.85rem; font-weight: 650; }
 
 /* Keeps the bottom note pinned nicely if it exists */
@@ -2815,7 +2815,7 @@ body.sf-editor-lock {
 
 /* FAQ accordion cards */
 .mk-faq-item{
-  border: 1px solid rgba(47, 95, 168, 0.16);
+  border: 1px solid rgba(168, 47, 47, 0.08);
   border-radius: 16px;
   background: rgba(255,255,255,0.05);
   -webkit-backdrop-filter: blur(2px);
@@ -2840,7 +2840,7 @@ body.sf-editor-lock {
   list-style: none;
   cursor: pointer;
   padding: 0.95rem 1.1rem;
-  font-weight: 750;
+  font-weight: 650;
   position: relative;
 }
 
@@ -2864,8 +2864,8 @@ body.sf-editor-lock {
 
 .mk-faq-a{
   padding: 0 1.1rem 1rem 1.1rem;
-  border-top: 1px solid rgba(47, 95, 168, 0.12);
-  color: rgba(15, 23, 42, 0.86);
+  border-top: 1px solid rgba(168, 47, 106, 0.12);
+  color: rgba(42, 15, 15, 0.86);
 }
 
 .mk-faq-muted{
@@ -2876,7 +2876,7 @@ body.sf-editor-lock {
 
 /* Right column technical panel */
 .mk-tech-panel{
-  border: 1px solid rgba(47, 95, 168, 0.14);
+  border: 1px solid rgba(168, 47, 97, 0.08);
   border-radius: 18px;
   padding: 1.15rem 1.15rem 1.25rem;
   background: rgba(245, 247, 251, 0.05);
@@ -2896,7 +2896,7 @@ body.sf-editor-lock {
 .mk-tech-title{
   margin: 0 0 0.4rem 0;
   font-size: 1.2rem;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .mk-tech-lead{
@@ -2905,7 +2905,7 @@ body.sf-editor-lock {
 }
 
 .mk-tech-block{
-  border: 1px solid rgba(47, 95, 168, 0.12);
+  border: 1px solid rgba(47, 95, 168, 0.08);
   border-radius: 14px;
   background: rgba(255,255,255,0.05);
   margin: 0.65rem 0;
@@ -2916,7 +2916,7 @@ body.sf-editor-lock {
   list-style: none;
   cursor: pointer;
   padding: 0.75rem 0.9rem;
-  font-weight: 700;
+  font-weight: 650;
   position: relative;
 }
 
@@ -2950,7 +2950,7 @@ body.sf-editor-lock {
 .mk-tech-subtitle{
   margin: 0 0 0.35rem 0;
   font-size: 1rem;
-  font-weight: 750;
+  font-weight: 650;
 }
 
 .mk-tech-muted{
