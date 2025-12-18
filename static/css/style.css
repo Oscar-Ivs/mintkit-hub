@@ -2442,3 +2442,232 @@ body.sf-editor-lock {
     filter: saturate(1.05) contrast(1.05);
 }
 
+/* ========== Pricing page ========== */
+
+.mk-page-head {
+  margin-bottom: 1.25rem;
+}
+
+.mk-page-title {
+  margin: 0 0 0.5rem 0;
+}
+
+.mk-page-lead {
+  margin: 0;
+  max-width: 70ch;
+}
+
+.mk-pricing {
+  margin-top: 1.25rem;
+}
+
+.mk-billing-toggle {
+  /* Hidden control for CSS-only toggle */
+  position: absolute;
+  left: -9999px;
+}
+
+.mk-billing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0 1.25rem 0;
+}
+
+.mk-billing-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mk-billing-label {
+  font-weight: 600;
+}
+
+.mk-save-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  background: rgba(47, 95, 168, 0.10);
+  border: 1px solid rgba(47, 95, 168, 0.18);
+}
+
+/* Toggle switch */
+.mk-switch {
+  position: relative;
+  width: 56px;
+  height: 32px;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.mk-switch-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(47, 95, 168, 0.14);
+  border: 1px solid rgba(47, 95, 168, 0.22);
+}
+
+.mk-switch-thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.15);
+  transition: transform 160ms ease;
+}
+
+.mk-billing-toggle:checked ~ .mk-billing-row .mk-switch-thumb {
+  transform: translateX(24px);
+}
+
+.mk-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 992px) {
+  .mk-pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mk-plan-card {
+  border-radius: 18px;
+  padding: 1.25rem 1.25rem 1.1rem 1.25rem;
+  border: 1px solid rgba(47, 95, 168, 0.18);
+
+  /* Semi-transparent so watermark can remain subtly visible */
+  background: rgba(245, 247, 251, 0.78);
+  backdrop-filter: blur(6px);
+
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.10);
+  position: relative;
+}
+
+.mk-plan-card--recommended {
+  border: 2px solid rgba(47, 95, 168, 0.45);
+  transform: translateY(-4px);
+}
+
+.mk-plan-card--muted {
+  opacity: 0.92;
+}
+
+.mk-reco-pill {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.18rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: rgba(47, 95, 168, 0.10);
+  border: 1px solid rgba(47, 95, 168, 0.30);
+}
+
+.mk-plan-name {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.mk-plan-sub {
+  margin: 0.4rem 0 1rem 0;
+  color: rgba(15, 23, 42, 0.75);
+}
+
+.mk-price {
+  margin: 0.25rem 0 1rem 0;
+  line-height: 1.05;
+}
+
+.mk-price-amount {
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.mk-price-term {
+  margin-left: 0.35rem;
+  color: rgba(15, 23, 42, 0.72);
+  font-weight: 600;
+}
+
+.mk-price--dual .mk-price-annual {
+  display: none;
+}
+
+.mk-price-meta {
+  display: block;
+  margin-top: 0.35rem;
+  color: rgba(15, 23, 42, 0.65);
+}
+
+/* Toggle annual pricing display */
+.mk-billing-toggle:checked ~ .mk-pricing-grid .mk-price--dual .mk-price-monthly {
+  display: none;
+}
+
+.mk-billing-toggle:checked ~ .mk-pricing-grid .mk-price--dual .mk-price-annual {
+  display: inline;
+}
+
+.mk-plan-btn {
+  width: 100%;
+  border-radius: 12px;
+  margin: 0.25rem 0 1rem 0;
+}
+
+.mk-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.25rem 0 0 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.mk-feature {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+
+.mk-feature::before {
+  content: "✓";
+  font-weight: 900;
+  margin-top: 0.05rem;
+}
+
+.mk-plan-footnote {
+  margin: 0.95rem 0 0 0;
+  font-size: 0.9rem;
+  color: rgba(15, 23, 42, 0.65);
+}
+
+.mk-pricing-notes {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(47, 95, 168, 0.16);
+}
+
+.mk-section-title {
+  margin: 0 0 0.5rem 0;
+}
+
+.mk-muted {
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.mk-bullet {
+  margin: 0.75rem 0 0 1.1rem;
+}
