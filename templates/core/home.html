@@ -1,119 +1,112 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home | MintKit Hub{% endblock %}
 
 {% block content %}
+<section class="mk-home-hero">
+  <div class="mk-hero-grid">
+    <div class="mk-hero-copy">
+      <span class="mk-hero-pill">Welcome to MintKit Storefront Hub</span>
 
-<!-- HERO / INTRO -->
-<section class="hero">
-  <h1>Digital gift cards, tickets & vouchers for real-world businesses</h1>
-  <p>
-    MintKit Hub gives you a clean storefront and a simple control centre for selling and managing
-    digital cards — without building a full e-commerce site or touching crypto.
-  </p>
-  <p class="hero-cta-text">
-    Create a free account to set up your first storefront and try MintKit Hub.
-  </p>
+      <h1 class="mk-hero-title">Build your digital storefront in minutes</h1>
 
-  <p class="hero-cta-buttons">
-    {% if user.is_authenticated %}
-      {# Logged-in users go straight to their dashboard #}
-      <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to dashboard</a>
-      <a href="{% url 'explore_storefronts' %}" class="btn btn-secondary">Browse examples</a>
-    {% else %}
-      {# New visitors see a very “safe” CTA: no payment implied #}
-      <a href="{% url 'register' %}" class="btn btn-primary">Create free account</a>
-      <a href="{% url 'explore_storefronts' %}" class="btn btn-secondary">Browse examples</a>
-    {% endif %}
-  </p>
+      <p class="mk-hero-lead">
+        Create a polished public storefront, organise your digital products, and connect to MintKit Studio for on-chain minting.
+      </p>
+
+      <div class="mk-hero-actions">
+        <a class="btn btn-primary" href="storefront/explore/">Explore storefronts</a>
+        <a class="btn btn-secondary" href="/pricing/">View pricing</a>
+      </div>
+
+      <ul class="mk-hero-trust">
+        <li>Storefront builder</li>
+        <li>Subscription-ready model</li>
+        <li>Web-3based Studio roadmap</li>
+      </ul>
+    </div>
+
+    <div class="mk-hero-media">
+      <div class="mk-media-card">
+        <img
+          class="mk-media-img"
+          src="{% static 'img/card.webp' %}"
+          alt="MintKit preview"
+        >
+        <div class="mk-media-overlay">
+          <p class="mk-media-kicker">Promo video / carousel goes here (soon)</p>
+          <a class="btn btn-secondary mk-media-btn" href="/studio/">Open Studio</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- WHO IT'S FOR -->
-<section class="home-section">
-  <h2>Why businesses use MintKit Hub</h2>
-
-  <h3>Built for real-world services <em>and</em> products</h3>
-  <p>
-    Hair &amp; beauty, gyms, trainers, tutors, local events, cafés, makers, small shops…
-    Anyone who sells time, sessions, experiences or physical products and wants
-    modern digital cards on top: gift cards, passes, memberships, tickets and vouchers.
+<section class="mk-home-section">
+  <h2 class="mk-section-title-center">Why choose MintKit?</h2>
+  <p class="mk-section-lead-center">
+    A simple dashboard experience for day-to-day business tasks, with a clear path to advanced Web3 capabilities.
   </p>
 
-  <h3>Cards that behave like passes</h3>
-  <p>
-    Each digital card has a clear status (unused, redeemed, expired) and a QR code that can be
-    scanned at the door, at the till, or wherever you validate access.
-  </p>
+  <div class="mk-feature-grid">
+    <div class="mk-feature-card">
+      <div class="mk-feature-icon"></div>
+      <h3>Easy storefront builder</h3>
+      <p>Create a clean public page for your business and publish updates fast.</p>
+    </div>
 
-  <h3>Lightweight, not a full shop system</h3>
-  <p>
-    You don't need a huge e-commerce platform. MintKit Hub focuses on one thing:
-    selling and managing digital access in a clean way. Your existing website, socials or
-    offline marketing can simply link to your MintKit storefront.
-  </p>
+    <div class="mk-feature-card">
+      <div class="mk-feature-icon"></div>
+      <h3>Digital products</h3>
+      <p>Gift cards, tickets and vouchers — designed for modern delivery and redemption.</p>
+    </div>
+
+    <div class="mk-feature-card">
+      <div class="mk-feature-icon"></div>
+      <h3>Secure & future-ready</h3>
+      <p>Roadmap includes Internet Identity login, on-chain storage patterns, and privacy upgrades.</p>
+    </div>
+  </div>
 </section>
 
-<!-- FLOW OVERVIEW -->
-<section class="home-section">
-  <h2>What the flow looks like</h2>
+<section class="mk-home-section">
+  <div class="mk-steps-grid">
+    <div>
+      <h2>How it works</h2>
+      <p class="mk-muted">
+        The Hub handles your public presence. Studio focuses on minting and managing digital assets.
+      </p>
+    </div>
 
-  <h3>1. Set up your profile</h3>
-  <p>
-    Create an account, add your business name, contact details and logo.
-    Your dashboard becomes the “control room” for everything else.
-  </p>
-
-  <h3>2. Publish your storefront</h3>
-  <p>
-    Add a short headline and description, decide if it's public, and share the link with your
-    customers. No full website rebuild needed.
-  </p>
-
-  <h3>3. Create and manage digital cards</h3>
-  <p>
-    Use MintKit Studio to design the actual gift cards, tickets and vouchers.
-    Customers buy them online; you scan and manage them from your own dashboard.
-  </p>
-
-  <p class="muted">
-    Want more detail? The About and FAQ pages go deeper into how everything fits together
-    and what is planned next.
-  </p>
+    <ol class="mk-step-list">
+      <li class="mk-step">
+        <div>
+          <strong>Create your business profile</strong><br>
+          Add branding, contact info, and publish your storefront.
+        </div>
+      </li>
+      <li class="mk-step">
+        <div>
+          <strong>Choose a plan</strong><br>
+          Start with a free trial, then upgrade when ready (Stripe wiring planned).
+        </div>
+      </li>
+      <li class="mk-step">
+        <div>
+          <strong>Mint and manage in Studio</strong><br>
+          Create digital cards and manage redemption flows (ICP roadmap features described in FAQ).
+        </div>
+      </li>
+    </ol>
+  </div>
 </section>
 
-<!-- NEXT STEPS -->
-<section class="home-section">
-  <h2>Choose your next step</h2>
-
-  {% if user.is_authenticated %}
-    <h3>Try it with your own data</h3>
-    <p>
-      Open your dashboard, build a storefront and see how the flow feels with real-world cards.
-    </p>
-    <p>
-      <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to dashboard</a>
-    </p>
-  {% else %}
-    <h3>Create an account</h3>
-    <p>
-      Register for free, set up a storefront and test MintKit Hub with no pressure.
-    </p>
-    <p>
-      <a href="{% url 'register' %}" class="btn btn-primary">Create free account</a>
-    </p>
-  {% endif %}
-
-  <h3>Understand the plans</h3>
-  <p>
-    See how the free period and Basic / Pro tiers are structured, and how card limits and fees
-    work in practice.
-    <a href="{% url 'pricing' %}">View pricing</a>
-  </p>
-
-  <h3>Explore what others are doing</h3>
-  <p>
-    Browse public MintKit storefronts for inspiration — and treat it as free advertising
-    for your own business once you switch your storefront to public.
-    <a href="{% url 'explore_storefronts' %}">Explore storefronts</a>
-  </p>
+<section class="mk-home-cta">
+  <div class="mk-cta-inner">
+    <h2>Ready to get started?</h2>
+    <p>Set up your storefront now, then expand into advanced Studio features as the platform evolves.</p>
+    <a class="btn" href="/accounts/signup/">Create your storefront</a>
+  </div>
 </section>
-
 {% endblock %}
