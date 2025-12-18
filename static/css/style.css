@@ -2650,6 +2650,7 @@ body.sf-editor-lock {
   width: 100%;
   border-radius: 12px;
   margin: 0.25rem 0 1rem 0;
+  text-align: center;
 }
 
 .mk-feature-list {
