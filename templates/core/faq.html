@@ -92,79 +92,119 @@
       </div>
     </section>
 
-    <!-- RIGHT: Technical overview (bigger topics, collapsible) -->
-    <aside class="mk-faq-right" aria-label="Technical overview">
-      <div class="mk-tech-panel">
-        <h2 class="mk-tech-title">Technical overview</h2>
-        <p class="mk-tech-lead">
-          This section explains the architecture and planned security/payment features using more technical language.
-        </p>
+ <aside class="mk-tech-panel" aria-label="Technical overview">
+  <h2 class="mk-tech-title">Technical overview</h2>
+  <p class="mk-tech-lead">
+    A deeper look at how MintKit Hub (Web2) and MintKit Studio (ICP/Web3) fit together.
+    Some items are roadmap features for the full SaaS version.
+  </p>
 
-        <details class="mk-tech-block" open>
-          <summary class="mk-tech-q">Architecture: Hub (Web2)</summary>
-          <div class="mk-tech-a">
-            <ul class="mk-tech-list">
-              <li>Django application for accounts, forms, and storefront management</li>
-              <li>Plan/subscription concept designed around Stripe (billing wiring staged)</li>
-              <li>Acts as the “control centre” and entry point for business users</li>
-            </ul>
-          </div>
-        </details>
+  <details class="mk-tech-block" open>
+    <summary class="mk-tech-q">Architecture at a glance</summary>
+    <div class="mk-tech-a">
+      <ul class="mk-tech-list">
+        <li><strong>MintKit Hub (this site):</strong> Django dashboard for business profile, storefront layout, and plan UI. Stores settings in a traditional DB.</li>
+        <li><strong>MintKit Studio (separate app):</strong> Internet Computer canisters handle minting logic, on-chain records, and card redemption flows.</li>
+        <li><strong>Public delivery:</strong> cards can be shared via a link + QR/manual code, with public assets served from IC HTTP gateways/boundary nodes.</li>
+      </ul>
+      <p class="mk-tech-muted">
+        Goal: Hub stays simple for everyday users; Studio handles blockchain-grade integrity and long-term extensibility.
+      </p>
+    </div>
+  </details>
 
-        <details class="mk-tech-block">
-          <summary class="mk-tech-q">Architecture: Studio (on-chain)</summary>
-          <div class="mk-tech-a">
-            <ul class="mk-tech-list">
-              <li>Runs on the Internet Computer (ICP) using canisters (smart-contract containers)</li>
-              <li>Handles minting/issuing of digital assets and enforcing rules (status, expiry, redemption)</li>
-              <li>Designed so Hub can link a business profile to an on-chain identity (planned integration)</li>
-            </ul>
-          </div>
-        </details>
+  <details class="mk-tech-block">
+    <summary class="mk-tech-q">Identity, principals & access control</summary>
+    <div class="mk-tech-a">
+      <ul class="mk-tech-list">
+        <li><strong>Internet Identity (II):</strong> users authenticate and act as a <em>principal</em> (IC identity).</li>
+        <li><strong>Roles:</strong> access can be controlled by role (owner/admin/creator) so only authorised principals can mint, edit collections, or manage settings.</li>
+        <li><strong>Auditability:</strong> actions can be attributed to a principal, which helps with traceability (who minted, who edited, who redeemed).</li>
+      </ul>
+      <p class="mk-tech-muted">
+        Roadmap: richer permissions (staff roles per storefront, scoped access per collection, optional “read-only” support accounts).
+      </p>
+    </div>
+  </details>
 
-        <details class="mk-tech-block">
-          <summary class="mk-tech-q">Planned security upgrades</summary>
-          <div class="mk-tech-a">
-            <ul class="mk-tech-list">
-              <li><strong>VetKeys</strong> (planned): encrypt/selectively reveal sensitive metadata without exposing it publicly</li>
-              <li><strong>Geo-hints</strong> (planned): venue/location-aware scanning rules for certain ticket types</li>
-              <li><strong>Identity linking</strong> (planned): optional tying tickets to an email/phone/verified identity</li>
-            </ul>
-          </div>
-        </details>
+  <details class="mk-tech-block">
+    <summary class="mk-tech-q">On-chain data model (what gets stored)</summary>
+    <div class="mk-tech-a">
+      <ul class="mk-tech-list">
+        <li><strong>Collections:</strong> groups of cards (gift cards / tickets / vouchers) with limits and metadata.</li>
+        <li><strong>Card templates:</strong> design/layout settings (backgrounds, text positions, styles) used to generate card outputs.</li>
+        <li><strong>Mint records:</strong> created items can store references like <em>public image URL</em>, <em>public metadata URL</em>, plus redemption fields (QR/manual codes).</li>
+        <li><strong>Redemption events (optional):</strong> append-only logs for “redeemed / when / by which method”, useful for reporting and dispute resolution.</li>
+      </ul>
+      <p class="mk-tech-muted">
+        IC canisters are designed to be upgraded; stable storage patterns help preserve critical records across upgrades.
+      </p>
+    </div>
+  </details>
 
-        <details class="mk-tech-block">
-          <summary class="mk-tech-q">Planned payments beyond Stripe</summary>
-          <div class="mk-tech-a">
-            <ul class="mk-tech-list">
-              <li><strong>x402 micropayments</strong> (planned): smaller programmatic payments for specific actions/automation</li>
-              <li>Goal: flexible pricing models (subscriptions + per-usage where it makes sense)</li>
-            </ul>
-          </div>
-        </details>
+  <details class="mk-tech-block">
+    <summary class="mk-tech-q">Assets, thumbnails & public URLs</summary>
+    <div class="mk-tech-a">
+      <ul class="mk-tech-list">
+        <li><strong>Card images:</strong> stored and served via IC-compatible asset hosting (asset canister / gateway approach).</li>
+        <li><strong>Metadata:</strong> JSON metadata can be published alongside images (useful for wallets, explorers, and future integrations).</li>
+        <li><strong>Performance:</strong> public assets can be cached at the edge (boundary nodes), keeping loads fast for customers.</li>
+      </ul>
+      <p class="mk-tech-muted">
+        Roadmap: signed URLs / access rules for “private previews”, plus optional encryption for sensitive payloads.
+      </p>
+    </div>
+  </details>
 
-        <div class="mk-tech-foot">
-          <h3 class="mk-tech-subtitle">Scope note (college submission)</h3>
-          <p class="mk-tech-muted">
-            The submission focuses on account/profile management, storefront creation + public view, pricing UI, and clear separation between Hub and Studio.
-            Advanced automation, full billing flows, and deeper Hub↔Studio linking are described as roadmap items.
-          </p>
-        </div>
-      </div>
-    </aside>
+  <details class="mk-tech-block">
+    <summary class="mk-tech-q">Redemption flow (QR + manual code)</summary>
+    <div class="mk-tech-a">
+      <ul class="mk-tech-list">
+        <li><strong>Two methods:</strong> QR scanning for speed + manual code as a fallback (useful for damaged prints or low light).</li>
+        <li><strong>State machine:</strong> valid → redeemed (or expired/void), preventing double-spend style re-use.</li>
+        <li><strong>Staff tooling:</strong> scanner view can validate and mark redeemed with clear feedback.</li>
+      </ul>
+      <p class="mk-tech-muted">
+        Roadmap: “dynamic QR” (rotating codes) for stronger anti-screenshot protection, plus offline redemption modes for venues with poor signal.
+      </p>
+    </div>
+  </details>
 
+  <details class="mk-tech-block">
+    <summary class="mk-tech-q">Payments roadmap (Stripe + beyond)</summary>
+    <div class="mk-tech-a">
+      <ul class="mk-tech-list">
+        <li><strong>Hub subscriptions:</strong> Stripe plans (free trial → paid tier) for access control and limits.</li>
+        <li><strong>Transaction fees:</strong> optional platform fee per sale (real SaaS model; currently simplified for the college version).</li>
+        <li><strong>Micropayments (x402):</strong> future option to support pay-per-action APIs (e.g., pay per mint / pay per redemption verification) using HTTP-402 style flows.</li>
+      </ul>
+      <p class="mk-tech-muted">
+        For the project submission: pricing UI demonstrates a realistic model even if billing automation is staged.
+      </p>
+    </div>
+  </details>
+
+  <details class="mk-tech-block">
+    <summary class="mk-tech-q">Privacy & security roadmap (VetKeys, VC, geolocation)</summary>
+    <div class="mk-tech-a">
+      <ul class="mk-tech-list">
+        <li><strong>VetKeys:</strong> threshold-style key derivation for encrypting sensitive data while keeping verifiable on-chain state.</li>
+        <li><strong>Verifiable Credentials:</strong> prove “this is a real business / verified organiser” without exposing unnecessary personal info.</li>
+        <li><strong>Geolocation rules:</strong> optional constraints for redemptions (example: only redeem at venue / region), with careful UX so it doesn’t block legitimate customers.</li>
+      </ul>
+      <p class="mk-tech-muted">
+        These are advanced features and should be presented clearly as roadmap items until implemented.
+      </p>
+    </div>
+  </details>
+
+  <div class="mk-tech-foot">
+    <h3 class="mk-tech-subtitle">Operational notes</h3>
+    <p class="mk-tech-muted">
+      ICP canisters run on cycles (compute budget). Production readiness includes monitoring, upgrade strategy,
+      sensible limits, and clear separation between “Hub settings” and “Studio minting/redemption” responsibilities.
+    </p>
   </div>
+</aside>
 
-  {# Optional: keep only one FAQ open at a time (no dependency, tiny script) #}
-  <script>
-    (function () {
-      const items = document.querySelectorAll(".mk-faq-left .mk-faq-item");
-      items.forEach((d) => {
-        d.addEventListener("toggle", () => {
-          if (!d.open) return;
-          items.forEach((other) => { if (other !== d) other.open = false; });
-        });
-      });
-    })();
-  </script>
 {% endblock %}
