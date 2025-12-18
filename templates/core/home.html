@@ -12,7 +12,8 @@
       <h1 class="mk-hero-title">Build your digital storefront in minutes</h1>
 
       <p class="mk-hero-lead">
-        Create a polished public storefront, organise your digital products, and connect to MintKit Studio for on-chain minting.
+        Create a polished public storefront, organise your digital products, and connect to MintKit Studio for on-chain
+        minting.
       </p>
 
       <div class="mk-hero-actions">
@@ -29,11 +30,7 @@
 
     <div class="mk-hero-media">
       <div class="mk-media-card">
-        <img
-          class="mk-media-img"
-          src="{% static 'img/card.webp' %}"
-          alt="MintKit preview"
-        >
+        <img class="mk-media-img" src="{% static 'img/card.webp' %}" alt="MintKit preview">
         <div class="mk-media-overlay">
           <p class="mk-media-kicker">Promo video / carousel goes here (soon)</p>
           <a class="btn btn-secondary mk-media-btn" href="/studio/">Open Studio</a>
@@ -51,54 +48,61 @@
 
   <div class="mk-feature-grid">
     <div class="mk-feature-card">
-      <div class="mk-feature-icon"></div>
+      <img class="mk-feature-thumb" src="{% static 'img/img-1.webp' %}" alt="Example digital card">
       <h3>Easy storefront builder</h3>
       <p>Create a clean public page for your business and publish updates fast.</p>
     </div>
 
     <div class="mk-feature-card">
-      <div class="mk-feature-icon"></div>
+      <img class="mk-feature-thumb" src="{% static 'img/img-2.webp' %}" alt="Example ticket or voucher">
       <h3>Digital products</h3>
       <p>Gift cards, tickets and vouchers — designed for modern delivery and redemption.</p>
     </div>
 
     <div class="mk-feature-card">
-      <div class="mk-feature-icon"></div>
+      <img class="mk-feature-thumb" src="{% static 'img/img-3.webp' %}" alt="Studio preview">
       <h3>Secure & future-ready</h3>
       <p>Roadmap includes Internet Identity login, on-chain storage patterns, and privacy upgrades.</p>
     </div>
   </div>
+
 </section>
 
 <section class="mk-home-section">
-  <div class="mk-steps-grid">
-    <div>
-      <h2>How it works</h2>
-      <p class="mk-muted">
+  <div class="row align-items-center mk-steps-grid g-4">
+    <!-- Left column -->
+    <div class="col-12 col-lg-5">
+      <h2 class="mb-2">How it works</h2>
+      <p class="mk-muted mb-0">
         The Hub handles your public presence. Studio focuses on minting and managing digital assets.
       </p>
     </div>
 
-    <ol class="mk-step-list">
-      <li class="mk-step">
-        <div>
-          <strong>Create your business profile</strong><br>
-          Add branding, contact info, and publish your storefront.
-        </div>
-      </li>
-      <li class="mk-step">
-        <div>
-          <strong>Choose a plan</strong><br>
-          Start with a free trial, then upgrade when ready (Stripe wiring planned).
-        </div>
-      </li>
-      <li class="mk-step">
-        <div>
-          <strong>Mint and manage in Studio</strong><br>
-          Create digital cards and manage redemption flows (ICP roadmap features described in FAQ).
-        </div>
-      </li>
-    </ol>
+    <!-- Right column -->
+    <div class="col-12 col-lg-7">
+      <ol class="mk-step-list mb-0">
+        <li class="mk-step">
+          <div>
+            <strong>Create your business profile</strong><br>
+            Add branding, contact info, and publish your storefront.
+          </div>
+        </li>
+
+        <li class="mk-step">
+          <div>
+            <strong>Choose a plan</strong><br>
+            Start with a free trial, then upgrade when ready (Stripe wiring planned).
+          </div>
+        </li>
+
+        <li class="mk-step">
+          <div>
+            <strong>Mint and manage in Studio</strong><br>
+            Create digital cards and manage redemption flows (ICP roadmap features described in FAQ).
+          </div>
+        </li>
+      </ol>
+    </div>
   </div>
 </section>
 
@@ -106,7 +110,7 @@
   <div class="mk-cta-inner">
     <h2>Ready to get started?</h2>
     <p>Set up your storefront now, then expand into advanced Studio features as the platform evolves.</p>
-    <a class="btn" href="/accounts/signup/">Create your storefront</a>
+    <a class="btn" href="/accounts/register/">Create your storefront</a>
   </div>
 </section>
 {% endblock %}

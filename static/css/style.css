@@ -2974,16 +2974,19 @@ body.sf-editor-lock {
 
 @media (max-width: 992px){
   .mk-hero-grid{ grid-template-columns: 1fr; }
-  .mk-hero-media{ order: -1; }
+
+  /* Keep text first, media second */
+  .mk-hero-copy{ order: 1; }
+  .mk-hero-media{ order: 2; margin-top: 1.25rem; }
 }
 
 .mk-hero-pill{
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.35rem 0.7rem;
+  padding: 0.7rem 0.9rem;
   border-radius: 999px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 650;
   background: rgba(47, 95, 168, 0.10);
   border: 1px solid rgba(47, 95, 168, 0.18);
@@ -3193,9 +3196,15 @@ body.sf-editor-lock {
   padding: 2.4rem 1.8rem;
   text-align: center;
   color: #fff;
-  background: linear-gradient(135deg, rgba(47, 95, 168, 0.92), rgba(59, 130, 246, 0.78));
+
+  /* green CTA using existing static image */
+  background:
+    linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(47, 95, 168, 0.58)),
+    url("../img/bg-green.webp") center / cover no-repeat;
+
   box-shadow: 0 24px 70px rgba(15, 23, 42, 0.16);
 }
+
 
 .mk-cta-inner p{
   margin: 0.55rem auto 1.25rem;
@@ -3211,4 +3220,22 @@ body.sf-editor-lock {
 
 .mk-cta-inner .btn:hover{
   background: #ffffff;
+}
+
+.mk-feature-thumb{
+  width: 64px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 0.85rem;
+  border: 1px solid rgba(47, 95, 168, 0.18);
+  background: rgba(245, 247, 251, 0.35);
+}
+
+.mk-home-section .col-lg-5 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
 }
