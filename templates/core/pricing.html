@@ -4,140 +4,141 @@
 {% block main_class %}page-container mk-watermark{% endblock %}
 
 {% block content %}
-  <header class="mk-page-head">
-    <h1 class="mk-page-title">Pricing</h1>
-    <p class="mk-page-lead">
-      MintKit Hub starts with a short <strong>free trial</strong>, then an affordable <strong>Basic</strong> plan.
-      A more advanced <strong>Pro</strong> tier is planned for the future.
-    </p>
-  </header>
+<header class="mk-page-head">
+  <h1 class="mk-page-title">Pricing</h1>
+  <p class="mk-page-lead">
+    MintKit Hub starts with a short <strong>free trial</strong>, then an affordable <strong>Basic</strong> plan.
+    A more advanced <strong>Pro</strong> tier is planned for the future.
+  </p>
+</header>
 
-  <section class="mk-pricing" aria-label="Plans">
-    {# Checkbox drives the monthly/annual UI (CSS-only toggle, no JS needed) #}
-    <input class="mk-billing-toggle" type="checkbox" id="mk-billing-toggle" />
+<section class="mk-pricing" aria-label="Plans">
+  {# Checkbox drives the monthly/annual UI (CSS-only toggle, no JS needed) #}
+  <input class="mk-billing-toggle" type="checkbox" id="mk-billing-toggle" />
 
-    <div class="mk-billing-row">
-      <div class="mk-billing-left">
-        <span class="mk-billing-label">Annual pricing</span>
-        <span class="mk-save-pill">Save 20%</span>
-      </div>
-
-      <label class="mk-switch" for="mk-billing-toggle" aria-label="Toggle annual pricing">
-        <span class="mk-switch-track"></span>
-        <span class="mk-switch-thumb"></span>
-      </label>
+  <div class="mk-billing-row">
+    <div class="mk-billing-left">
+      <span class="mk-billing-label">Annual pricing</span>
+      <span class="mk-save-pill">Save 20%</span>
     </div>
 
-    <div class="mk-pricing-grid">
-      <!-- Free Trial -->
-      <article class="mk-plan-card">
-        <h2 class="mk-plan-name">Free Trial</h2>
-        <p class="mk-plan-sub">Try MintKit Hub with core features enabled.</p>
+    <label class="mk-switch" for="mk-billing-toggle" aria-label="Toggle annual pricing">
+      <span class="mk-switch-track"></span>
+      <span class="mk-switch-thumb"></span>
+    </label>
+  </div>
 
-        <div class="mk-price">
-          <span class="mk-price-amount">£0</span>
-          <span class="mk-price-term">for 14 days</span>
-        </div>
+  <div class="mk-pricing-grid">
+    <!-- Free Trial -->
+    <article class="mk-plan-card">
+      <h2 class="mk-plan-name">Free Trial</h2>
+      <p class="mk-plan-sub">Try MintKit Hub with core features enabled.</p>
 
-        <a class="btn btn-primary mk-plan-btn" href="#" aria-disabled="true">
-          Start trial
-        </a>
+      <div class="mk-price">
+        <span class="mk-price-amount">£0</span>
+        <span class="mk-price-term">for 14 days</span>
+      </div>
 
-        <ul class="mk-feature-list">
-          <li class="mk-feature mk-feature--on">Full access to MintKit Hub dashboard</li>
-          <li class="mk-feature mk-feature--on">Set up business profile and storefront</li>
-          <li class="mk-feature mk-feature--on">Connect Stripe (test mode for this project)</li>
-          <li class="mk-feature mk-feature--on">Create a small set of gift cards / tickets / vouchers</li>
-          <li class="mk-feature mk-feature--on">Up to <strong>3 collections</strong> and ~ <strong>20 cards</strong> per batch</li>
-        </ul>
+      <a class="btn btn-primary mk-plan-btn" href="#" aria-disabled="true">
+        Start trial
+      </a>
+
+      <ul class="mk-feature-list">
+        <li class="mk-feature mk-feature--on">Full access to MintKit Hub dashboard</li>
+        <li class="mk-feature mk-feature--on">Set up business profile and storefront</li>
+        <li class="mk-feature mk-feature--on">Connect Stripe (test mode for this project)</li>
+        <li class="mk-feature mk-feature--on">Create a small set of gift cards / tickets / vouchers</li>
+        <li class="mk-feature">Up to <strong>3 collections</strong></li>
+        <li class="mk-feature">About <strong>20 cards</strong> per batch</li>
+
 
         <p class="mk-plan-footnote">
           Stripe subscription flow will be wired here in the final version.
         </p>
-      </article>
+    </article>
 
-      <!-- Basic (Recommended) -->
-      <article class="mk-plan-card mk-plan-card--recommended" aria-label="Basic plan (recommended)">
-        <div class="mk-reco-pill">RECOMMENDED</div>
+    <!-- Basic (Recommended) -->
+    <article class="mk-plan-card mk-plan-card--recommended" aria-label="Basic plan (recommended)">
+      <div class="mk-reco-pill">RECOMMENDED</div>
 
-        <h2 class="mk-plan-name">Basic</h2>
-        <p class="mk-plan-sub">For small businesses starting to sell digital cards.</p>
+      <h2 class="mk-plan-name">Basic</h2>
+      <p class="mk-plan-sub">For small businesses starting to sell digital cards.</p>
 
-        <div class="mk-price mk-price--dual">
-          <span class="mk-price-monthly">
-            <span class="mk-price-amount">£6.99</span>
-            <span class="mk-price-term">/ month</span>
-          </span>
+      <div class="mk-price mk-price--dual">
+        <span class="mk-price-monthly">
+          <span class="mk-price-amount">£6.99</span>
+          <span class="mk-price-term">/ month</span>
+        </span>
 
-          <span class="mk-price-annual">
-            <span class="mk-price-amount">£67.10</span>
-            <span class="mk-price-term">/ year</span>
-            <small class="mk-price-meta">Equivalent ~ £5.59/mo</small>
-          </span>
-        </div>
+        <span class="mk-price-annual">
+          <span class="mk-price-amount">£67.10</span>
+          <span class="mk-price-term">/ year</span>
+          <small class="mk-price-meta">Equivalent ~ £5.59/mo</small>
+        </span>
+      </div>
 
-        <a class="btn btn-primary mk-plan-btn" href="#" aria-disabled="true">
-          Upgrade
-        </a>
+      <a class="btn btn-primary mk-plan-btn" href="#" aria-disabled="true">
+        Upgrade
+      </a>
 
-        <ul class="mk-feature-list">
-          <li class="mk-feature mk-feature--on">Everything in the Free Trial</li>
-          <li class="mk-feature mk-feature--on">Live (non-trial) access to MintKit Studio</li>
-          <li class="mk-feature mk-feature--on">Higher minting allowance for real customers</li>
-          <li class="mk-feature mk-feature--on">Up to <strong>5 collections</strong></li>
-          <li class="mk-feature mk-feature--on">Up to <strong>100 active cards</strong> in total</li>
-          <li class="mk-feature mk-feature--on">Email support with reasonable response time</li>
-        </ul>
-      </article>
+      <ul class="mk-feature-list">
+        <li class="mk-feature mk-feature--on">Everything in the Free Trial</li>
+        <li class="mk-feature mk-feature--on">Live (non-trial) access to MintKit Studio</li>
+        <li class="mk-feature mk-feature--on">Higher minting allowance for real customers</li>
+        <li class="mk-feature mk-feature--on">Up to <strong>5 collections</strong></li>
+        <li class="mk-feature mk-feature--on">Up to <strong>100 active cards</strong> in total</li>
+        <li class="mk-feature mk-feature--on">Email support with reasonable response time</li>
+      </ul>
+    </article>
 
-      <!-- Pro (Coming soon) -->
-      <article class="mk-plan-card mk-plan-card--muted">
-        <h2 class="mk-plan-name">Pro</h2>
-        <p class="mk-plan-sub">Coming soon — for larger businesses and teams.</p>
+    <!-- Pro (Coming soon) -->
+    <article class="mk-plan-card mk-plan-card--muted">
+      <h2 class="mk-plan-name">Pro</h2>
+      <p class="mk-plan-sub">Coming soon — for larger businesses and teams.</p>
 
-        <div class="mk-price mk-price--dual">
-          <span class="mk-price-monthly">
-            <span class="mk-price-amount">£9.99</span>
-            <span class="mk-price-term">/ month</span>
-          </span>
+      <div class="mk-price mk-price--dual">
+        <span class="mk-price-monthly">
+          <span class="mk-price-amount">£9.99</span>
+          <span class="mk-price-term">/ month</span>
+        </span>
 
-          <span class="mk-price-annual">
-            <span class="mk-price-amount">£95.90</span>
-            <span class="mk-price-term">/ year</span>
-            <small class="mk-price-meta">Equivalent ~ £7.99/mo</small>
-          </span>
-        </div>
+        <span class="mk-price-annual">
+          <span class="mk-price-amount">£95.90</span>
+          <span class="mk-price-term">/ year</span>
+          <small class="mk-price-meta">Equivalent ~ £7.99/mo</small>
+        </span>
+      </div>
 
-        <button class="btn btn-outline-primary mk-plan-btn" type="button" disabled>
-          Coming soon
-        </button>
+      <button class="btn btn-outline-primary mk-plan-btn" type="button" disabled>
+        Coming soon
+      </button>
 
-        <ul class="mk-feature-list">
-          <li class="mk-feature mk-feature--on">Higher card limits (example 250 active cards)</li>
-          <li class="mk-feature mk-feature--on">Larger batch sizes for busy businesses</li>
-          <li class="mk-feature mk-feature--on">Priority support and faster response times</li>
-          <li class="mk-feature mk-feature--on">Richer analytics as sales grow</li>
-          <li class="mk-feature mk-feature--on">Advanced tools (promo codes, redemption options)</li>
-        </ul>
+      <ul class="mk-feature-list">
+        <li class="mk-feature mk-feature--on">Higher card limits (example 250 active cards)</li>
+        <li class="mk-feature mk-feature--on">Larger batch sizes for busy businesses</li>
+        <li class="mk-feature mk-feature--on">Priority support and faster response times</li>
+        <li class="mk-feature mk-feature--on">Richer analytics as sales grow</li>
+        <li class="mk-feature mk-feature--on">Advanced tools (promo codes, redemption options)</li>
+      </ul>
 
-        <p class="mk-plan-footnote">
-          Shown for roadmap purposes — not implemented in this project.
-        </p>
-      </article>
-    </div>
-  </section>
+      <p class="mk-plan-footnote">
+        Shown for roadmap purposes — not implemented in this project.
+      </p>
+    </article>
+  </div>
+</section>
 
-  <section class="mk-pricing-notes" aria-label="Notes">
-    <h2 class="mk-section-title">Notes for this college project</h2>
-    <p class="mk-muted">
-      The limits and fees above help explain how MintKit Hub could work as a real SaaS product.
-      For the Code Institute submission the focus is on:
-    </p>
-    <ul class="mk-bullet">
-      <li>Account & profile management</li>
-      <li>Storefront creation and public view</li>
-      <li>Basic subscription structure and trial concept</li>
-      <li>Linking to the external MintKit Studio application</li>
-    </ul>
-  </section>
+<section class="mk-pricing-notes" aria-label="Notes">
+  <h2 class="mk-section-title">Notes for this college project</h2>
+  <p class="mk-muted">
+    The limits and fees above help explain how MintKit Hub could work as a real SaaS product.
+    For the Code Institute submission the focus is on:
+  </p>
+  <ul class="mk-bullet">
+    <li>Account & profile management</li>
+    <li>Storefront creation and public view</li>
+    <li>Basic subscription structure and trial concept</li>
+    <li>Linking to the external MintKit Studio application</li>
+  </ul>
+</section>
 {% endblock %}
