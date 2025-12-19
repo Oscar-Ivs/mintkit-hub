@@ -30,7 +30,11 @@
 
     <div class="mk-hero-media">
       <div class="mk-media-card">
-        <img class="mk-media-img" src="{% static 'img/card.webp' %}" alt="MintKit preview">
+        <video class="mk-media-video" autoplay muted loop playsinline
+          poster="{% static 'img/mintkit_ad_example_v2.webp' %}">
+          <source src="{% static 'img/ad-1.m' %}" type="video/mp4">
+        </video>
+
         <div class="mk-media-overlay">
           <p class="mk-media-kicker">Promo video / carousel goes here (soon)</p>
           <a class="btn btn-secondary mk-media-btn" href="/studio/">Open Studio</a>
@@ -69,40 +73,45 @@
 </section>
 
 <section class="mk-home-section">
-  <div class="row align-items-center mk-steps-grid g-4">
-    <!-- Left column -->
-    <div class="col-12 col-lg-5">
-      <h2 class="mb-2">How it works</h2>
-      <p class="mk-muted mb-0">
-        The Hub handles your public presence. Studio focuses on minting and managing digital assets.
-      </p>
+  <div class="row g-4 align-items-start">
+    <!-- Hero image (left on desktop, second on mobile) -->
+    <div class="col-12 col-md-6 order-2 order-md-1">
+      <div class="mk-how-media-card">
+        <img class="mk-how-media-img" src="{% static 'img/hero.webp' %}" alt="MintKit promo preview">
+        <p class="mk-how-media-caption">Promo preview (image now, video soon)</p>
+      </div>
     </div>
+  </div>
+  <!-- Text + steps (right on desktop, first on mobile) -->
+  <div class="col-12 col-md-6 order-1 order-md-2">
+    <h2 class="mb-2">How it works</h2>
 
-    <!-- Right column -->
-    <div class="col-12 col-lg-7">
-      <ol class="mk-step-list mb-0">
-        <li class="mk-step">
-          <div>
-            <strong>Create your business profile</strong><br>
-            Add branding, contact info, and publish your storefront.
-          </div>
-        </li>
+    <p class="mk-muted mb-3">
+      The Hub handles your public presence. Studio focuses on minting and managing digital assets.
+    </p>
 
-        <li class="mk-step">
-          <div>
-            <strong>Choose a plan</strong><br>
-            Start with a free trial, then upgrade when ready (Stripe wiring planned).
-          </div>
-        </li>
+    <ol class="mk-step-list mb-0">
+      <li class="mk-step">
+        <div>
+          <strong>Create your business profile</strong><br>
+          Add branding, contact info, and publish your storefront.
+        </div>
+      </li>
 
-        <li class="mk-step">
-          <div>
-            <strong>Mint and manage in Studio</strong><br>
-            Create digital cards and manage redemption flows (ICP roadmap features described in FAQ).
-          </div>
-        </li>
-      </ol>
-    </div>
+      <li class="mk-step">
+        <div>
+          <strong>Choose a plan</strong><br>
+          Start with a free trial, then upgrade when ready (Stripe wiring planned).
+        </div>
+      </li>
+
+      <li class="mk-step">
+        <div>
+          <strong>Mint and manage in Studio</strong><br>
+          Create digital cards and manage redemption flows (ICP roadmap features described in FAQ).
+        </div>
+      </li>
+    </ol>
   </div>
 </section>
 

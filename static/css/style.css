@@ -3239,3 +3239,38 @@ body.sf-editor-lock {
   justify-content: center;
   height: 100%;
 }
+
+/* ===== Home: "How it works" promo image card ===== */
+
+.mk-how-media-card{
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(47, 95, 168, 0.14);
+  background: rgba(245, 247, 251, 0.35);
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.10);
+}
+
+.mk-how-media-img{
+  width: 100%;
+  display: block;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center;
+}
+
+.mk-how-media-caption{
+  margin: 0;
+  padding: 0.75rem 0.95rem;
+  font-size: 0.95rem;
+  color: rgba(15, 23, 42, 0.68);
+  border-top: 1px solid rgba(47, 95, 168, 0.10);
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(2px);
+}
+
+.mk-media-video{
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
