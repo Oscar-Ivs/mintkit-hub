@@ -469,7 +469,38 @@ On the “My storefront” page, users can quickly copy their public storefront 
 
 **UX detail:**
 - After a successful copy action, the UI should provide feedback (e.g., temporary “Copied!” label, small toast message, or button text change).
+---
 
+## Standards-based Scripts (small custom JS)
+
+**HTMLMediaElement playback rate control (video speed)**  
+- _Use_: Slows the promo video playback to improve the “ad feel” (e.g. 0.7× speed).  
+- _Source_: MDN documentation for `HTMLMediaElement.playbackRate`.  
+- _Ref_: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate
+
+Example implementation (MintKit Hub):
+
+```html
+<!-- Home page video -->
+<video id="mkHeroVideo" class="mk-media-video" autoplay muted loop playsinline>
+  <source src="{% static 'img/ad-1.mp4' %}" type="video/mp4">
+</video>
+
+<script>
+  // Slows down the hero promo video to ~0.7x (standards-based: HTMLMediaElement.playbackRate)
+  // Ref: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate
+  document.addEventListener("DOMContentLoaded", () => {
+    const vid = document.getElementById("mkHeroVideo");
+    if (!vid) return;
+
+    const applyRate = () => { vid.playbackRate = 0.7; };
+
+    // Some browsers apply reliably after metadata is loaded
+    if (vid.readyState >= 1) applyRate;
+    else vid.addEventListener("loadedmetadata", applyRate, { once: true });
+  });
+</script>
+```
 
 
 </details>
@@ -839,6 +870,25 @@ This section collects recurring issues encountered during development and deploy
   - Or keep `contain` but remove/soften the background behind the image to avoid obvious “white bars”.
   - Or enforce/auto-crop uploaded images to square at upload time (best consistency).
 
+**Pricing card grid looks good on desktop but breaks on tablet/mobile**
+
+- _Cause_: Grid columns are fixed to 3 columns too long, or card min-width forces overflow.
+- _Fix_: Switch to 2 columns on medium widths and 1 column on small widths (e.g. `repeat(2, 1fr)` at ~992px, then `1fr` at smaller screens). Ensure gaps and card padding remain readable.
+
+**“How it works” section not aligning side-by-side / elements stacking incorrectly**
+
+- _Cause_: Bootstrap `.row` / `.col-*` not nested correctly (a `.col-*` outside of `.row`), or mixing CSS grid + Bootstrap row in the same wrapper causes conflicts.
+- _Fix_: Wrap both columns inside the same `.row`, with each side as `col-12 col-md-6`. Avoid applying custom grid (`display:grid`) to a Bootstrap `.row`.
+
+**Promo / hero image/video looks too large or too sharp-edged**
+
+- _Cause_: The media card has no max width, image is forced to full width, or border radius too small.
+- _Fix_: Add rounded corners + a slightly larger radius, and optionally constrain the media card width (e.g. `max-width`) while keeping it responsive.
+
+**Video autoplay works on desktop but not on some mobile devices**
+
+- _Cause_: Mobile browsers restrict autoplay unless `muted` + `playsinline` are present.
+- _Fix_: Keep `muted` and `playsinline` on the `<video>` element. Provide a poster image as fallback.
 
 
 </details>
