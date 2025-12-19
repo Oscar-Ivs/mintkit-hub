@@ -3240,14 +3240,30 @@ body.sf-editor-lock {
   height: 100%;
 }
 
-/* ===== Home: "How it works" promo image card ===== */
+/* ===== Home: "How it works" split layout (no Bootstrap dependency) ===== */
 
-.mk-how-media-card{
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1px solid rgba(47, 95, 168, 0.14);
-  background: rgba(245, 247, 251, 0.35);
-  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.10);
+.mk-how-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+  align-items: start;
+
+  /* Desktop: media left, copy right */
+  grid-template-areas: "media copy";
+}
+
+.mk-how-copy{ grid-area: copy; }
+.mk-how-media{ grid-area: media; }
+
+@media (max-width: 992px){
+  .mk-how-grid{
+    grid-template-columns: 1fr;
+
+    /* Mobile: copy first, media second */
+    grid-template-areas:
+      "copy"
+      "media";
+  }
 }
 
 .mk-how-media-img{
