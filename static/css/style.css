@@ -1742,21 +1742,9 @@ ul.messages li.danger {
     overflow: visible;
 }
 
-/* =========================================================
-   Storefront Layout Editor (overlay + blocks)
-   Notes: This is purely for the editor UI (does not affect public page).
-   ========================================================= */
+/* ======== Storefront Layout Editor (overlay + blocks)
+ Notes: This is purely for the editor UI (does not affect public page).======== */
 
-.sf-layout-editor-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1050;
-  display: none;
-}
-
-.sf-layout-editor-overlay.is-open {
-  display: block;
-}
 
 .sf-layout-editor-backdrop {
   position: absolute;
@@ -1785,11 +1773,6 @@ ul.messages li.danger {
   padding: 18px 22px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.35);
   background: #f8fafc;
-}
-
-.sf-layout-editor-header h2 {
-  margin: 0;
-  font-size: 1.15rem;
 }
 
 .sf-layout-editor-close {
