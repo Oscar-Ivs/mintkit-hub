@@ -2991,6 +2991,7 @@ body.sf-editor-lock {
   background: rgba(47, 95, 168, 0.10);
   border: 1px solid rgba(47, 95, 168, 0.18);
   color: rgba(15, 23, 42, 0.82);
+  margin-bottom: 20px;
 }
 
 .mk-hero-title{
@@ -3089,6 +3090,13 @@ body.sf-editor-lock {
   text-align: center;
   margin: 0 0 0.35rem;
 }
+
+@media (min-width: 769px){
+  .mk-section-title-center {
+    padding-top: 2rem;
+  }
+}
+
 
 .mk-section-lead-center{
   text-align: center;
@@ -3281,6 +3289,22 @@ body.sf-editor-lock {
   border-top: 1px solid rgba(47, 95, 168, 0.10);
   background: rgba(255,255,255,0.18);
   backdrop-filter: blur(2px);
+}
+
+/* Home hero video footer (CTA separate from video) */
+.mk-media-footer{
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid rgba(47, 168, 144, 0.1);
+  background: rgba(61, 122, 120, 0.28);
+  backdrop-filter: blur(4px);
+}
+
+.mk-media-cta{
+  border-radius: 999px;
+  padding-left: 1.15rem;
+  padding-right: 1.15rem;
 }
 
 .mk-media-video{
