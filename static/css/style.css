@@ -1220,6 +1220,11 @@ ul.messages li.danger {
     .sf-card-two-col {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
     }
+
+    .mk-how-media-img {
+        margin-left: 20px;
+        margin-top: 45px;
+    }
 }
 
 .sf-card-delete-row {
@@ -3275,11 +3280,13 @@ body.sf-editor-lock {
 }
 
 .mk-how-media-img{
-  width: 100%;
+  width: 90%;
   display: block;
   object-fit: cover;
   object-position: center;
   image-rendering: -webkit-optimize-contrast; /* slightly crisper in Chrome */
+
+
 }
 .mk-how-media-caption{
   margin: 0;

@@ -30,9 +30,22 @@
 
     <div class="mk-hero-media">
       <div class="mk-media-card">
-        <video class="mk-media-video" autoplay muted loop playsinline preload="metadata">
+        <video id="mk-hero-video" class="mk-media-video" autoplay muted loop playsinline preload="metadata">
           <source src="{% static 'img/ad-1.mp4' %}" type="video/mp4">
         </video>
+
+        <script>
+          document.addEventListener("DOMContentLoaded", () => {
+            const vid = document.getElementById("mk-hero-video");
+            if (!vid) return;
+
+            vid.playbackRate = 0.7;
+
+            // Re-apply on play (some browsers reset rate)
+            vid.addEventListener("play", () => { vid.playbackRate = 0.7; });
+          });
+        </script>
+
 
         <!-- Footer bar keeps CTA separate from the video -->
         <div class="mk-media-footer">
