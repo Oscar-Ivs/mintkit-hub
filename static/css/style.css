@@ -3269,11 +3269,10 @@ body.sf-editor-lock {
 .mk-how-media-img{
   width: 100%;
   display: block;
-  aspect-ratio: 4 / 3;
   object-fit: cover;
   object-position: center;
+  image-rendering: -webkit-optimize-contrast; /* slightly crisper in Chrome */
 }
-
 .mk-how-media-caption{
   margin: 0;
   padding: 0.75rem 0.95rem;
