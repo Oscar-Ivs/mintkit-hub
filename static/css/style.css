@@ -3219,10 +3219,9 @@ body.sf-editor-lock {
 }
 
 .mk-feature-thumb{
-  width: 64px;
-  height: 36px;
+  width: 72px;
+  height: 38px;
   border-radius: 4px;
-  object-fit: cover;
   display: block;
   margin-bottom: 0.85rem;
   border: 1px solid rgba(47, 95, 168, 0.18);
