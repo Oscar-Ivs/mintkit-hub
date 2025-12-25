@@ -121,10 +121,14 @@ STATICFILES_DIRS = [
 
 # WhiteNoise storage (compression + hashed filenames for long-term caching)
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
 
 
 # Media (user-uploaded files, e.g. logos)
