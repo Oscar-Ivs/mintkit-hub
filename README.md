@@ -687,6 +687,9 @@ Lighthouse audits were carried out using **Chrome DevTools Lighthouse (v13.x)** 
 
 Each page was tested on **Desktop and Mobile** (14 reports total).
 
+**Evidence:**  
+PDF reports stored in `docs/testing/lighthouse/`
+
 ---
 
 ## Lighthouse Results Summary (Baseline)
@@ -708,8 +711,31 @@ Each page was tested on **Desktop and Mobile** (14 reports total).
 | My Storefront | Desktop | 97 | 96 | 77 |
 | My Storefront | Mobile | 73 | 96 | 77 |
 
-**Evidence:**  
-PDF reports stored in `docs/testing/lighthouse/`
+---
+
+## Lighthouse Results Summary (After Improvements)
+
+Lighthouse audits were repeated after applying static asset and caching optimisations.  
+Tests were performed using a **freshly registered user account without uploaded profile images or storefront logos** to minimise variance caused by user-generated media.
+
+| Page | Device | Performance | Accessibility | Best Practices | Change |
+|------|--------|-------------|---------------|----------------|--------|
+| Home | Desktop | 99 | 100 | 77 | +1 |
+| Home | Mobile | 76 | 100 | 77 | +5 |
+| About | Desktop | 99 | 100 | 77 | +2 |
+| About | Mobile | 90 | 100 | 77 | +17 |
+| Explore | Desktop | 99 | 100 | 77 | +2 |
+| Explore | Mobile | 72 | 100 | 77 | 0 |
+| Pricing | Desktop | 98 | 96 | 77 | 0 |
+| Pricing | Mobile | 75 | 96 | 77 | 0 |
+| FAQ | Desktop | 98 | 100 | 77 | +1 |
+| FAQ | Mobile | 74 | 100 | 77 | 0 |
+| Dashboard | Desktop | 96 | 96 | 77 | 0 |
+| Dashboard | Mobile | 70 | 96 | 77 | 0 |
+| My Storefront | Desktop | 97 | 96 | 77 | 0 |
+| My Storefront | Mobile | 88 | 100 | 77 | +15 |
+
+> Pages that include user-generated content (logos, thumbnails, storefront images) show variable Lighthouse performance depending on account state. Improvements were most visible when static asset overhead was reduced.
 
 ---
 
@@ -729,18 +755,15 @@ These issues do not block usability.
 
 ### Performance (Desktop vs Mobile)
 
-- **Desktop performance is consistently high (96–98)** across all pages
-- **Mobile performance is lower (70–75)** across all pages
+- **Desktop performance remains consistently high (96–99)** across all pages
+- **Mobile performance remains lower (70–76)** due to Lighthouse throttling
 
-This difference is expected due to Lighthouse mobile throttling and network simulation.
-
-Key stability metrics are strong across all pages:
+Key stability metrics remain strong:
 
 - **Total Blocking Time (TBT): 0 ms**
 - **Cumulative Layout Shift (CLS): 0**
 
 Example metrics:
-
 - Home Desktop LCP: **~1.0s**
 - Home Mobile LCP: **~5.4s**
 
@@ -762,7 +785,7 @@ This limitation is documented and accepted at this stage.
 
 ## Common Performance Issues Identified
 
-Across all pages, Lighthouse highlights the same improvement opportunities:
+Across all pages, Lighthouse highlights similar improvement opportunities:
 
 | Issue | Typical Impact |
 |------|----------------|
@@ -772,19 +795,6 @@ Across all pages, Lighthouse highlights the same improvement opportunities:
 | Font display optimisation | ~40–70 ms |
 
 These issues are **systemic**, meaning improvements applied once benefit multiple pages.
-
----
-
-## Before → After Performance Improvements
-
-Targeted performance improvements were applied and re-tested.
-
-| Page | Device | Performance (Before) | Performance (After) | Change | Notes |
-|------|--------|----------------------|---------------------|--------|------|
-| Home | Mobile | 71 | 76 | +5 | WhiteNoise static caching & compression enabled |
-| Pricing | Mobile | 75 | 75 | 0 | Page dominated by render-blocking CSS/fonts |
-
-> Mobile Lighthouse results can vary between runs due to throttling. Improvements were most visible on pages with higher static asset overhead.
 
 ---
 
@@ -800,12 +810,12 @@ In addition to automated testing:
 
 ## Future Testing & Optimisation
 
-Due to scope and time constraints, the following are planned for future iterations:
+Planned for future iterations:
 
 - Self-hosting of third-party assets (e.g. Font Awesome)
 - Further render-blocking CSS optimisation
 - Automated front-end testing
-- Deeper manual accessibility audits (screen reader testing)
+- Deeper accessibility audits (screen reader testing)
 - Re-testing after asset pipeline enhancements
 
 ---
