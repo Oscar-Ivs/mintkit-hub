@@ -834,6 +834,40 @@ All warnings relate to vendor-specific extensions (e.g. `-webkit-*`) and the use
 **Evidence:**  
 Screenshot stored in `docs/testing/validation/css_validation_success.png`
 
+---
+
+### HTML Validation
+
+Key templates were validated using the Nu HTML Checker (W3C / Validator.nu) by pasting the rendered HTML output (local development environment).
+
+- Errors: 6
+- Warnings: 0
+
+Templates validated include:
+- `home.html`
+- `about.html`
+- `pricing.html`
+- `faq.html`
+- `explore_storefronts.html`
+- `dashboard.html`
+- `my_storefront.html`
+
+**Evidence:**  
+Screenshot stored in `docs/testing/validation/html_validator.png`
+
+#### Validation fixes applied
+
+During HTML validation, a small number of issues were identified and resolved:
+
+- **Errors fixed:** 6  
+- **Warnings addressed:** 0 (HTML)  
+- **Affected templates:** Home, Pricing, Explore, My Storefront
+
+Issues included invalid element nesting, placeholder image attributes, improper anchor disabling, and incorrect ARIA usage.
+
+After applying fixes, all validated templates return **0 HTML errors / 0 warnings**.
+
+
 
 </details>
 
