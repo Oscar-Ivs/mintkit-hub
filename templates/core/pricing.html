@@ -4,6 +4,7 @@
 {% block main_class %}page-container mk-watermark{% endblock %}
 
 {% block content %}
+
 <header class="mk-page-head">
   <h1 class="mk-page-title">Pricing</h1>
   <p class="mk-page-lead">
@@ -14,7 +15,7 @@
 
 <section class="mk-pricing" aria-label="Plans">
   {# Checkbox drives the monthly/annual UI (CSS-only toggle, no JS needed) #}
-  <input class="mk-billing-toggle" type="checkbox" id="mk-billing-toggle" />
+  <input class="mk-billing-toggle" type="checkbox" id="mk-billing-toggle">
 
   <div class="mk-billing-row">
     <div class="mk-billing-left">
@@ -22,13 +23,16 @@
       <span class="mk-save-pill">Save 20%</span>
     </div>
 
-    <label class="mk-switch" for="mk-billing-toggle" aria-label="Toggle annual pricing">
+    {# Label text is provided via a visually-hidden span for accessibility #}
+    <label class="mk-switch" for="mk-billing-toggle">
+      <span class="sr-only">Toggle annual pricing</span>
       <span class="mk-switch-track"></span>
       <span class="mk-switch-thumb"></span>
     </label>
   </div>
 
   <div class="mk-pricing-grid">
+
     <!-- Free Trial -->
     <article class="mk-plan-card">
       <h2 class="mk-plan-name">Free Trial</h2>
@@ -39,9 +43,9 @@
         <span class="mk-price-term">for 14 days</span>
       </div>
 
-      <a class="btn btn-primary mk-plan-btn" href="#" aria-disabled="true">
+      <button class="btn btn-primary mk-plan-btn" type="button" disabled>
         Start trial
-      </a>
+      </button>
 
       <ul class="mk-feature-list">
         <li class="mk-feature mk-feature--on">Full access to MintKit Hub dashboard</li>
@@ -50,11 +54,12 @@
         <li class="mk-feature mk-feature--on">Create a small set of gift cards / tickets / vouchers</li>
         <li class="mk-feature">Up to <strong>3 collections</strong></li>
         <li class="mk-feature">About <strong>20 cards</strong> per batch</li>
+      </ul>
 
-
-        <p class="mk-plan-footnote">
-          Stripe subscription flow will be wired here in the final version.
-        </p>
+      {# A <p> cannot be inside a <ul> #}
+      <p class="mk-plan-footnote">
+        Stripe subscription flow will be wired here in the final version.
+      </p>
     </article>
 
     <!-- Basic (Recommended) -->
@@ -77,9 +82,9 @@
         </span>
       </div>
 
-      <a class="btn btn-primary mk-plan-btn" href="#" aria-disabled="true">
+      <button class="btn btn-primary mk-plan-btn" type="button" disabled>
         Upgrade
-      </a>
+      </button>
 
       <ul class="mk-feature-list">
         <li class="mk-feature mk-feature--on">Everything in the Free Trial</li>
@@ -125,6 +130,7 @@
         Shown for roadmap purposes — not implemented in this project.
       </p>
     </article>
+
   </div>
 </section>
 
@@ -134,11 +140,13 @@
     The limits and fees above help explain how MintKit Hub could work as a real SaaS product.
     For the Code Institute submission the focus is on:
   </p>
+
   <ul class="mk-bullet">
-    <li>Account & profile management</li>
+    <li>Account &amp; profile management</li>
     <li>Storefront creation and public view</li>
     <li>Basic subscription structure and trial concept</li>
     <li>Linking to the external MintKit Studio application</li>
   </ul>
 </section>
+
 {% endblock %}
