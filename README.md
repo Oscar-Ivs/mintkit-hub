@@ -820,14 +820,20 @@ Planned for future iterations:
 
 ---
 
-## HTML & CSS Validation (Next Step)
+## HTML & CSS Validation:
 
-As a next step, HTML and CSS will be validated using:
+### CSS Validation
 
-- W3C HTML Validator
-- W3C CSS Validator
+The main stylesheet was validated using the W3C CSS Validator.
 
-Any warnings or errors will be documented and addressed where feasible.
+- Errors: 0
+- Warnings: 27
+
+All warnings relate to vendor-specific extensions (e.g. `-webkit-*`) and the use of CSS variables for cross-browser compatibility and responsive design. These warnings are expected and were intentionally retained.
+
+**Evidence:**  
+Screenshot stored in `docs/testing/validation/css_validation_success.png`
+
 
 </details>
 
