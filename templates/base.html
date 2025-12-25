@@ -15,12 +15,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
         referrerpolicy="no-referrer">
 
-<!-- Primary fonts (Inter + Sora + Diplomata in one request) -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link
-  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=Diplomata&display=swap"
-  rel="stylesheet">
+    <!-- Primary fonts (Inter + Sora + Diplomata in one request) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=Diplomata&display=swap"
+        rel="stylesheet">
 
     <!-- Hotfix: show RIGHT burger earlier (<=1100px) and hide RIGHT desktop links earlier -->
     <style>
@@ -61,8 +61,12 @@
 
             <!-- Brand (logo + Hub together) -->
             <a href="{% url 'home' %}" class="navbar-brand mk-brand-wrap">
-                <img src="{% static 'img/Logo_small.webp' %}" alt="MintKit Hub logo" class="mk-brand-logo" width="186"
-                    height="100" decoding="async" fetchpriority="high" style="filter: contrast(1.25) brightness(0.9);">
+                <img src="{% static 'img/Logo_small.webp' %}" srcset="
+    {% static 'img/Logo_small_80.webp' %} 80w,
+    {% static 'img/Logo_small.webp' %} 186w
+  " sizes="(max-width: 480px) 80px, 186px" width="186" height="100" class="mk-brand-logo" alt="MintKit Hub logo"
+                    decoding="async" fetchpriority="high" style="filter: contrast(1.25) brightness(0.9);">
+
 
                 <span class="mk-hub-badge" style="color: black;">-Hub</span>
             </a>
