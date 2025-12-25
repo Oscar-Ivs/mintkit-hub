@@ -688,7 +688,8 @@ Lighthouse audits were carried out using **Chrome DevTools Lighthouse (v13.x)** 
 Each page was tested on **Desktop and Mobile** (14 reports total).
 
 **Evidence:**  
-PDF reports stored in `docs/testing/lighthouse/`
+**Evidence:**  
+PDF reports stored in [`docs/testing/lighthouse/`](docs/testing/lighthouse/)
 
 ---
 
@@ -832,7 +833,9 @@ The main stylesheet was validated using the W3C CSS Validator.
 All warnings relate to vendor-specific extensions (e.g. `-webkit-*`) and the use of CSS variables for cross-browser compatibility and responsive design. These warnings are expected and were intentionally retained.
 
 **Evidence:**  
-Screenshot stored in `docs/testing/validation/css_validation_success.png`
+**Evidence:**  
+Screenshot stored in [`docs/testing/validation/html_validator.png`](docs/testing/validation/html_validator.png)
+
 
 ---
 
@@ -853,7 +856,9 @@ Templates validated include:
 - `my_storefront.html`
 
 **Evidence:**  
-Screenshot stored in `docs/testing/validation/html_validator.png`
+**Evidence:**  
+Screenshot stored in [`docs/testing/validation/css_validation_success.png`](docs/testing/validation/css_validation_success.png)
+
 
 #### Validation fixes applied
 
