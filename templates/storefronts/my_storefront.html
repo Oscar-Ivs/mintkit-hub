@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% load static %}
 
 {% block content %}
@@ -175,10 +174,13 @@
             Business Category <span class="text-danger">*</span>
           </label>
           {{ form.business_category }}
+          {# Match Django aria-describedby target when help_text exists #}
           {% if form.business_category.help_text %}
-          <div class="sf-form-help">
+          <div class="sf-form-help" id="id_business_category_helptext">
             {{ form.business_category.help_text }}
           </div>
+          {% else %}
+          <div class="sf-form-help" id="id_business_category_helptext"></div>
           {% endif %}
           {{ form.business_category.errors }}
         </div>
@@ -188,10 +190,13 @@
             Region <span class="text-danger">*</span>
           </label>
           {{ form.region }}
+          {# Match Django aria-describedby target when help_text exists #}
           {% if form.region.help_text %}
-          <div class="sf-form-help">
+          <div class="sf-form-help" id="id_region_helptext">
             {{ form.region.help_text }}
           </div>
+          {% else %}
+          <div class="sf-form-help" id="id_region_helptext"></div>
           {% endif %}
           {{ form.region.errors }}
         </div>
@@ -217,6 +222,10 @@
         {% endif %}
 
         {{ form.logo }}
+        <div class="sf-form-help" id="id_logo_helptext">
+          Upload a logo (optional). Recommended: .webp, landscape works best.
+        </div>
+        {{ form.logo.errors }}
       </div>
 
       <p class="text-muted">
@@ -227,7 +236,7 @@
       <div class="sf-form-row">
         <label for="{{ form.headline.id_for_label }}">Storefront headline:</label>
         {{ form.headline }}
-        <div class="sf-form-help">
+        <div class="sf-form-help" id="id_headline_helptext">
           Shown as the main title of your storefront.
         </div>
       </div>
@@ -236,7 +245,7 @@
       <div class="sf-form-row">
         <label for="{{ form.description.id_for_label }}">Description:</label>
         {{ form.description }}
-        <div class="sf-form-help">
+        <div class="sf-form-help" id="id_description_helptext">
           Appears as the main body text on your storefront page.
         </div>
       </div>
@@ -245,7 +254,7 @@
       <div class="sf-form-row">
         <label for="{{ form.contact_details.id_for_label }}">Contact details:</label>
         {{ form.contact_details }}
-        <div class="sf-form-help">
+        <div class="sf-form-help" id="id_contact_details_helptext">
           These details help customers contact or find you.
         </div>
       </div>
@@ -258,25 +267,26 @@
             <span>Make my storefront public</span>
           </label>
         </div>
-        <div class="sf-form-help">
+        <div class="sf-form-help" id="id_is_active_helptext">
           Tick this when you're ready for customers to see your page (and list it in Explore).
         </div>
       </div>
 
       {# ========= Featured cards - collapsible formset ========= #}
       {{ card_formset.management_form }}
+
       <details class="sf-card-formset-wrapper">
         <summary class="sf-card-summary">
-          <div class="sf-card-summary-content">
+          <span class="sf-card-summary-content">
             <span class="sf-card-summary-left">
-              <label>Featured digital cards (optional)</label>
+              <span class="sf-card-summary-label">Featured digital cards (optional)</span>
             </span>
+
             <span class="sf-card-summary-right">
               <img src="{% static 'img/logo-blue.webp' %}" alt="Featured cards preview" class="sf-card-summary-thumb">
             </span>
-          </div>
+          </span>
         </summary>
-
 
         <p class="text-muted small">
           Add up to three MintKit cards to highlight on your storefront.
@@ -294,26 +304,31 @@
             <div class="form-row">
               <label for="{{ card_form.title.id_for_label }}">Card title</label>
               {{ card_form.title }}
+              <div class="sf-form-help" id="id_cards-{{ forloop.counter0 }}-title_helptext"></div>
             </div>
 
             <div class="form-row">
               <label for="{{ card_form.price_label.id_for_label }}">Price label (optional)</label>
               {{ card_form.price_label }}
+              <div class="sf-form-help" id="id_cards-{{ forloop.counter0 }}-price_label_helptext"></div>
             </div>
 
             <div class="form-row">
               <label for="{{ card_form.buy_url.id_for_label }}">Buy / details link</label>
               {{ card_form.buy_url }}
+              <div class="sf-form-help" id="id_cards-{{ forloop.counter0 }}-buy_url_helptext"></div>
             </div>
 
             <div class="form-row">
               <label for="{{ card_form.image_url.id_for_label }}">Thumbnail image URL</label>
               {{ card_form.image_url }}
+              <div class="sf-form-help" id="id_cards-{{ forloop.counter0 }}-image_url_helptext"></div>
             </div>
 
             <div class="form-row">
               <label for="{{ card_form.description.id_for_label }}">Short description (optional)</label>
               {{ card_form.description }}
+              <div class="sf-form-help" id="id_cards-{{ forloop.counter0 }}-description_helptext"></div>
             </div>
 
             <div class="form-row form-row-checkbox">
@@ -321,6 +336,7 @@
                 {{ card_form.DELETE }}
                 Remove this card from your storefront
               </label>
+              <div class="sf-form-help" id="id_cards-{{ forloop.counter0 }}-DELETE_helptext"></div>
             </div>
           </div>
           {% endfor %}
@@ -486,11 +502,11 @@
         Draft layout editor — drag blocks to move them, and use the small corner handle to resize.
       </p>
 
-
     </div>
   </div>
 </div>
 
+{# JS unchanged below #}
 <script>
   /*
     Storefront layout editor — merged “stable + save” version
@@ -648,7 +664,6 @@
       const wanted = Math.max(surfaceBaseMinH, Math.ceil(maxBottom + extraPad));
       surface.style.minHeight = wanted + "px";
     }
-
 
     function clamp(n, min, max) {
       return Math.max(min, Math.min(max, n));
