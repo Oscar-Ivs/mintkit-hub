@@ -872,6 +872,37 @@ Issues included invalid element nesting, placeholder image attributes, improper 
 
 After applying fixes, all validated templates return **0 HTML errors / 0 warnings**.
 
+## Testing Coverage (What was tested vs not tested)
+
+### Tested in this project (current scope)
+- Core user journeys (register, login/logout, dashboard access)
+- Profile creation and updates
+- Storefront creation, edit, active/inactive visibility rules
+- Explore page visibility rules (public only sees active storefronts)
+- Navigation, redirects, and feedback messages
+- Lighthouse audits (Desktop + Mobile) and performance improvements where feasible
+- HTML/CSS validation (W3C)
+
+### Not tested / out of scope for this phase
+The following are either not implemented yet or cannot be fully tested within the constraints of this project:
+
+- Internet Identity authentication flows (external)
+- QR redemption flow and MintKit Studio / canister logic (external app)
+- Full Stripe payments (real card payments, refunds, disputes)
+- Email sending/receipts (not implemented yet)
+- High-load / concurrency testing (e.g. many users purchasing simultaneously)
+- Automated UI testing suites (planned for future iteration)
+
+### Future testing plan (when features expand)
+If/when MintKit Hub moves beyond the current college scope, testing would be expanded to include:
+
+- Stripe end-to-end purchase flows in test mode (webhooks, receipts, failure states)
+- Email workflows (delivery, retries, template rendering)
+- Concurrency / load testing (multiple simultaneous purchases)
+- Automated tests:
+  - Django unit tests for models/forms/views
+  - Integration tests for key flows (login, storefront publish/unpublish)
+  - Basic UI tests for critical pages
 
 
 </details>
