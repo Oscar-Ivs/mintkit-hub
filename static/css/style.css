@@ -527,7 +527,7 @@ body {
     inset: 0;
 
     /* Use whichever file is actually in /static/img/ */
-    background-image: url("../img/card-21.webp"); /* or: url("../img/card.webp"); */
+    background-image: url("../img/card-21.webp");
     background-repeat: no-repeat;
     background-position: var(--mk-watermark-position);
     background-size: var(--mk-watermark-size);
