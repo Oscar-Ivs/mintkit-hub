@@ -150,9 +150,16 @@ html, body { height: 100%; }
 }
 
 .mk-brand-logo {
-    display: block;
-    margin: 0;
+  height: 44px;   /* default for desktop/tablet */
+  width: auto;    /* keep aspect ratio */
+  display: block;
+  margin: 0;
 }
+
+@media (max-width: 420px) {
+  .mk-brand-logo { height: 34px; }
+}
+
 
 @media (max-width: 1100px) {
   .navbar-right { display: none; }     /* or hide just the links */
