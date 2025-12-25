@@ -610,73 +610,58 @@ This project will be built in small, focused milestones:
 
 <details>
   <summary>Click to expand <b>Testing summary</b></summary>
-
-### Testing Approach
-
-Testing for MintKit Hub will be a mix of:
-
-- **Manual testing** of core web-based user flows (account access, storefront management, dashboard visibility, and subscription state indicators).
-- **Form and validation checks** to ensure invalid input is handled gracefully with clear error messages.
-- **Access control checks** to confirm that only authorised users can access the dashboard and management pages, while public storefronts remain visible to everyone.
-- **(Optional) Automated tests** for critical views, forms, and models if time allows.
-
-Detailed testing evidence, including Lighthouse audit reports and documented findings, is included directly in this README and supported by PDF reports stored in `docs/testing/lighthouse/`.
-
-If more granular test case documentation is required in future iterations, it may be expanded into a separate testing document.
-
+  
+If more granular test cases are required in future iterations, these may be expanded into a dedicated `docs/TESTING.md` file.
 
 ---
 
-### Key Areas Covered
+## Key Areas Covered
 
-- User registration, login, logout.
-- Profile creation and editing (business details).
-- Storefront creation, editing, and active/inactive toggle behaviour.
-- Public storefront visibility rules:
-  - Active storefronts visible to everyone.
-  - Inactive storefronts only accessible to the owner (or admin).
+- User registration, login, and logout
+- Profile creation and editing (business details)
+- Storefront creation, editing, and active/inactive visibility
+- Public storefront access rules:
+  - Active storefronts visible to everyone
+  - Inactive storefronts visible only to the owner (or admin)
 - Dashboard behaviour:
-  - Trial status display.
-  - Subscription status display.
-  - Show/hide MintKit access button based on trial/subscription.
-- Stripe subscription flow in test mode:
-  - Starting a checkout session.
-  - Handling success and cancel redirects.
-- Django admin access and basic model admin checks.
-- General UI checks (navigation links, messages, and error handling).
+  - Trial status display
+  - Subscription status display
+  - Conditional MintKit access button visibility
+- Stripe subscription flow (test mode):
+  - Checkout session initiation
+  - Success and cancel redirect handling
+- Django admin access and model visibility
+- General UI checks (navigation, messages, error handling)
 
 ---
 
-### Example Manual Test Checklist
+## Example Manual Test Checklist
 
-A more detailed version of this checklist will be expanded in `docs/TESTING.md`, but core tests will include:
+A more detailed checklist may be expanded into `docs/TESTING.md`, but core tests include:
 
-- [ ] Register a new business owner account.
-- [ ] Log in and log out successfully.
-- [ ] Create and update a Profile (business name, contact details, etc.).
-- [ ] Create a new Storefront and view it publicly while active.
-- [ ] Set a Storefront to inactive and verify it is hidden from public visitors.
-- [ ] Start the Stripe subscription process from the dashboard (test mode).
-- [ ] Complete a Stripe test payment (or Stripe trial) and confirm subscription status updates.
-- [ ] Verify that trial users and subscribed users can see the MintKit access button.
-- [ ] Verify that users with no trial/subscription cannot access MintKit features.
-- [ ] Check that restricted pages redirect unauthenticated users to the login page.
+- [ ] Register a new business owner account
+- [ ] Log in and log out successfully
+- [ ] Create and update a business profile
+- [ ] Create a storefront and view it publicly while active
+- [ ] Set a storefront to inactive and confirm it is hidden from public users
+- [ ] Start the Stripe subscription flow (test mode)
+- [ ] Complete a Stripe test payment or trial
+- [ ] Verify dashboard subscription and trial indicators
+- [ ] Verify MintKit access button visibility rules
+- [ ] Confirm unauthenticated users are redirected to login
 
-Detailed testing evidence, including Lighthouse audit reports and documented findings, is included directly in this README and supported by PDF reports stored in `docs/testing/lighthouse/`.
+---
 
+# 🧪 Testing Scope & Limitations
 
-# 🧪 Testing
+Testing for **MintKit Hub** focuses exclusively on the **public-facing web application**.
 
-## Testing Scope & Limitations
-
-Testing for **MintKit Hub** focuses exclusively on the **public-facing web pages** of the application.
-
-The following areas are **out of scope** for this testing phase:
+The following areas are **out of scope** for this phase:
 
 - Internet Identity authentication
 - QR-code redemption flows
-- Subscription logic handled by third-party services
 - Internal MintKit app / canister logic
+- Third-party service internals (Stripe, CDN providers)
 
 Where third-party services are involved, testing is limited to **verification of correct integration**, not internal behaviour.
 
@@ -684,11 +669,11 @@ Where third-party services are involved, testing is limited to **verification of
 
 ## Lighthouse Testing
 
-Lighthouse audits were carried out using **Chrome DevTools Lighthouse (v13.0.1)** in **Navigation mode**, covering both **Desktop** and **Mobile** profiles.
+Lighthouse audits were carried out using **Chrome DevTools Lighthouse (v13.x)** in **Navigation mode**, covering both **Desktop** and **Mobile** profiles.
 
-- Desktop: Emulated desktop device, custom throttling
-- Mobile: Emulated *Moto G Power*, Slow 4G throttling
-- All reports were exported as **PDF files** and stored as evidence
+- **Desktop:** Emulated desktop device
+- **Mobile:** Emulated Moto G Power, Slow 4G throttling
+- **Reports:** Exported as PDF and stored as evidence
 
 ### Pages Tested
 
@@ -723,8 +708,8 @@ Each page was tested on **Desktop and Mobile** (14 reports total).
 | My Storefront | Desktop | 97 | 96 | 77 |
 | My Storefront | Mobile | 73 | 96 | 77 |
 
-**Evidence:** Lighthouse PDF reports stored in  
-`/docs/testing/lighthouse/`
+**Evidence:**  
+PDF reports stored in `docs/testing/lighthouse/`
 
 ---
 
@@ -735,10 +720,10 @@ Each page was tested on **Desktop and Mobile** (14 reports total).
 - Accessibility scores are consistently **96–100**
 - No critical accessibility failures detected
 - Minor issues relate to:
-  - Colour contrast on some storefront elements
+  - Colour contrast in some storefront elements
   - List semantics in tabular content
 
-These issues were logged but do not block usability.
+These issues do not block usability.
 
 ---
 
@@ -747,15 +732,17 @@ These issues were logged but do not block usability.
 - **Desktop performance is consistently high (96–98)** across all pages
 - **Mobile performance is lower (70–75)** across all pages
 
-This difference is expected due to Lighthouse’s **mobile network throttling** and is not caused by JavaScript blocking:
+This difference is expected due to Lighthouse mobile throttling and network simulation.
 
-- **Total Blocking Time (TBT): 0 ms on all pages**
-- **Cumulative Layout Shift (CLS): 0 on all pages**
+Key stability metrics are strong across all pages:
+
+- **Total Blocking Time (TBT): 0 ms**
+- **Cumulative Layout Shift (CLS): 0**
 
 Example metrics:
 
-- Home Desktop LCP: **1.0s**
-- Home Mobile LCP: **5.4s**
+- Home Desktop LCP: **~1.0s**
+- Home Mobile LCP: **~5.4s**
 
 ---
 
@@ -767,7 +754,7 @@ Primary cause:
 
 - **“Uses third-party cookies — 7 cookies found”**
 
-These cookies originate from **external CDN resources** (e.g. cdnjs / Google Fonts) and are not set directly by application logic.
+These originate from external resources (e.g. Google Fonts, Font Awesome CDN) and are not set by application logic.
 
 This limitation is documented and accepted at this stage.
 
@@ -779,26 +766,25 @@ Across all pages, Lighthouse highlights the same improvement opportunities:
 
 | Issue | Typical Impact |
 |------|----------------|
-| Render-blocking resources | Mobile savings up to ~2,800 ms |
+| Render-blocking CSS and fonts | Mobile savings up to ~2,800 ms |
 | Inefficient cache lifetimes | 167 KiB – 1,187 KiB |
 | Image delivery optimisation | Up to ~700 KiB |
-| Font display | 40–70 ms |
+| Font display optimisation | ~40–70 ms |
 
-These issues are **systemic**, meaning improvements applied once will benefit all pages.
+These issues are **systemic**, meaning improvements applied once benefit multiple pages.
 
 ---
 
-## Before → After Improvement Plan
+## Before → After Performance Improvements
 
-The table below documents **identified issues** and the **planned corrective actions**.  
-A second Lighthouse run will be performed after changes to populate the “After” column.
+Targeted performance improvements were applied and re-tested.
 
-| Issue | Evidence (Before) | Planned Action | Evidence (After) |
-|------|------------------|----------------|------------------|
-| Render-blocking CSS/fonts | Mobile est. savings up to ~2,800 ms | Defer non-critical CSS, reduce external font usage | Pending re-test |
-| Static asset caching | Cache savings up to ~1,187 KiB | Configure long-term caching for static files | Pending re-test |
-| Image delivery | Est. savings up to ~701 KiB | Resize images, enforce width/height, optimise formats | Pending re-test |
-| Best Practices score | 3rd-party cookies detected | Replace CDN assets or document limitation | Pending re-test |
+| Page | Device | Performance (Before) | Performance (After) | Change | Notes |
+|------|--------|----------------------|---------------------|--------|------|
+| Home | Mobile | 71 | 76 | +5 | WhiteNoise static caching & compression enabled |
+| Pricing | Mobile | 75 | 75 | 0 | Page dominated by render-blocking CSS/fonts |
+
+> Mobile Lighthouse results can vary between runs due to throttling. Improvements were most visible on pages with higher static asset overhead.
 
 ---
 
@@ -807,18 +793,20 @@ A second Lighthouse run will be performed after changes to populate the “After
 In addition to automated testing:
 
 - Pages were manually reviewed on desktop and mobile viewports
-- Layout responsiveness, navigation, and visual consistency were verified
-- No layout shifts or broken navigation paths were observed
+- Layout responsiveness and navigation behaviour were verified
+- No layout shifts, broken navigation paths, or blocking UI issues were observed
 
 ---
 
-## Future Testing
+## Future Testing & Optimisation
 
-Due to project scope and time constraints, the following are planned for future iterations:
+Due to scope and time constraints, the following are planned for future iterations:
 
+- Self-hosting of third-party assets (e.g. Font Awesome)
+- Further render-blocking CSS optimisation
 - Automated front-end testing
-- Deeper accessibility audits (manual screen-reader testing)
-- Performance optimisation re-testing after asset pipeline improvements
+- Deeper manual accessibility audits (screen reader testing)
+- Re-testing after asset pipeline enhancements
 
 ---
 
@@ -830,7 +818,6 @@ As a next step, HTML and CSS will be validated using:
 - W3C CSS Validator
 
 Any warnings or errors will be documented and addressed where feasible.
-
 
 </details>
 
