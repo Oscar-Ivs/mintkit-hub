@@ -10,6 +10,9 @@
 <details>
   <summary>Click to expand <b>Project overview & goals</b></summary>
 
+<img src="docs/ux/screenshots/home_desktop.png" alt="MintKit Hub – Homepage preview" width="900">
+
+
 ### What is MintKit Hub?
 
 MintKit Hub is a Django-based website for **small service businesses** (salons, gyms, tutors, therapists, etc.).
@@ -100,6 +103,9 @@ MintKit Hub focuses on making the experience simple for a busy non-technical bus
 - As a site admin, I want the system to restrict access to MintKit features to subscribed users only so that the business model remains sustainable.
 
 *A more detailed UX document (personas, wireframes, and any additional stories) can be added later in `docs/UX.md` and linked from this section.*
+
+Wireframes and UI screenshots: [docs/ux/UX.md](docs/ux/UX.md)
+
 
 </details>
 
@@ -1144,12 +1150,13 @@ This section collects recurring issues encountered during development and deploy
   <summary>Click to expand <b>Further Documentation</b></summary>
 
 - **CI Assessment Criteria Mapping**  
-  A detailed mapping between the Code Institute learning outcomes and MintKit Hub is provided in:  
+  A detailed mapping between the Code Institute learning outcomes and MintKit Hub is provided in:
+  
   [docs/CI_CRITERIA.md](docs/CI_CRITERIA.md)  
 
 - **Wireframes & screenshots**  
-  Once the UI is more polished, this folder will also contain:
-  - page wireframes (home page, dashboard, storefront)
-  - a small set of screenshots from the deployed site  
-  to help assessors quickly understand the layout and flows.
+
+[UX Evidence – Screenshots](docs/ux/UX.md#ui-screenshots)
+
+
 </details>
