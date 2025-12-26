@@ -1149,14 +1149,29 @@ This section collects recurring issues encountered during development and deploy
 <details>
   <summary>Click to expand <b>Further Documentation</b></summary>
 
-- **CI Assessment Criteria Mapping**  
-  A detailed mapping between the Code Institute learning outcomes and MintKit Hub is provided in:
-  
-  [docs/CI_CRITERIA.md](docs/CI_CRITERIA.md)  
+### UX evidence (wireframes + responsive design)
 
-- **Wireframes & screenshots**  
+The UX evidence pack shows how the same layout scales across Desktop / Tablet / Mobile.
 
-[UX Evidence – Screenshots](docs/ux/UX.md#ui-screenshots)
+- Wireframes: `docs/ux/wireframes/`
+- UX evidence page: [docs/ux/UX.md](docs/ux/UX.md)
 
+### UI screenshots (implemented pages)
+
+Screenshots of the implemented UI (Desktop + Mobile) are stored in:
+
+- `docs/ux/screenshots/`
+- Linked from: [docs/ux/UX.md#ui-screenshots](docs/ux/UX.md#ui-screenshots)
+
+### CI Assessment Criteria Mapping
+
+A mapping between Code Institute learning outcomes and MintKit Hub features:
+
+- [docs/CI_CRITERIA.md](docs/CI_CRITERIA.md)
+
+### Supporting documents
+
+- ERD / data model: `docs/ERD.md`
+- Testing evidence (Lighthouse / validation): `docs/testing/`
 
 </details>
