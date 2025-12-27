@@ -8,7 +8,7 @@ Wireframes are stored in `docs/ux/wireframes/`.
 > All wireframes use the same grayscale UI style for consistency across the project.
 
 #### Home
-![Home wireframe](wireframes/home.webp)
+![Home wireframe](wireframes/Home.webp)
 
 #### About
 ![About wireframe](wireframes/about.webp)

@@ -1,6 +1,8 @@
 <p align="center">
-  <img src="static/img/logo_3.png" alt="MintKit Logo" width="260">
+  <img src="docs/Logo_small.webp" alt="MintKit Logo" width="260">
 </p>
+
+<h1 align="center">MintKit Hub</h1>
 
 
 ## 1. Project Overview & Business Goals
@@ -10,7 +12,7 @@
 
   <br>
 <img src="docs/ux/wireframes/screenshots/home_desktop.webp" alt="MintKit Hub – Homepage preview" width="420"> 
-<img src="docs/ux/wireframes/screenshots/home_desktop_2.webp" alt="MintKit Hub – Homepage preview" width="375">
+<img src="docs/ux/wireframes/screenshots/home_desktop_2.webp" alt="MintKit Hub – Homepage preview" width="">
 
 
 ### What is MintKit Hub?
