@@ -12,7 +12,7 @@
 
   <br>
 <img src="docs/ux/wireframes/screenshots/home_desktop.webp" alt="MintKit Hub – Homepage preview" width="420"> 
-<img src="docs/ux/wireframes/screenshots/home_desktop_2.webp" alt="MintKit Hub – Homepage preview" width="">
+<img src="docs/ux/wireframes/screenshots/home_desktop_2.webp" alt="MintKit Hub – Homepage preview" width="375">
 
 
 ### What is MintKit Hub?
