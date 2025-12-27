@@ -10,7 +10,9 @@
 <details>
   <summary>Click to expand <b>Project overview & goals</b></summary>
 
-<img src="docs/ux/screenshots/home_desktop.png" alt="MintKit Hub – Homepage preview" width="900">
+  <br>
+<img src="docs/ux/wireframes/screenshots/home_desktop.webp" alt="MintKit Hub – Homepage preview" width="560"> 
+<img src="docs/ux/wireframes/screenshots/home_desktop_2.webp" alt="MintKit Hub – Homepage preview" width="500">
 
 
 ### What is MintKit Hub?
