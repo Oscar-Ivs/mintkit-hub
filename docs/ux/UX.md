@@ -42,6 +42,58 @@ Screenshots are stored in `docs/ux/screenshots/`.
 - Dashboard
 - My Storefront
 
-<!-- Optional: add actual screenshot embeds later, same pattern as wireframes -->
-<!-- ![Home (Desktop)](screenshots/home_desktop.webp) -->
-<!-- ![Home (Mobile)](screenshots/home_mobile.webp) -->
+### Home
+<p>
+  <img src="wireframes/screenshots/home_desktop_3.webp" width="560">
+  <img src="wireframes/screenshots/home_mobile.webp" width="330">
+</p>
+
+---
+
+### About
+<p>
+  <img src="wireframes/screenshots/about_desktop.webp" width="560">
+  <img src="wireframes/screenshots/about_mobile.webp" width="330">
+</p>
+
+---
+
+### Pricing
+<p>
+  <img src="wireframes/screenshots/pricing_desktop.webp" width="560">
+  <img src="wireframes/screenshots/pricing_mobile.webp" width="330">
+</p>
+
+---
+
+### FAQ
+<p>
+  <img src="wireframes/screenshots/faq_desktop.webp" width="560">
+  <img src="wireframes/screenshots/faq_mobile.webp" width="330">
+</p>
+
+---
+
+### Explore
+<p>
+  <img src="wireframes/screenshots/explore_desktop.webp" width="560">
+  <img src="wireframes/screenshots/explore_mobile.webp" width="330">
+</p>
+
+---
+
+### Dashboard
+<p>
+  <img src="wireframes/screenshots/dashboard_desktop.webp" width="560">
+  <img src="wireframes/screenshots/dashboard_mobile.webp" width="330">
+</p>
+
+---
+
+### My Storefront
+<p>
+  <img src="wireframes/screenshots/my_storefront_desktop.webp" width="560">
+  <img src="wireframes/screenshots/my_storefront_mobile.webp" width="330">
+</p>
+
+---
