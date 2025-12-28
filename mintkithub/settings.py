@@ -31,7 +31,7 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
 
 # Always allow local dev hosts so 127.0.0.1 works
-ALLOWED_HOSTS += ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS += ["127.0.0.1", "localhost", "mintkit-hub-8a979ce863e4.herokuapp.com"]
 
 
 # Authentication redirects
