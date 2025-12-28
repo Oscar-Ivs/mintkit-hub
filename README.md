@@ -921,52 +921,100 @@ If/when MintKit Hub moves beyond the current college scope, testing would be exp
 <details>
   <summary>Click to expand <b>Deployment overview</b></summary>
 
-### Planned Hosting
+### Hosting Platform
 
-For this project, the Django application will be deployed to **Heroku**, using a similar setup to the previous BookBase project:
+The MintKit Hub Django application is deployed to **Heroku** with the following setup:
 
-- **Heroku Dyno** to run the Django app.
-- **Heroku Postgres** as the production database.
-- **Environment variables** on Heroku for sensitive settings (e.g. `SECRET_KEY`, Stripe keys, database URL).
-- **Gunicorn** as the WSGI HTTP server.
-- **Static files** handled via Django’s `collectstatic` (e.g. using WhiteNoise or a similar approach).
+- **Heroku Web Dyno** running the application via **Gunicorn**
+- **Heroku Postgres** as the production database
+- **Environment variables** for all sensitive configuration
+- **WhiteNoise** for serving static files
+- **Git-based deployment** via the Heroku CLI
 
-The exact app name and live URL will be added here after deployment.
-
----
-
-### High-Level Deployment Steps (Planned)
-
-A more detailed, step-by-step guide will be written once deployment is completed. At a high level, the process will be:
-
-1. **Prepare the project for production**
-   - Ensure `DEBUG = False` in the production settings.
-   - Configure `ALLOWED_HOSTS` to include the Heroku app domain.
-   - Add required packages to `requirements.txt` (e.g. `gunicorn`, any static file packages used).
-   - Add a `Procfile` (e.g. `web: gunicorn mintkithub.wsgi`).
-
-2. **Create and configure the Heroku app**
-   - Create a new Heroku app from the command line or dashboard.
-   - Attach a **Heroku Postgres** add-on for the production database.
-   - Set environment variables in the Heroku dashboard (e.g. `SECRET_KEY`, `DATABASE_URL`, `STRIPE_PUBLIC_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`).
-
-3. **Deploy the code to Heroku**
-   - Push the code to Heroku using Git.
-   - Run database migrations on Heroku:
-     - `python manage.py migrate`
-   - Create a superuser for accessing the Django admin on production.
-
-4. **Collect static files**
-   - Run `python manage.py collectstatic` on Heroku.
-   - Confirm that static files are being served correctly.
-
-5. **Final checks**
-   - Log in to the live site and verify core flows (registration, login, dashboard, storefront view).
-   - Confirm that Stripe test mode works correctly in the deployed environment.
+**Live URL:**  
+https://mintkit-hub-8a979ce863e4.herokuapp.com/
 
 ---
 
-A dedicated `docs/DEPLOYMENT.md` file may be added later with full command examples and screenshots once the live deployment is complete.
+### Environment Variables (Heroku Config Vars)
+
+The following environment variables are configured in the Heroku dashboard:
+
+| Variable Name | Purpose |
+|--------------|--------|
+| `SECRET_KEY` | Django secret key (production-safe) |
+| `DEBUG` | Set to `False` in production |
+| `ALLOWED_HOSTS` | Comma-separated hosts (e.g. `mintkit-hub.herokuapp.com,mintkit-hub-8a979ce863e4.herokuapp.com`) |
+| `DATABASE_URL` | Automatically added by Heroku Postgres |
+
+---
+
+### Production Settings Summary
+
+The project is configured so production values come from environment variables:
+
+- `DEBUG` is controlled by the `DEBUG` env var (default `False`)
+- `ALLOWED_HOSTS` is populated from `ALLOWED_HOSTS`
+- Database switches to Postgres automatically when `DATABASE_URL` exists
+
+---
+
+### Deployment Steps (Heroku)
+
+1. **Install required packages**
+   - Ensure `gunicorn`, `whitenoise`, and `dj-database-url` are in `requirements.txt`.
+
+2. **Add a Procfile**
+   - Create a `Procfile` in the project root:
+
+     `web: gunicorn mintkithub.wsgi`
+
+3. **Create the Heroku app**
+   - Create the app in Heroku (Dashboard or CLI).
+   - Ensure the correct region is selected (e.g. EU).
+
+4. **Add the Heroku Postgres add-on**
+   - Attach Postgres to the app:
+
+     `heroku addons:create heroku-postgresql -a <app-name>`
+
+5. **Set Heroku Config Vars**
+   - Add required environment variables (`SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`).
+
+6. **Deploy via Git**
+   - Add the Heroku remote:
+
+     `heroku git:remote -a <app-name>`
+
+   - Push the project:
+
+     `git push heroku main`
+
+7. **Run migrations**
+   - Apply migrations on Heroku:
+
+     `heroku run -a <app-name> python manage.py migrate`
+
+8. **Collect static files**
+   - Collect static files:
+
+     `heroku run -a <app-name> python manage.py collectstatic`
+
+9. **Create an admin user**
+   - Create a superuser:
+
+     `heroku run -a <app-name> python manage.py createsuperuser`
+
+10. **Scale the web dyno**
+   - Ensure the web dyno is running:
+
+     `heroku ps:scale web=1 -a <app-name>`
+
+> **Dyno Plan Note (Basic)**
+>
+> This project uses Heroku **Basic** dyno (paid) to avoid the Eco limitation where only one dyno can run at a time.
+> This makes it possible to run one-off admin commands (e.g. `migrate`, `createsuperuser`) without needing to stop the web dyno.
+
 
 </details>
 
