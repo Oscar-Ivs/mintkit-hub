@@ -82,6 +82,8 @@ LOGIN_URL = "login"
 # Apps / middleware
 # -------------------------
 INSTALLED_APPS = [
+    "cloudinary_storage",
+    "cloudinary",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -173,16 +175,20 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # WhiteNoise storage (compression + hashed filenames for long-term caching)
 STORAGES = {
+    # Media uploads (profile pics, storefront logos)
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "django_cloudinary_storage.storage.MediaCloudinaryStorage"
+        if ON_HEROKU
+        else "django.core.files.storage.FileSystemStorage",
     },
+    # Static files
     "staticfiles": {
-        # Use simple storage in dev so missing-manifest never breaks runserver
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
         if DEBUG
         else "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
