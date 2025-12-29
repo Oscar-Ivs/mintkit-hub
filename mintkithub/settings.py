@@ -15,7 +15,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ON_HEROKU = "DYNO" in os.environ
 
 # Security settings
-SECRET_KEY = os.getenv("SECRET_KEY", "G4GryHSukz7jaFX_JNpHYO8cjtnd8hwKVBuOq60JP2uj2DCQB5ZwLGtIp7ljoMTJod8")
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "G4GryHSukz7jaFX_JNpHYO8cjtnd8hwKVBuOq60JP2uj2DCQB5ZwLGtIp7ljoMTJod8",
+)
 
 # DEBUG:
 # - On Heroku: default False (and keep it False)
@@ -31,29 +34,37 @@ DEBUG = env_bool("DEBUG", default=(not ON_HEROKU))
 
 # Allowed hosts (comma-separated in env)
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
-ALLOWED_HOSTS += ["127.0.0.1", "localhost"]
 
-# Allow any *.herokuapp.com host so random Heroku URLs work without manual updates
-if ON_HEROKU:
-    ALLOWED_HOSTS += [".herokuapp.com"]
+# Local dev always allowed so 127.0.0.1 works without extra setup
+if DEBUG:
+    ALLOWED_HOSTS += ["127.0.0.1", "localhost"]
 
+# If running on Heroku and ALLOWED_HOSTS is missing, don't hard-crash
+# (still recommended to set ALLOWED_HOSTS properly in Config Vars)
+if ON_HEROKU and not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = [".herokuapp.com"]
+
+
+# CSRF trusted origins (needed once you use HTTPS domains / custom domains)
+# Comma-separated: "https://app.herokuapp.com,https://www.example.com"
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 
-# If CSRF_TRUSTED_ORIGINS isn't set, build it from explicit ALLOWED_HOSTS entries
+# Sensible default for Heroku if not explicitly set
 if ON_HEROKU and not CSRF_TRUSTED_ORIGINS:
     for host in ALLOWED_HOSTS:
-        if host in ("localhost", "127.0.0.1"):
-            continue
-        if host.startswith(".") or host == "*":
-            continue
-        CSRF_TRUSTED_ORIGINS.append(f"https://{host}")
+        if host.startswith("."):
+            CSRF_TRUSTED_ORIGINS.append(f"https://{host[1:]}")
+        else:
+            CSRF_TRUSTED_ORIGINS.append(f"https://{host}")
 
+
+# If behind a proxy (Heroku), let Django know HTTPS is forwarded correctly
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # These should be True on Heroku (prod) and False locally
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = ON_HEROKU and not DEBUG
+CSRF_COOKIE_SECURE = ON_HEROKU and not DEBUG
 
 # Optional: force HTTPS in prod (recommended once everything is stable)
 SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=False)
@@ -120,11 +131,14 @@ WSGI_APPLICATION = "mintkithub.wsgi.application"
 # Database
 # -------------------------
 # Uses DATABASE_URL on Heroku automatically; falls back to sqlite locally.
+# If Heroku breaks only when DEBUG=False, try setting DATABASE_SSL_REQUIRE=False in Config Vars.
+DATABASE_SSL_REQUIRE = env_bool("DATABASE_SSL_REQUIRE", default=ON_HEROKU)
+
 DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
-        ssl_require=ON_HEROKU,
+        ssl_require=DATABASE_SSL_REQUIRE,
     )
 }
 
@@ -161,9 +175,6 @@ STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
-
-WHITENOISE_MANIFEST_STRICT = False
-
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
