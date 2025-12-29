@@ -26,14 +26,27 @@ def env_bool(name: str, default: bool = False) -> bool:
         return default
     return val.strip().lower() in ("1", "true", "yes", "on")
 
-DEBUG = env_bool("DEBUG", default=False)
+DEBUG = env_bool("DEBUG", default=(not ON_HEROKU))
 
 
 # Allowed hosts (comma-separated in env)
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
 ALLOWED_HOSTS += ["127.0.0.1", "localhost"]
 
+# Allow any *.herokuapp.com host so random Heroku URLs work without manual updates
+if ON_HEROKU:
+    ALLOWED_HOSTS += [".herokuapp.com"]
+
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
+
+# If CSRF_TRUSTED_ORIGINS isn't set, build it from explicit ALLOWED_HOSTS entries
+if ON_HEROKU and not CSRF_TRUSTED_ORIGINS:
+    for host in ALLOWED_HOSTS:
+        if host in ("localhost", "127.0.0.1"):
+            continue
+        if host.startswith(".") or host == "*":
+            continue
+        CSRF_TRUSTED_ORIGINS.append(f"https://{host}")
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -43,7 +56,7 @@ SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
 # Optional: force HTTPS in prod (recommended once everything is stable)
-SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "False").strip().lower() == "true"
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=False)
 
 
 # -------------------------
@@ -111,7 +124,7 @@ DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
-        ssl_require=not DEBUG,
+        ssl_require=ON_HEROKU,
     )
 }
 
