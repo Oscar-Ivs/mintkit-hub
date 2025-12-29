@@ -14,7 +14,7 @@ ON_HEROKU = "DYNO" in os.environ
 
 SECRET_KEY = os.getenv(
     "SECRET_KEY",
-    "G4GryHSukz7jaFX_JNpHYO8cjtn d8hwKVBuOq60JP2uj2DCQB5ZwLGtIp7ljoMTJod8",
+    "G4GryHSukz7jaFX_JNpHYO8cjtnd8hwKVBuOq60JP2uj2DCQB5ZwLGtIp7ljoMTJod8",
 )
 
 # Helper for env booleans
@@ -156,7 +156,7 @@ USE_TZ = True
 # -------------------------
 # Static / media
 # -------------------------
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
@@ -177,10 +177,13 @@ STORAGES = {
     },
 }
 
+# Switch MEDIA to Cloudinary only when running on Heroku AND CLOUDINARY_URL is present
 if ON_HEROKU and os.getenv("CLOUDINARY_URL"):
     STORAGES["default"] = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
     }
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # -------------------------
 # Logging
