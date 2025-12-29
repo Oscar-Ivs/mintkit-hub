@@ -82,20 +82,24 @@ LOGIN_URL = "login"
 # Apps / middleware
 # -------------------------
 INSTALLED_APPS = [
-    "cloudinary_storage",
-    "cloudinary",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    # Cloudinary (MEDIA uploads)
+    "cloudinary_storage",
+    "cloudinary",
+
     # Project apps
     "core",
     "accounts.apps.AccountsConfig",
     "storefronts",
     "subscriptions",
 ]
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
