@@ -643,6 +643,27 @@ If more granular test cases are required in future iterations, these may be expa
 
 ---
 
+---
+
+## Automated Tests (Django)
+
+A small automated test suite was added to validate the most important flows (authentication + storefront access rules) using Django’s built-in test runner.
+
+### How to run
+
+```bash
+
+python manage.py test
+```
+
+Latest result:
+
+The current suite contains 7 tests and completes successfully:
+
+<img src="docs/testing/automated-tests.png" alt="MintKit Hub – Django automated Test" width="520">
+
+---
+
 ## Example Manual Test Checklist
 
 A more detailed checklist may be expanded into `docs/TESTING.md`, but core tests include:
