@@ -1190,6 +1190,11 @@ This section collects recurring issues encountered during development and deploy
 - _Cause_: Mobile browsers restrict autoplay unless `muted` + `playsinline` are present.
 - _Fix_: Keep `muted` and `playsinline` on the `<video>` element. Provide a poster image as fallback.
 
+**Cloudinary media uploads cause 500 errors on Heroku**
+
+- _Cause_: Cloudinary storage backend was misconfigured (`django_cloudinary_storage` path used instead of `cloudinary_storage`), and Cloudinary apps were conditionally appended to `INSTALLED_APPS`, causing duplicate app labels and missing storage backends during runtime.
+- _Fix_: Use `cloudinary_storage.storage.MediaCloudinaryStorage`, include Cloudinary apps unconditionally in `INSTALLED_APPS`, enable Cloudinary only when `CLOUDINARY_URL` is present, and restore the default Django template backend.
+
 
 </details>
 
