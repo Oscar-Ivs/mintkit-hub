@@ -61,11 +61,11 @@
 
             <!-- Brand (logo + Hub together) -->
             <a href="{% url 'home' %}" class="navbar-brand mk-brand-wrap">
-                <img src="{% static 'img/Logo_small.webp' %}" srcset="
-    {% static 'img/Logo_small_80.webp' %} 80w,
-    {% static 'img/Logo_small.webp' %} 186w
-  " sizes="(max-width: 480px) 80px, 186px" width="186" height="100" class="mk-brand-logo" alt="MintKit Hub logo"
-                    decoding="async" fetchpriority="high" style="filter: contrast(1.25) brightness(0.9);">
+                <img src="{% static 'img/logo_small.webp' %}" srcset="{% static 'img/logo_small_80.png' %} 80w,
+             {% static 'img/logo_small.webp' %} 186w" sizes="(max-width: 480px) 80px, 186px" width="186" height="100"
+                    class="mk-brand-logo" alt="MintKit Hub logo" decoding="async" fetchpriority="high"
+                    style="filter: contrast(1.25) brightness(0.9);">
+
 
 
                 <span class="mk-hub-badge" style="color: black;">-Hub</span>
