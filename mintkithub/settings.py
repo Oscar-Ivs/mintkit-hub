@@ -20,22 +20,23 @@ SECRET_KEY = os.getenv("SECRET_KEY", "G4GryHSukz7jaFX_JNpHYO8cjtnd8hwKVBuOq60JP2
 # DEBUG:
 # - On Heroku: default False (and keep it False)
 # - Locally: default True (unless explicitly set)
-DEBUG = os.getenv("DEBUG", "False" if ON_HEROKU else "True").strip().lower() in ("1", "true", "yes", "on")
+def env_bool(name: str, default: bool = False) -> bool:
+    val = os.getenv(name)
+    if val is None:
+        return default
+    return val.strip().lower() in ("1", "true", "yes", "on")
+
+DEBUG = env_bool("DEBUG", default=False)
+
 
 # Allowed hosts (comma-separated in env)
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
+ALLOWED_HOSTS += ["127.0.0.1", "localhost"]
 
-# Local dev always allowed (so localhost works even if DEBUG accidentally False)
-if not ON_HEROKU:
-    ALLOWED_HOSTS += ["127.0.0.1", "localhost"]
-
-# CSRF trusted origins (needed for HTTPS domains / custom domains)
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 
-
-
-# If behind a proxy (Heroku), let Django know HTTPS is forwarded correctly
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 
 # These should be True on Heroku (prod) and False locally
 SESSION_COOKIE_SECURE = not DEBUG
