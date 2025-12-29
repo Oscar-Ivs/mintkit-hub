@@ -27,6 +27,10 @@ ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if
 if DEBUG:
     ALLOWED_HOSTS += ["127.0.0.1", "localhost"]
 
+# Production safety: never allow empty ALLOWED_HOSTS when DEBUG is False
+if not DEBUG and not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ["mintkit-hub.herokuapp.com"]
+
 
 # CSRF trusted origins (needed once you use HTTPS domains / custom domains)
 # Comma-separated: "https://app.herokuapp.com,https://www.example.com"
