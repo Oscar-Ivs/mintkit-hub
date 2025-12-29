@@ -9,28 +9,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Core security / env
 # -------------------------
 
-# Use env var on Heroku (set it in Config Vars). Fallback is only for local dev.
-
 # True on Heroku dynos
 ON_HEROKU = "DYNO" in os.environ
 
-# Security settings
 SECRET_KEY = os.getenv(
     "SECRET_KEY",
-    "G4GryHSukz7jaFX_JNpHYO8cjtnd8hwKVBuOq60JP2uj2DCQB5ZwLGtIp7ljoMTJod8",
+    "G4GryHSukz7jaFX_JNpHYO8cjtn d8hwKVBuOq60JP2uj2DCQB5ZwLGtIp7ljoMTJod8",
 )
 
-# DEBUG:
-# - On Heroku: default False (and keep it False)
-# - Locally: default True (unless explicitly set)
+# Helper for env booleans
 def env_bool(name: str, default: bool = False) -> bool:
     val = os.getenv(name)
     if val is None:
         return default
     return val.strip().lower() in ("1", "true", "yes", "on")
 
-DEBUG = env_bool("DEBUG", default=(not ON_HEROKU))
 
+# DEBUG:
+# - On Heroku: default False
+# - Locally: default True
+DEBUG = env_bool("DEBUG", default=(not ON_HEROKU))
 
 # Allowed hosts (comma-separated in env)
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
@@ -40,13 +38,10 @@ if DEBUG:
     ALLOWED_HOSTS += ["127.0.0.1", "localhost"]
 
 # If running on Heroku and ALLOWED_HOSTS is missing, don't hard-crash
-# (still recommended to set ALLOWED_HOSTS properly in Config Vars)
 if ON_HEROKU and not ALLOWED_HOSTS:
     ALLOWED_HOSTS = [".herokuapp.com"]
 
-
-# CSRF trusted origins (needed once you use HTTPS domains / custom domains)
-# Comma-separated: "https://app.herokuapp.com,https://www.example.com"
+# CSRF trusted origins (comma-separated)
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 
 # Sensible default for Heroku if not explicitly set
@@ -57,18 +52,15 @@ if ON_HEROKU and not CSRF_TRUSTED_ORIGINS:
         else:
             CSRF_TRUSTED_ORIGINS.append(f"https://{host}")
 
-
 # If behind a proxy (Heroku), let Django know HTTPS is forwarded correctly
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
 
 # These should be True on Heroku (prod) and False locally
 SESSION_COOKIE_SECURE = ON_HEROKU and not DEBUG
 CSRF_COOKIE_SECURE = ON_HEROKU and not DEBUG
 
-# Optional: force HTTPS in prod (recommended once everything is stable)
+# Optional: force HTTPS in prod
 SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=False)
-
 
 # -------------------------
 # Auth redirects
@@ -76,7 +68,6 @@ SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=False)
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "home"
 LOGIN_URL = "login"
-
 
 # -------------------------
 # Apps / middleware
@@ -89,7 +80,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Cloudinary (MEDIA uploads)
+    # Cloudinary (MEDIA uploads) - safe to include always
     "cloudinary_storage",
     "cloudinary",
 
@@ -99,7 +90,6 @@ INSTALLED_APPS = [
     "storefronts",
     "subscriptions",
 ]
-
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -132,12 +122,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "mintkithub.wsgi.application"
 
-
 # -------------------------
 # Database
 # -------------------------
-# Uses DATABASE_URL on Heroku automatically; falls back to sqlite locally.
-# If Heroku breaks only when DEBUG=False, try setting DATABASE_SSL_REQUIRE=False in Config Vars.
 DATABASE_SSL_REQUIRE = env_bool("DATABASE_SSL_REQUIRE", default=ON_HEROKU)
 
 DATABASES = {
@@ -147,7 +134,6 @@ DATABASES = {
         ssl_require=DATABASE_SSL_REQUIRE,
     )
 }
-
 
 # -------------------------
 # Password validation
@@ -159,7 +145,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-
 # -------------------------
 # i18n
 # -------------------------
@@ -168,24 +153,23 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-
 # -------------------------
 # Static / media
 # -------------------------
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
-# WhiteNoise storage (compression + hashed filenames for long-term caching)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# Storage configuration
+# - Static files: WhiteNoise in production
+# - Media uploads: Cloudinary on Heroku only if CLOUDINARY_URL is set
 STORAGES = {
-    # Media uploads (profile pics, storefront logos)
     "default": {
-        "BACKEND": "django_cloudinary_storage.storage.MediaCloudinaryStorage"
-        if ON_HEROKU
-        else "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
-    # Static files
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
         if DEBUG
@@ -193,11 +177,14 @@ STORAGES = {
     },
 }
 
+if ON_HEROKU and os.getenv("CLOUDINARY_URL"):
+    STORAGES["default"] = {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
+    }
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
-
+# -------------------------
+# Logging
+# -------------------------
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
