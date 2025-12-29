@@ -198,11 +198,6 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
-    STORAGES["default"] = {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"}
-
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
