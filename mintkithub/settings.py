@@ -197,35 +197,3 @@ STORAGES = {
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Heroku note:
-# - WhiteNoise serves STATIC, not MEDIA
-# - Heroku filesystem is ephemeral, so user uploads won't persist
-# - If CLOUDINARY_URL is set, store MEDIA on Cloudinary so uploads work in production
-if ON_HEROKU and os.getenv("CLOUDINARY_URL"):
-    INSTALLED_APPS += [
-        "cloudinary",
-        "cloudinary_storage",
-    ]
-    STORAGES["default"] = {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"}
-
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {"class": "logging.StreamHandler"},
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO",
-    },
-    "loggers": {
-        "django.request": {
-            "handlers": ["console"],
-            "level": "ERROR",
-            "propagate": False,
-        },
-    },
-}
