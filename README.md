@@ -924,6 +924,10 @@ Email sending is tested using Django’s in-memory backend (`locmem`) to avoid e
 ```bash
 python manage.py test
 ```
+<p>
+  <img src="docs/testing/email_1.png" width="560">
+  <img src="docs/testing/email_2.png" width="278">
+</p>
 
 ### Manual verification (SMTP)
 
