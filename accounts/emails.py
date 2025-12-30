@@ -34,7 +34,8 @@ def _build_absolute(request, path_or_url: str) -> str:
 def _email_asset_urls(request=None) -> dict[str, str]:
     """Absolute URLs for images used inside email templates."""
     watermark_path = static("img/card-21.webp")
-    logo_path = static("img/logo_small.webp")
+    logo_path = static("img/logo-22.png")
+
 
     return {
         "logo_url": _build_absolute(request, logo_path),

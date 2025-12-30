@@ -1,47 +1,37 @@
 {# templates/emails/welcome.html #}
 {% extends "emails/base_email.html" %}
-
 {% block title %}Welcome to MintKit{% endblock %}
 
 {% block content %}
-  <div style="font-family:Arial, Helvetica, sans-serif; color:#0f172a;">
-    <h1 style="margin:0 0 10px 0; font-size:22px; line-height:28px;">
-      Welcome to MintKit, {{ user_name }}!
-    </h1>
+  <h2 style="margin:0 0 10px 0; font-size:22px; line-height:1.25; color:#0f2447;">
+    Welcome to MintKit, {{ user_name }}!
+  </h2>
 
-    <p style="margin:0 0 14px 0; font-size:15px; line-height:22px; color:#334155;">
-      Your account is ready. MintKit helps small businesses publish digital gift cards, vouchers, and tickets —
-      with a clean storefront link you can share anywhere.
-    </p>
+  <p style="margin:0 0 14px 0; font-size:15px; line-height:1.65; color:#1f355a;">
+    Your account is ready. MintKit helps small businesses publish digital gift cards, vouchers,
+    and tickets — with a clean storefront link you can share anywhere.
+  </p>
 
-    <!-- Optional banner / watermark-like image (safe as normal img) -->
-    {% if watermark_url %}
-      <img src="{{ watermark_url }}" alt="" width="592"
-           style="display:block; width:100%; max-width:592px; height:auto; border-radius:12px; margin:14px 0 16px 0; opacity:0.18;">
-    {% endif %}
-
-    <div style="margin:0 0 16px 0; padding:14px 16px; background:#f5f8ff; border:1px solid #e3ecff; border-radius:12px;">
-      <div style="font-size:14px; line-height:20px; color:#334155;">
-        <strong style="color:#0f172a;">Next steps (2 minutes):</strong>
-        <ol style="margin:10px 0 0 18px; padding:0;">
-          <li style="margin:6px 0;">Upload a logo and add business details.</li>
-          <li style="margin:6px 0;">Create your first digital card and choose how it appears on your storefront.</li>
-          <li style="margin:6px 0;">Share your storefront link with customers (Instagram, QR, website).</li>
-        </ol>
-      </div>
+  <div style="margin:14px 0; padding:14px; border-radius:12px; background:#f2f6ff; border:1px solid #d5e3ff;">
+    <div style="font-weight:700; color:#0f2447; margin-bottom:8px; font-size:14px;">
+      Next steps (2 minutes):
     </div>
-
-    {% if dashboard_url %}
-      <div style="margin:18px 0 8px 0;">
-        <a href="{{ dashboard_url }}"
-           style="display:inline-block; padding:12px 16px; background:#2563eb; color:#ffffff; text-decoration:none; border-radius:10px; font-weight:bold; font-size:14px;">
-          Open dashboard
-        </a>
-      </div>
-    {% endif %}
-
-    <p style="margin:10px 0 0 0; font-size:13px; line-height:18px; color:#475569;">
-      If anything looks off, just reply — support is happy to help.
-    </p>
+    <ol style="margin:0; padding-left:18px; color:#1f355a; font-size:14px; line-height:1.65;">
+      <li>Upload a logo and add business details.</li>
+      <li>Create your first digital card and choose how it appears on your storefront.</li>
+      <li>Share your storefront link with customers (Instagram, QR, website).</li>
+    </ol>
   </div>
+
+  <div style="margin:18px 0 6px 0;">
+    <a href="{{ dashboard_url }}"
+       style="display:inline-block; padding:12px 18px; border-radius:12px; text-decoration:none; font-weight:700;
+              background:#2f5fa8; color:#ffffff;">
+      Open dashboard
+    </a>
+  </div>
+
+  <p style="margin:8px 0 0 0; font-size:13px; line-height:1.6; color:#6b87b7;">
+    If anything looks off, just reply — support is happy to help.
+  </p>
 {% endblock %}
