@@ -26,7 +26,9 @@ urlpatterns = [
     path('', include('core.urls')),              # homepage & general pages
     path('storefront/', include('storefronts.urls')),  # storefront related pages
     path("subscriptions/", include("subscriptions.urls")),  # subscription management
+     path("accounts/", include("django.contrib.auth.urls")),  # adds password_change, password_reset, etc.
 ]
+
 
 # Serve media files (like uploaded logos) in development
 if settings.DEBUG:
