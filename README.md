@@ -509,6 +509,21 @@ Example implementation (MintKit Hub):
   });
 </script>
 ```
+---
+### Email (Mailgun SMTP + Cloudflare Email Routing)
+
+MintKit Hub sends transactional emails (e.g. basic notifications) using **Mailgun SMTP** on the verified subdomain:
+
+- Sending domain: `mg.mintkit.co.uk`
+- Example sender: `MintKit <no-reply@mg.mintkit.co.uk>`
+
+Incoming support mail is handled via **Cloudflare Email Routing**, forwarding:
+- `support@mintkit.co.uk` → a verified destination inbox (temporary academic inbox during development)
+
+**Why `mg.` subdomain?**  
+Using a dedicated mail subdomain helps deliverability and keeps DNS/email records isolated from the main website domain.
+
+---
 
 
 </details>
@@ -900,6 +915,26 @@ During HTML validation, a small number of issues were identified and resolved:
 Issues included invalid element nesting, placeholder image attributes, improper anchor disabling, and incorrect ARIA usage.
 
 After applying fixes, all validated templates return **0 HTML errors / 0 warnings**.
+
+## Email integration testing
+
+### Automated (unit test)
+Email sending is tested using Django’s in-memory backend (`locmem`) to avoid external SMTP dependency:
+
+```bash
+python manage.py test
+```
+
+### Manual verification (SMTP)
+
+Mailgun SMTP was verified manually using the Django shell:
+
+```bash
+python manage.py shell
+```
+A test email was sent successfully using EmailMessage, confirming Mailgun SMTP credentials and DNS verification are correct.
+
+---
 
 ## Testing Coverage (What was tested vs not tested)
 
