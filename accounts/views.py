@@ -3,11 +3,12 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+
 from subscriptions.models import Subscription
-
-
-from .models import Profile
 from storefronts.models import Storefront
+
+from .emails import send_welcome_email
+from .models import Profile
 from .forms import ProfileForm
 
 
@@ -30,7 +31,13 @@ def register(request):
                 },
             )
 
-            messages.success(request, "Your account has been created. You can now log in.")
+            # Send welcome email if the user has an email address
+            send_welcome_email(user, request=request)
+
+            messages.success(
+                request,
+                "Your account has been created. You can now log in."
+            )
             return redirect("login")
     else:
         form = UserCreationForm()
@@ -74,7 +81,6 @@ def dashboard(request):
         "subscription": subscription,
     }
     return render(request, "accounts/dashboard.html", context)
-
 
 
 @login_required
