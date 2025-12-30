@@ -1,44 +1,32 @@
 {# templates/emails/base_email.html #}
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>{% block title %}MintKit{% endblock %}</title>
-  </head>
-
-  <body style="margin:0; padding:0; background:#eef5ff;">
-    <!-- Full width wrapper -->
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#eef5ff; padding:28px 12px;">
+<html>
+  <body style="margin:0; padding:0; background:#eaf2ff; font-family: Arial, Helvetica, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eaf2ff; padding:24px 12px;">
       <tr>
         <td align="center">
 
-          <!-- Card container -->
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0"
-                 style="max-width:680px; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 10px 24px rgba(16, 42, 88, 0.10);">
-
+          <table role="presentation" width="680" cellpadding="0" cellspacing="0"
+                 style="max-width:680px; width:100%; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,0.10);">
             <!-- Header -->
             <tr>
-              <td style="background:#e7f0ff; padding:16px 18px;">
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+              <td style="padding:18px 20px; background:linear-gradient(180deg,#d7e7ff 0%, #bcd6ff 100%);">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                   <tr>
-                    <td valign="middle" style="padding-right:12px;">
-                      <a href="{{ site_root }}" style="text-decoration:none;">
-                        <img src="{{ logo_url }}" alt="MintKit" width="160"
-                             style="display:block; max-width:160px; height:auto; border:0;">
-                      </a>
-                      <div style="margin-top:6px; font-size:13px; line-height:1.4; color:#2f5fa8;">
+                    <td valign="middle">
+                      <img src="{{ logo_url }}" alt="MintKit"
+                           style="display:block; height:42px; max-width:180px;">
+                      <div style="font-size:13px; color:#1a3f7a; margin-top:6px;">
                         Digital cards • vouchers • tickets
                       </div>
                     </td>
-
-                    <td valign="middle" align="right">
-                      <!-- “Visit site” as pill/outline button -->
-                      <a href="{{ site_root }}"
-                         style="display:inline-block; font-size:14px; font-weight:600; color:#2f5fa8; text-decoration:none;
-                                padding:10px 14px; border-radius:999px; border:1px solid #b7cff6; background:#f6faff;">
-                        Visit site
-                      </a>
+                    <td align="right" valign="middle">
+                      {% if site_root %}
+                        <a href="{{ site_root }}"
+                           style="display:inline-block; padding:10px 14px; border-radius:12px; background:#ffffff; color:#2f5fa8; text-decoration:none; font-weight:700; border:1px solid #c9dcff;">
+                          Visit site
+                        </a>
+                      {% endif %}
                     </td>
                   </tr>
                 </table>
@@ -47,46 +35,31 @@
 
             <!-- Body -->
             <tr>
-              <td style="padding:20px 22px 10px 22px;">
-
-                {% if watermark_url %}
-                  <!-- Watermark/hero image block (optional) -->
-                  <div style="margin:14px 0 16px 0; border-radius:14px; overflow:hidden; background:#f2f6ff;">
-                    <img src="{{ watermark_url }}" alt="" width="100%"
-                         style="display:block; width:100%; height:auto; border:0;">
-                  </div>
-                {% endif %}
-
-                {% block content %}{% endblock %}
+              <td style="padding:22px 20px;">
+                {% block email_body %}{% endblock %}
               </td>
             </tr>
 
             <!-- Footer -->
             <tr>
-              <td style="padding:14px 22px 18px 22px; border-top:1px solid #e6eefc; background:#f7fbff;">
-                <div style="font-size:13px; line-height:1.6; color:#274a7d;">
-                  Need help? Reply to this email or contact
-                  <a href="mailto:support@mintkit.co.uk" style="color:#2f5fa8; text-decoration:none; font-weight:600;">
-                    support@mintkit.co.uk
-                  </a>.
+              <td style="padding:16px 20px; background:#f3f7ff; border-top:1px solid #e4eeff;">
+                <div style="font-size:12px; color:#234a86;">
+                  Need help? Reply to this email or contact <a href="mailto:support@mintkit.co.uk" style="color:#2f5fa8; text-decoration:none;">support@mintkit.co.uk</a>.
                 </div>
-
-                <div style="margin-top:8px; font-size:13px; line-height:1.6;">
-                  <a href="{{ about_url }}" style="color:#2f5fa8; text-decoration:none; font-weight:600;">About</a>
-                  <span style="color:#6b87b7;"> • </span>
-                  <a href="{{ pricing_url }}" style="color:#2f5fa8; text-decoration:none; font-weight:600;">Pricing</a>
-                  <span style="color:#6b87b7;"> • </span>
-                  <a href="{{ faq_url }}" style="color:#2f5fa8; text-decoration:none; font-weight:600;">FAQ</a>
+                <div style="margin-top:10px; font-size:12px;">
+                  <a href="{{ about_url }}" style="color:#2f5fa8; text-decoration:none;">About</a>
+                  &nbsp;•&nbsp;
+                  <a href="{{ pricing_url }}" style="color:#2f5fa8; text-decoration:none;">Pricing</a>
+                  &nbsp;•&nbsp;
+                  <a href="{{ faq_url }}" style="color:#2f5fa8; text-decoration:none;">FAQ</a>
                 </div>
-
-                <div style="margin-top:12px; font-size:12px; line-height:1.6; color:#6b87b7;">
+                <div style="margin-top:12px; font-size:11px; color:#6b7fa6;">
                   © {{ year }} MintKit. All rights reserved.
                 </div>
               </td>
             </tr>
 
           </table>
-          <!-- /Card container -->
 
         </td>
       </tr>
