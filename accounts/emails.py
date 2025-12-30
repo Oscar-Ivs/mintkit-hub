@@ -2,13 +2,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Dict, Optional, Sequence, Union
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.templatetags.static import static
 from django.utils import timezone
+
+
+ReplyToType = Optional[Union[str, Sequence[str]]]
 
 
 @dataclass(frozen=True)
@@ -23,53 +26,72 @@ class BrandedLinks:
     faq_url: str = ""
 
 
-def _build_absolute(request, path_or_url: str) -> str:
+def _site_root(request=None) -> str:
     """
-    Convert a URL path (or already-resolved URL) into an absolute URL.
-    Returns empty string if request is missing.
+    Return absolute site root where possible.
+    - request present -> uses request.build_absolute_uri
+    - otherwise -> uses SITE_URL if defined (optional)
     """
-    if request is None:
+    if request is not None:
+        return request.build_absolute_uri("/").rstrip("/")
+    return (getattr(settings, "SITE_URL", "") or "").rstrip("/")
+
+
+def _abs_url(request, path_or_url: str) -> str:
+    """
+    Convert a path (/static/...) into an absolute URL if possible.
+    If it's already absolute (http...), return as-is.
+    """
+    if not path_or_url:
         return ""
-    return request.build_absolute_uri(path_or_url)
+    if path_or_url.startswith("http://") or path_or_url.startswith("https://"):
+        return path_or_url
+
+    root = _site_root(request)
+    if not root:
+        # No request + no SITE_URL; return path as-is (useful for local preview files)
+        return path_or_url
+
+    if not path_or_url.startswith("/"):
+        path_or_url = "/" + path_or_url
+    return f"{root}{path_or_url}"
 
 
-def _email_asset_urls(request=None) -> dict[str, str]:
+def _email_asset_urls(request=None) -> Dict[str, str]:
     """
-    Provide absolute URLs for logo/watermark used in email templates.
+    Absolute URLs for images used in email templates.
     """
-    watermark_path = static("img/card-21.webp")
     logo_path = static("img/logo_small.webp")
+    watermark_path = static("img/card-21.webp")
 
     return {
-        "logo_url": _build_absolute(request, logo_path),
-        "watermark_url": _build_absolute(request, watermark_path),
+        "logo_url": _abs_url(request, logo_path),
+        "watermark_url": _abs_url(request, watermark_path),
     }
 
 
 def _brand_links(request=None) -> BrandedLinks:
     """
-    Provide absolute site links.
-    Uses request to build absolute URLs so emails work locally and on Heroku.
+    Absolute links used in emails.
     """
-    if request is None:
+    root = _site_root(request)
+    if not root:
         return BrandedLinks()
 
-    site_root = request.build_absolute_uri("/").rstrip("/")
-
     return BrandedLinks(
-        site_root=site_root,
-        dashboard_url=f"{site_root}/accounts/dashboard/",
-        about_url=f"{site_root}/about/",
-        pricing_url=f"{site_root}/pricing/",
-        faq_url=f"{site_root}/faq/",
+        site_root=root,
+        dashboard_url=f"{root}/accounts/dashboard/",
+        about_url=f"{root}/about/",
+        pricing_url=f"{root}/pricing/",
+        faq_url=f"{root}/faq/",
     )
 
 
 def _render_plain_fallback(user_name: str, main_line: str, links: BrandedLinks) -> str:
     """
-    Plain-text fallback content for clients that block HTML.
+    Plain-text fallback for email clients that block HTML.
     """
-    lines: list[str] = [
+    lines = [
         f"Hi {user_name},",
         "",
         main_line,
@@ -81,26 +103,28 @@ def _render_plain_fallback(user_name: str, main_line: str, links: BrandedLinks) 
     if links.site_root:
         lines += ["", f"Website: {links.site_root}"]
 
-    lines += [
-        "",
-        "Need help? Reply to this email or contact support@mintkit.co.uk.",
-    ]
-
+    lines += ["", "Need help? Reply to this email or contact support@mintkit.co.uk."]
     return "\n".join(lines)
 
 
-def _normalise_reply_to(reply_to: Any) -> list[str] | None:
+def _normalise_reply_to(reply_to: ReplyToType) -> Optional[list[str]]:
     """
-    Django requires reply_to to be a list/tuple of strings (not a single string).
-    Returns None if empty.
+    Django requires reply_to to be a list or tuple (or None).
+    Accepts a string or a sequence and normalises to list[str].
     """
     if not reply_to:
         return None
 
-    if isinstance(reply_to, (list, tuple)):
-        return [str(x) for x in reply_to if x]
+    if isinstance(reply_to, str):
+        value = reply_to.strip()
+        return [value] if value else None
 
-    return [str(reply_to)]
+    # Sequence of strings
+    cleaned: list[str] = []
+    for item in reply_to:
+        if item:
+            cleaned.append(str(item).strip())
+    return cleaned or None
 
 
 def send_templated_email(
@@ -108,14 +132,13 @@ def send_templated_email(
     subject: str,
     to_email: str,
     template_html: str,
-    context: dict[str, Any],
-    from_email: str | None = None,
-    reply_to: list[str] | tuple[str, ...] | str | None = None,
+    context: Dict[str, Any],
+    from_email: Optional[str] = None,
+    reply_to: ReplyToType = None,
     fail_silently: bool = True,
 ) -> bool:
     """
-    Send a branded HTML email with a plain-text fallback.
-
+    Send an HTML email (template) + plain-text fallback.
     Returns True if sent, False otherwise.
     """
     if not to_email:
@@ -125,42 +148,44 @@ def send_templated_email(
     if not resolved_from:
         return False
 
-    # Default reply-to can be set in settings.py as DEFAULT_REPLY_TO_EMAIL = ["support@mintkit.co.uk"]
-    resolved_reply_to = reply_to
-    if resolved_reply_to is None:
-        resolved_reply_to = getattr(settings, "DEFAULT_REPLY_TO_EMAIL", None)
-
-    reply_to_list = _normalise_reply_to(resolved_reply_to)
+    # If reply_to not passed, try a default single address from settings (string is fine here)
+    default_reply_to = getattr(settings, "DEFAULT_REPLY_TO_EMAIL", None)
+    reply_to_list = _normalise_reply_to(reply_to or default_reply_to)
 
     html_body = render_to_string(template_html, context)
-    plain_text = (context.get("plain_text") or "").strip() or "MintKit notification."
+    text_body = context.get("plain_text") or "MintKit notification."
 
     msg = EmailMultiAlternatives(
         subject=subject,
-        body=plain_text,
+        body=text_body,
         from_email=resolved_from,
         to=[to_email],
-        reply_to=reply_to_list,
+        reply_to=reply_to_list,  # must be list/tuple or None
     )
     msg.attach_alternative(html_body, "text/html")
 
-    sent_count = msg.send(fail_silently=fail_silently)
-    return sent_count > 0
+    try:
+        sent_count = msg.send(fail_silently=fail_silently)
+        return sent_count > 0
+    except Exception:
+        if fail_silently:
+            return False
+        raise
 
 
 def send_welcome_email(user, request=None) -> bool:
     """
-    Send a branded welcome email after successful registration.
-    Skips silently if the user has no email address.
+    Send welcome email after successful registration.
+    Skips if user.email is empty.
     """
-    user_email = getattr(user, "email", "") or ""
+    user_email = (getattr(user, "email", "") or "").strip()
     if not user_email:
         return False
 
     links = _brand_links(request)
     assets = _email_asset_urls(request)
 
-    context: dict[str, Any] = {
+    context: Dict[str, Any] = {
         "user_name": getattr(user, "username", "there"),
         "year": timezone.now().year,
         "site_root": links.site_root,
@@ -188,17 +213,16 @@ def send_welcome_email(user, request=None) -> bool:
 
 def send_subscription_confirmed_email(user, request=None) -> bool:
     """
-    Send a simple subscription confirmation email.
-    Intended for use after Stripe webhook or successful checkout flow.
+    Subscription confirmation email (call after Stripe success / webhook).
     """
-    user_email = getattr(user, "email", "") or ""
+    user_email = (getattr(user, "email", "") or "").strip()
     if not user_email:
         return False
 
     links = _brand_links(request)
     assets = _email_asset_urls(request)
 
-    context: dict[str, Any] = {
+    context: Dict[str, Any] = {
         "user_name": getattr(user, "username", "there"),
         "year": timezone.now().year,
         "site_root": links.site_root,
