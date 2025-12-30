@@ -1,0 +1,22 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+  <div style="font-family:Arial,sans-serif;color:#ffffff;font-size:18px;font-weight:700;">
+    Welcome to MintKit, {{ user_name }}!
+  </div>
+
+  <div style="font-family:Arial,sans-serif;color:#cfe1ff;font-size:14px;line-height:1.7;margin-top:10px;">
+    Your account is ready. MintKit helps creators and small businesses publish digital cards, vouchers, and tickets with a clean storefront experience.
+  </div>
+
+  <div style="margin-top:16px;">
+    <a href="{{ dashboard_url }}"
+       style="display:inline-block;font-family:Arial,sans-serif;background-color:#2b6fff;color:#ffffff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:700;">
+      Open dashboard
+    </a>
+  </div>
+
+  <div style="font-family:Arial,sans-serif;color:#9fb2d6;font-size:13px;line-height:1.7;margin-top:16px;">
+    If anything looks off, reply to this email — support is happy to help.
+  </div>
+{% endblock %}

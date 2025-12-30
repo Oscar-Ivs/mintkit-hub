@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <body style="margin:0;padding:0;background-color:#0b1220;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0b1220;padding:24px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="width:600px;max-width:600px;background-color:#111a2e;border-radius:14px;overflow:hidden;">
+            <!-- Header -->
+            <tr>
+              <td style="padding:18px 20px;background:linear-gradient(135deg,#0d2b7a,#132a52);">
+                <div style="font-family:Arial,sans-serif;color:#ffffff;font-size:18px;font-weight:700;">
+                  MintKit
+                </div>
+                <div style="font-family:Arial,sans-serif;color:#cfe1ff;font-size:13px;margin-top:4px;">
+                  Digital cards • vouchers • tickets
+                </div>
+              </td>
+            </tr>
+
+            <!-- Body (watermark background) -->
+            <tr>
+              <td style="padding:22px 20px;background-color:#111a2e;background-image:url('{{ watermark_url|default:"" }}');background-repeat:no-repeat;background-position:center;background-size:420px;">
+
+                {% block content %}{% endblock %}
+
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:16px 20px;background-color:#0f172a;border-top:1px solid rgba(255,255,255,0.08);">
+                <div style="font-family:Arial,sans-serif;color:#9fb2d6;font-size:12px;line-height:1.6;">
+                  Need help? Reply to this email or contact
+                  <span style="color:#cfe1ff;">support@mintkit.co.uk</span>.
+                </div>
+                <div style="font-family:Arial,sans-serif;color:#9fb2d6;font-size:12px;margin-top:10px;">
+                  <a href="{{ about_url }}" style="color:#cfe1ff;text-decoration:none;">About</a>
+                  &nbsp;•&nbsp;
+                  <a href="{{ pricing_url }}" style="color:#cfe1ff;text-decoration:none;">Pricing</a>
+                  &nbsp;•&nbsp;
+                  <a href="{{ faq_url }}" style="color:#cfe1ff;text-decoration:none;">FAQ</a>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <div style="font-family:Arial,sans-serif;color:#667aa6;font-size:11px;margin-top:10px;">
+            © {{ year }} MintKit. All rights reserved.
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
