@@ -1,7 +1,7 @@
 from django.contrib.auth import logout
 from django.shortcuts import redirect, render
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
+from .forms import CustomUserCreationForm
 from django.contrib.auth.decorators import login_required
 
 from subscriptions.models import Subscription
@@ -18,7 +18,7 @@ def register(request):
     Also creates a matching Profile for the new user.
     """
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
 
@@ -40,7 +40,7 @@ def register(request):
             )
             return redirect("login")
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
 
     context = {"form": form}
     return render(request, "accounts/register.html", context)
