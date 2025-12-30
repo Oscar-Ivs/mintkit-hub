@@ -186,6 +186,30 @@ if ON_HEROKU and os.getenv("CLOUDINARY_URL"):
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # -------------------------
+# Email (Mailgun SMTP)
+# -------------------------
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = os.getenv("MAILGUN_SMTP_SERVER", "")
+EMAIL_PORT = int(os.getenv("MAILGUN_SMTP_PORT", "587"))
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = os.getenv("MAILGUN_SMTP_LOGIN", "")
+EMAIL_HOST_PASSWORD = os.getenv("MAILGUN_SMTP_PASSWORD", "")
+
+# IMPORTANT: your verified sending domain is mg.mintkit.co.uk
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL",
+    "MintKit <no-reply@mg.mintkit.co.uk>",
+)
+
+DEFAULT_REPLY_TO_EMAIL = os.getenv(
+    "DEFAULT_REPLY_TO_EMAIL",
+    "support@mintkit.co.uk",
+)
+
+
+# -------------------------
 # Logging
 # -------------------------
 LOGGING = {
