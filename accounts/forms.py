@@ -9,7 +9,6 @@ from .models import Profile
 class CustomUserCreationForm(UserCreationForm):
     """
     Registration form that includes an email field.
-    Used by accounts/views.py register() view.
     """
     email = forms.EmailField(
         required=True,
@@ -24,7 +23,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.email = self.cleaned_data.get("email", "").strip()
+        user.email = (self.cleaned_data.get("email") or "").strip()
         if commit:
             user.save()
         return user
@@ -33,10 +32,8 @@ class CustomUserCreationForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     """
     Let a logged-in user edit their business profile.
-    The user field is not exposed; it is set automatically in the view.
     """
 
-    # Override the default ClearableFileInput so the "Currently / Clear" UI is not shown.
     logo = forms.ImageField(
         required=False,
         widget=forms.FileInput(attrs={"class": "form-control"}),
@@ -45,24 +42,10 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = [
-            "business_name",
-            "contact_email",
-            "logo",
-        ]
+        fields = ["business_name", "contact_email", "logo"]
         widgets = {
-            "business_name": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "placeholder": "e.g. Beauty Studio MintKit",
-                }
-            ),
-            "contact_email": forms.EmailInput(
-                attrs={
-                    "class": "form-control",
-                    "placeholder": "you@example.com",
-                }
-            ),
+            "business_name": forms.TextInput(attrs={"class": "form-control", "placeholder": "e.g. Beauty Studio MintKit"}),
+            "contact_email": forms.EmailInput(attrs={"class": "form-control", "placeholder": "you@example.com"}),
         }
         labels = {
             "business_name": "Business name",
@@ -71,5 +54,5 @@ class ProfileForm(forms.ModelForm):
         help_texts = {
             "business_name": "This will be shown on your storefront and in emails.",
             "contact_email": "Where MintKit-related messages should be sent.",
-            "logo": "Upload an image that will be used on your dashboard and in Explore-style listings.",
+            "logo": "Upload an image used on the dashboard and in listings.",
         }

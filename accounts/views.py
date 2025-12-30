@@ -1,28 +1,27 @@
+# accounts/views.py
 from django.contrib.auth import logout
-from django.shortcuts import redirect, render
 from django.contrib import messages
-from .forms import CustomUserCreationForm
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
 
-from subscriptions.models import Subscription
 from storefronts.models import Storefront
+from subscriptions.models import Subscription
 
 from .emails import send_welcome_email
+from .forms import CustomUserCreationForm, ProfileForm
 from .models import Profile
-from .forms import ProfileForm
 
 
 def register(request):
     """
-    Simple registration view using Django's built-in UserCreationForm.
-    Also creates a matching Profile for the new user.
+    Register a new user and create a matching Profile.
+    Sends a welcome email if an email address is provided.
     """
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
 
-            # Make sure this user has a Profile; avoid duplicates with get_or_create
             Profile.objects.get_or_create(
                 user=user,
                 defaults={
@@ -31,25 +30,18 @@ def register(request):
                 },
             )
 
-            # Send welcome email if the user has an email address
             send_welcome_email(user, request=request)
 
-            messages.success(
-                request,
-                "Your account has been created. You can now log in."
-            )
+            messages.success(request, "Your account has been created. You can now log in.")
             return redirect("login")
     else:
         form = CustomUserCreationForm()
 
-    context = {"form": form}
-    return render(request, "accounts/register.html", context)
+    return render(request, "accounts/register.html", {"form": form})
 
 
 def logout_view(request):
-    """
-    Log the user out and redirect to the homepage.
-    """
+    """Log the user out and redirect to the homepage."""
     logout(request)
     messages.info(request, "You have been logged out.")
     return redirect("home")
@@ -57,18 +49,10 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    """
-    Main control panel for the logged-in user.
-
-    Shows:
-    - Business profile info
-    - Current storefront status
-    - Current subscription / trial info
-    """
+    """Main dashboard for the logged-in user."""
     profile = request.user.profile
     storefront = Storefront.objects.filter(profile=profile).first()
 
-    # Get the most recent subscription for this profile (if any)
     subscription = (
         Subscription.objects.filter(profile=profile)
         .order_by("-started_at")
@@ -85,10 +69,7 @@ def dashboard(request):
 
 @login_required
 def edit_profile(request):
-    """
-    Allow the logged-in user to edit their business profile.
-    """
-    # Make sure there is a Profile (extra safety)
+    """Allow the logged-in user to edit their business profile."""
     profile, _ = Profile.objects.get_or_create(
         user=request.user,
         defaults={
@@ -106,8 +87,43 @@ def edit_profile(request):
     else:
         form = ProfileForm(instance=profile)
 
+    return render(request, "accounts/edit_profile.html", {"form": form, "profile": profile})
+
+# Dev-only email preview view
+
+from django.conf import settings
+from django.http import HttpResponse
+
+def email_preview(request, kind: str):
+    """
+    Dev-only email preview in the browser.
+    Visit:
+      /accounts/email-preview/welcome/
+      /accounts/email-preview/subscription/
+    """
+    if not settings.DEBUG:
+        return HttpResponse("Not found", status=404)
+
+    links = _brand_links(request)  # uses request.build_absolute_uri
+    assets = _email_asset_urls(request)
+
     context = {
-        "form": form,
-        "profile": profile,
+        "user_name": "Preview User",
+        "year": timezone.now().year,
+        "site_root": links.site_root,
+        "dashboard_url": links.dashboard_url,
+        "about_url": links.about_url,
+        "pricing_url": links.pricing_url,
+        "faq_url": links.faq_url,
+        **assets,
     }
-    return render(request, "accounts/edit_profile.html", context)
+
+    if kind == "welcome":
+        html = render_to_string("emails/welcome.html", context)
+        return HttpResponse(html)
+
+    if kind == "subscription":
+        html = render_to_string("emails/subscription_confirmed.html", context)
+        return HttpResponse(html)
+
+    return HttpResponse("Unknown preview type", status=404)
