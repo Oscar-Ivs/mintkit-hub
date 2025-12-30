@@ -1,93 +1,72 @@
+{# templates/emails/base_email.html #}
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="x-apple-disable-message-reformatting">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}MintKit{% endblock %}</title>
   </head>
 
-  <body style="margin:0;padding:0;background:#eef3fb;">
-    <!-- Full-width background table -->
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#eef3fb;">
+  <body style="margin:0; padding:0; background:#eaf0f8;">
+    <!-- Full width wrapper -->
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#eaf0f8; width:100%;">
       <tr>
-        <td align="center" style="padding:32px 12px;">
+        <td align="center" style="padding:28px 12px;">
 
-          <!-- Main card -->
-          <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0"
-                 style="width:600px;max-width:600px;background:#ffffff;border-radius:18px;overflow:hidden;
-                        box-shadow:0 12px 34px rgba(16,24,40,0.12);">
-
-            <!-- Header (light, like site) -->
+          <!-- Container (max-width) -->
+          <table role="presentation" width="640" cellspacing="0" cellpadding="0" border="0"
+                 style="width:100%; max-width:640px; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(2,12,27,0.08);">
+            <!-- Header -->
             <tr>
-              <td style="padding:20px 24px;background:linear-gradient(135deg,#ffffff 0%,#f1f6ff 100%);
-                         border-bottom:1px solid #e6edf7;">
-
+              <td style="padding:22px 24px; background:linear-gradient(180deg,#0c2a66 0%, #0a1f4e 100%);">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
-                    <td align="left" style="vertical-align:middle;">
-                      {% if logo_url %}
-                        <img src="{{ logo_url }}" width="120" alt="MintKit" style="display:block;border:0;outline:none;text-decoration:none;">
-                      {% else %}
-                        <div style="font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:700;color:#0f172a;">
-                          MintKit Hub
-                        </div>
-                      {% endif %}
-
-                      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#3b82f6;margin-top:6px;">
+                    <td valign="middle" style="text-align:left;">
+                      <img src="{{ logo_url }}" alt="MintKit" width="140"
+                           style="display:block; width:140px; height:auto; border:0; outline:none; text-decoration:none;">
+                      <div style="margin-top:6px; font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#d6e4ff;">
                         Digital cards • vouchers • tickets
                       </div>
                     </td>
-
-                    <td align="right" style="vertical-align:middle;">
+                    <td valign="middle" style="text-align:right;">
                       {% if site_root %}
-                        <a href="{{ site_root }}" style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#2563eb;text-decoration:none;">
+                        <a href="{{ site_root }}" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#d6e4ff; text-decoration:none;">
                           Visit site
                         </a>
                       {% endif %}
                     </td>
                   </tr>
                 </table>
-
               </td>
             </tr>
 
-            <!-- Content -->
+            <!-- Body -->
             <tr>
-              <td style="padding:26px 24px;position:relative;">
-                {% if watermark_url %}
-                  <!-- Watermark (email-safe-ish: some clients may ignore positioning, but it's fine) -->
-                  <img src="{{ watermark_url }}" alt="" width="420"
-                       style="position:absolute;right:-40px;top:10px;opacity:0.10;pointer-events:none;">
-                {% endif %}
-
-                <div style="position:relative;z-index:2;">
-                  {% block content %}{% endblock %}
-                </div>
+              <td style="padding:24px;">
+                {% block content %}{% endblock %}
               </td>
             </tr>
 
             <!-- Footer -->
             <tr>
-              <td style="padding:18px 24px;background:#f6f9ff;border-top:1px solid #e6edf7;">
-                <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#475569;line-height:1.6;">
-                  Need help? Reply to this email or contact
-                  <a href="mailto:support@mintkit.co.uk" style="color:#2563eb;text-decoration:none;">support@mintkit.co.uk</a>.
+              <td style="padding:18px 24px; background:#f5f8ff; border-top:1px solid #e3ecff;">
+                <div style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#3b4a66;">
+                  Need help? Reply to this email or contact <a href="mailto:support@mintkit.co.uk" style="color:#1d4ed8; text-decoration:none;">support@mintkit.co.uk</a>.
                 </div>
 
-                <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#2563eb;margin-top:10px;">
-                  {% if about_url %}<a href="{{ about_url }}" style="color:#2563eb;text-decoration:none;">About</a>{% endif %}
-                  {% if pricing_url %} &nbsp;•&nbsp; <a href="{{ pricing_url }}" style="color:#2563eb;text-decoration:none;">Pricing</a>{% endif %}
-                  {% if faq_url %} &nbsp;•&nbsp; <a href="{{ faq_url }}" style="color:#2563eb;text-decoration:none;">FAQ</a>{% endif %}
+                <div style="margin-top:10px; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#1d4ed8;">
+                  {% if about_url %}<a href="{{ about_url }}" style="color:#1d4ed8; text-decoration:none;">About</a>{% endif %}
+                  {% if pricing_url %} &nbsp;•&nbsp; <a href="{{ pricing_url }}" style="color:#1d4ed8; text-decoration:none;">Pricing</a>{% endif %}
+                  {% if faq_url %} &nbsp;•&nbsp; <a href="{{ faq_url }}" style="color:#1d4ed8; text-decoration:none;">FAQ</a>{% endif %}
+                </div>
+
+                <div style="margin-top:14px; font-family:Arial, Helvetica, sans-serif; font-size:12px; color:#6b7a99;">
+                  © {{ year }} MintKit. All rights reserved.
                 </div>
               </td>
             </tr>
-
           </table>
-
-          <!-- Tiny footer under card -->
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#94a3b8;margin-top:14px;">
-            © {{ year }} MintKit. All rights reserved.
-          </div>
 
         </td>
       </tr>

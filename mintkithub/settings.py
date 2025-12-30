@@ -208,6 +208,9 @@ DEFAULT_REPLY_TO_EMAIL = os.getenv(
     "support@mintkit.co.uk",
 )
 
+# Transactional email defaults
+DEFAULT_REPLY_TO_EMAIL = ["support@mintkit.co.uk"]
+
 
 # -------------------------
 # Logging
