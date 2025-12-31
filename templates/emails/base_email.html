@@ -1,44 +1,36 @@
-{# templates/emails/base_email.html #}
+{% load static %}
 <!doctype html>
-<html lang="en">
+<html>
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="x-apple-disable-message-reformatting">
-    <title>{{ subject|default:"MintKit" }}</title>
+    <meta name="viewport" content="width=device-width">
+    <title>{% block title %}MintKit{% endblock %}</title>
   </head>
 
-  <body style="margin:0;padding:0;background:#eaf2ff;font-family:Arial,Helvetica,sans-serif;color:#0b2447;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eaf2ff;padding:28px 12px;">
+  <body style="margin:0; padding:0; background:#eaf2ff; font-family:Arial, Helvetica, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eaf2ff; padding:24px 12px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-                 style="max-width:680px;background:#ffffff;border:1px solid #dbe7fb;border-radius:18px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,0.08);">
-            <!-- Header -->
+
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:720px; background:#ffffff; border-radius:18px; overflow:hidden; box-shadow:0 10px 30px rgba(13, 33, 66, 0.12);">
             <tr>
-              <td style="padding:18px 20px;background:#dceaff;">
+              <td style="padding:0;">
+                {% if header_image_url %}
+                  <img src="{{ header_image_url }}" alt="MintKit" width="720" style="width:100%; max-width:720px; height:auto; display:block;">
+                {% endif %}
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:14px 18px; background:#dbeafe;">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                   <tr>
-                    <td align="left" style="vertical-align:top;">
-                      {% if site_root %}
-                        <a href="{{ site_root }}" style="text-decoration:none;">
-                          <img src="{{ logo_url }}" alt="MintKit"
-                               style="display:block;width:160px;max-width:160px;height:auto;border:0;">
-                        </a>
-                      {% else %}
-                        <img src="{{ logo_url }}" alt="MintKit"
-                             style="display:block;width:160px;max-width:160px;height:auto;border:0;">
-                      {% endif %}
-
-                      <div style="margin-top:6px;color:#2f5fa8;font-size:13px;line-height:18px;">
-                        Digital cards • vouchers • tickets
-                      </div>
+                    <td style="font-size:12px; color:#1f3b63;">
+                      Digital cards • vouchers • tickets
                     </td>
-
-                    <td align="right" style="vertical-align:top;">
+                    <td align="right">
                       {% if site_root %}
-                        <a href="{{ site_root }}"
-                           style="display:inline-block;padding:10px 14px;border:1px solid #2f5fa8;border-radius:999px;color:#2f5fa8;text-decoration:none;font-size:13px;">
+                        <a href="{{ site_root }}" style="display:inline-block; padding:9px 14px; border-radius:999px; border:1px solid #2f5fa8; color:#2f5fa8; text-decoration:none; font-size:12px; background:#eff6ff;">
                           Visit site
                         </a>
                       {% endif %}
@@ -48,39 +40,31 @@
               </td>
             </tr>
 
-            <!-- Body -->
             <tr>
-              <td style="padding:22px 22px 10px 22px;">
-                {% block email_body %}{% endblock %}
+              <td style="padding:22px 22px 8px 22px; color:#0f172a;">
+                {% block content %}{% endblock %}
               </td>
             </tr>
 
-            <!-- Footer box -->
             <tr>
-              <td style="padding:0 22px 22px 22px;">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-                       style="background:#f3f7ff;border:1px solid #dbe7fb;border-radius:14px;">
-                  <tr>
-                    <td style="padding:14px 16px;font-size:12px;line-height:18px;color:#163a6b;">
-                      Need help? Reply to this email or contact
-                      <a href="mailto:support@mintkit.co.uk" style="color:#2f5fa8;text-decoration:none;">support@mintkit.co.uk</a>.
-                      <div style="margin-top:10px;">
-                        {% if about_url %}<a href="{{ about_url }}" style="color:#2f5fa8;text-decoration:none;">About</a>{% endif %}
-                        {% if pricing_url %} &nbsp;•&nbsp; <a href="{{ pricing_url }}" style="color:#2f5fa8;text-decoration:none;">Pricing</a>{% endif %}
-                        {% if faq_url %} &nbsp;•&nbsp; <a href="{{ faq_url }}" style="color:#2f5fa8;text-decoration:none;">FAQ</a>{% endif %}
-                      </div>
-                    </td>
-                  </tr>
-                </table>
+              <td style="padding:14px 22px 22px 22px; font-size:12px; color:#334155;">
+                <div style="background:#f1f5ff; border:1px solid #dbeafe; border-radius:12px; padding:12px;">
+                  Need help? Reply to this email or contact <a href="mailto:support@mintkit.co.uk" style="color:#2f5fa8; text-decoration:none;">support@mintkit.co.uk</a>.
+                </div>
 
-                <div style="margin-top:14px;text-align:center;font-size:11px;color:#6a7f9c;">
+                <div style="padding-top:10px;">
+                  {% if about_url %}<a href="{{ about_url }}" style="color:#2f5fa8; text-decoration:none;">About</a>{% endif %}
+                  {% if pricing_url %} &nbsp;•&nbsp; <a href="{{ pricing_url }}" style="color:#2f5fa8; text-decoration:none;">Pricing</a>{% endif %}
+                  {% if faq_url %} &nbsp;•&nbsp; <a href="{{ faq_url }}" style="color:#2f5fa8; text-decoration:none;">FAQ</a>{% endif %}
+                </div>
+
+                <div style="padding-top:12px; text-align:center; color:#64748b;">
                   © {{ year }} MintKit. All rights reserved.
                 </div>
               </td>
             </tr>
           </table>
 
-          <div style="height:16px;line-height:16px;font-size:16px;">&nbsp;</div>
         </td>
       </tr>
     </table>
