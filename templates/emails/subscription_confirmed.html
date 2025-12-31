@@ -1,23 +1,23 @@
 {# templates/emails/subscription_confirmed.html #}
 {% extends "emails/base_email.html" %}
 
-{% block email_body %}
-  <h2 style="margin:0 0 10px 0;font-size:22px;line-height:28px;color:#0b2447;">
-    Subscription confirmed
-  </h2>
+{% block content %}
+  <h2 style="margin:0 0 10px 0; font-size:22px; color:#0b2a57;">Subscription confirmed</h2>
 
-  <p style="margin:0 0 14px 0;font-size:14px;line-height:21px;color:#163a6b;">
-    Thanks, {{ user_name }} — your subscription is confirmed.
+  <p style="margin:0 0 14px 0; font-size:14px; line-height:1.55; color:#1e2f4d;">
+    Thanks for supporting MintKit — your subscription is now active.
   </p>
 
-  <div style="margin:14px 0 16px 0;border-radius:12px;overflow:hidden;background:#cfd6df;">
-    <img src="{{ watermark_url }}" alt="" style="display:block;width:100%;height:auto;opacity:0.55;" />
-  </div>
-
   {% if dashboard_url %}
-    <a href="{{ dashboard_url }}"
-       style="display:inline-block;background:#2f5fa8;color:#ffffff;text-decoration:none;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:700;">
-      Open dashboard
-    </a>
+    <a href="{{ dashboard_url }}" style="
+      display:inline-block;
+      padding:12px 16px;
+      border-radius:10px;
+      background:#2f5fa8;
+      color:#ffffff;
+      text-decoration:none;
+      font-weight:700;
+      font-size:14px;
+    ">Open dashboard</a>
   {% endif %}
 {% endblock %}
