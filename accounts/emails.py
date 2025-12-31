@@ -35,7 +35,7 @@ def _email_asset_urls(request=None) -> Dict[str, str]:
     """
     Provide absolute URLs for images used in email templates.
     - header_bg_url: wide header image (static/img/email.webp)
-    - watermark_url: card background image (static/img/card-21.webp)
+    - watermark_url: card background image (static/img/card-211.webp)
     - logo_url: optional logo (kept for flexibility)
     """
     header_bg_path = static("img/email.webp")
