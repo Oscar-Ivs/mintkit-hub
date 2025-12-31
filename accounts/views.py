@@ -1,24 +1,29 @@
 # accounts/views.py
-from django.contrib.auth import logout
+import logging
+
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
+from django.utils import timezone
 
 from storefronts.models import Storefront
 from subscriptions.models import Subscription
 
-from .emails import send_welcome_email
-from .forms import CustomUserCreationForm, ProfileForm
+from .emails import send_welcome_email, _brand_links, _email_asset_urls  # email preview helpers live here :contentReference[oaicite:1]{index=1}
+from .forms import CustomUserCreationForm, ProfileForm, AccountEmailForm  # AccountEmailForm must exist
 from .models import Profile
 
-import logging
-
 logger = logging.getLogger(__name__)
+
 
 def register(request):
     """
     Register a new user and create a matching Profile.
-    Welcome email failures must never block registration.
+    Email failures must not block registration.
     """
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
@@ -36,7 +41,6 @@ def register(request):
             try:
                 send_welcome_email(user, request=request)
             except Exception:
-                # Email issues must not block registration
                 logger.exception("Welcome email failed for user_id=%s", user.id)
 
             messages.success(request, "Your account has been created. You can now log in.")
@@ -76,7 +80,11 @@ def dashboard(request):
 
 @login_required
 def edit_profile(request):
-    """Allow the logged-in user to edit their business profile."""
+    """
+    Allow the logged-in user to edit:
+    - business profile (Profile)
+    - account email (User.email shown in Django admin)
+    """
     profile, _ = Profile.objects.get_or_create(
         user=request.user,
         defaults={
@@ -86,20 +94,31 @@ def edit_profile(request):
     )
 
     if request.method == "POST":
-        form = ProfileForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Your business profile has been updated.")
+        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
+        email_form = AccountEmailForm(request.POST, instance=request.user)
+
+        if profile_form.is_valid() and email_form.is_valid():
+            profile_form.save()
+            email_form.save()
+
+            messages.success(request, "Your profile has been updated.")
             return redirect("dashboard")
     else:
-        form = ProfileForm(instance=profile)
+        profile_form = ProfileForm(instance=profile)
+        email_form = AccountEmailForm(instance=request.user)
 
-    return render(request, "accounts/edit_profile.html", {"form": form, "profile": profile})
+    # "form" kept for backwards compatibility with templates already using {{ form }}
+    return render(
+        request,
+        "accounts/edit_profile.html",
+        {
+            "profile": profile,
+            "form": profile_form,
+            "profile_form": profile_form,
+            "email_form": email_form,
+        },
+    )
 
-# Dev-only email preview view
-
-from django.conf import settings
-from django.http import HttpResponse
 
 def email_preview(request, kind: str):
     """
@@ -111,8 +130,8 @@ def email_preview(request, kind: str):
     if not settings.DEBUG:
         return HttpResponse("Not found", status=404)
 
-    links = _brand_links(request)  # uses request.build_absolute_uri
-    assets = _email_asset_urls(request)
+    links = _brand_links(request)  # uses request.build_absolute_uri :contentReference[oaicite:2]{index=2}
+    assets = _email_asset_urls(request)  # absolute static URLs :contentReference[oaicite:3]{index=3}
 
     context = {
         "user_name": "Preview User",

@@ -61,3 +61,29 @@ class ProfileForm(forms.ModelForm):
             "contact_email": "Where MintKit-related messages should be sent.",
             "logo": "Upload an image used on the dashboard and in listings.",
         }
+
+class AccountEmailForm(forms.ModelForm):
+    """
+    Update the auth user email (shows in Django admin Users).
+    """
+
+    class Meta:
+        model = User
+        fields = ("email",)
+        widgets = {
+            "email": forms.EmailInput(attrs={"class": "form-control", "placeholder": "name@example.com"}),
+        }
+        labels = {
+            "email": "Account email (login)",
+        }
+
+    def clean_email(self):
+        email = (self.cleaned_data.get("email") or "").strip().lower()
+        if not email:
+            raise forms.ValidationError("Email address is required.")
+
+        # Allow keeping the same email; block duplicates for other users
+        qs = User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("An account with this email already exists.")
+        return email

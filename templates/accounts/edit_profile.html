@@ -51,9 +51,26 @@
           </p>
         </div>
 
-        <!-- Contact email -->
+        <!-- Account email (Django User.email) -->
+        {% if email_form %}
+          <div class="form-row">
+            <label for="{{ email_form.email.id_for_label }}">Account email (login)</label>
+            {{ email_form.email }}
+            {% if email_form.email.errors %}
+              <div class="form-error">
+                {{ email_form.email.errors|striptags }}
+              </div>
+            {% endif %}
+            <p class="text-muted small">
+              This is the email stored on your Django user account (visible in the admin Users list).
+              Use this for login/account-level settings.
+            </p>
+          </div>
+        {% endif %}
+
+        <!-- Business contact email (Profile.contact_email) -->
         <div class="form-row">
-          <label for="{{ form.contact_email.id_for_label }}">Contact email</label>
+          <label for="{{ form.contact_email.id_for_label }}">Business contact email</label>
           {{ form.contact_email }}
           {% if form.contact_email.errors %}
             <div class="form-error">
@@ -61,8 +78,7 @@
             </div>
           {% endif %}
           <p class="text-muted small">
-            We'll use this address for MintKit-related messages and account
-            notifications.
+            This is used as the business contact email for MintKit-related messages and notifications.
           </p>
         </div>
 
