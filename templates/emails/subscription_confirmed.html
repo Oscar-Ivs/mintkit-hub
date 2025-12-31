@@ -2,17 +2,17 @@
 {% extends "emails/base_email.html" %}
 
 {% block email_body %}
-  <h2 style="margin:0 0 10px 0; color:#0f2f5a;">
-    Subscription confirmed ✅
+  <h2 style="margin:0 0 10px 0;font-size:22px;line-height:28px;color:#0b2447;">
+    Subscription confirmed
   </h2>
 
-  <p style="margin:0 0 14px 0; color:#203b66; line-height:1.5;">
-    Thanks, {{ user_name }} — your subscription is confirmed.
+  <p style="margin:0 0 14px 0;font-size:14px;line-height:21px;color:#163a6b;">
+    Thanks, {{ user_name }} — the subscription is confirmed and the account is ready for publishing.
   </p>
 
   {% if dashboard_url %}
     <a href="{{ dashboard_url }}"
-       style="display:inline-block; padding:12px 16px; border-radius:12px; background:#2f5fa8; color:#ffffff; text-decoration:none; font-weight:800;">
+       style="display:inline-block;background:#2f5fa8;color:#ffffff;text-decoration:none;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:700;">
       Go to dashboard
     </a>
   {% endif %}
