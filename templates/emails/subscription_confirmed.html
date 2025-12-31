@@ -7,13 +7,17 @@
   </h2>
 
   <p style="margin:0 0 14px 0;font-size:14px;line-height:21px;color:#163a6b;">
-    Thanks, {{ user_name }} — the subscription is confirmed and the account is ready for publishing.
+    Thanks, {{ user_name }} — your subscription is confirmed.
   </p>
+
+  <div style="margin:14px 0 16px 0;border-radius:12px;overflow:hidden;background:#cfd6df;">
+    <img src="{{ watermark_url }}" alt="" style="display:block;width:100%;height:auto;opacity:0.55;" />
+  </div>
 
   {% if dashboard_url %}
     <a href="{{ dashboard_url }}"
        style="display:inline-block;background:#2f5fa8;color:#ffffff;text-decoration:none;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:700;">
-      Go to dashboard
+      Open dashboard
     </a>
   {% endif %}
 {% endblock %}
