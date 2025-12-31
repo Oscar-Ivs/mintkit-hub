@@ -38,9 +38,14 @@
         {{ profile.business_name|default:"Not set yet" }}
       </li>
       <li>
-        <strong>Contact email:</strong>
+        <strong>Account email (login):</strong>
+        {{ request.user.email|default:"Not set yet" }}
+      </li>
+      <li>
+        <strong>Business contact email:</strong>
         {{ profile.contact_email|default:"Not set yet" }}
       </li>
+
       <li>
         <strong>Member since:</strong>
         {{ profile.user.date_joined|date:"Y-m-d H:i" }}
@@ -51,9 +56,9 @@
       <a href="{% url 'edit_profile' %}" class="btn btn-primary">
         Edit business profile
       </a>
-   <a href="{% url 'password_reset' %}" class="btn btn-secondary">Forgot password?</a>
+      <a href="{% url 'password_change' %}" class="btn btn-secondary">Change password</a>
     </p>
- 
+
 
     <hr>
 
