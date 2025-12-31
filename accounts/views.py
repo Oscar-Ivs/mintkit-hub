@@ -11,6 +11,9 @@ from .emails import send_welcome_email
 from .forms import CustomUserCreationForm, ProfileForm
 from .models import Profile
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 def register(request):
     """
@@ -30,7 +33,11 @@ def register(request):
                 },
             )
 
-            send_welcome_email(user, request=request)
+            # Email issues must not block registration
+            try:
+                send_welcome_email(user, request=request)
+            except Exception:
+                logger.exception("Welcome email failed for user_id=%s", user.id)
 
             messages.success(request, "Your account has been created. You can now log in.")
             return redirect("login")
@@ -38,6 +45,7 @@ def register(request):
         form = CustomUserCreationForm()
 
     return render(request, "accounts/register.html", {"form": form})
+
 
 
 def logout_view(request):
