@@ -1,72 +1,67 @@
 {% load static %}
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <title>{% block title %}MintKit{% endblock %}</title>
-  </head>
 
-  <body style="margin:0; padding:0; background:#eaf2ff; font-family:Arial, Helvetica, sans-serif;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eaf2ff; padding:24px 12px;">
+<!-- HEADER -->
+<tr>
+  <td style="padding:0;">
+    <!-- Top banner image -->
+    <img src="{% static 'img/email.webp' %}" alt="MintKit" width="720"
+      style="width:100%; max-width:720px; height:auto; display:block;">
+  </td>
+</tr>
+
+<!-- Slim light-blue bar under the banner -->
+<tr>
+  <td style="padding:14px 18px; background:#dbeafe;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr>
-        <td align="center">
-
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:720px; background:#ffffff; border-radius:18px; overflow:hidden; box-shadow:0 10px 30px rgba(13, 33, 66, 0.12);">
-            <tr>
-              <td style="padding:0;">
-                {% if header_image_url %}
-                  <img src="{{ header_image_url }}" alt="MintKit" width="720" style="width:100%; max-width:720px; height:auto; display:block;">
-                {% endif %}
-              </td>
-            </tr>
-
-            <tr>
-              <td style="padding:14px 18px; background:#dbeafe;">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td style="font-size:12px; color:#1f3b63;">
-                      Digital cards • vouchers • tickets
-                    </td>
-                    <td align="right">
-                      {% if site_root %}
-                        <a href="{{ site_root }}" style="display:inline-block; padding:9px 14px; border-radius:999px; border:1px solid #2f5fa8; color:#2f5fa8; text-decoration:none; font-size:12px; background:#eff6ff;">
-                          Visit site
-                        </a>
-                      {% endif %}
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-
-            <tr>
-              <td style="padding:22px 22px 8px 22px; color:#0f172a;">
-                {% block content %}{% endblock %}
-              </td>
-            </tr>
-
-            <tr>
-              <td style="padding:14px 22px 22px 22px; font-size:12px; color:#334155;">
-                <div style="background:#f1f5ff; border:1px solid #dbeafe; border-radius:12px; padding:12px;">
-                  Need help? Reply to this email or contact <a href="mailto:support@mintkit.co.uk" style="color:#2f5fa8; text-decoration:none;">support@mintkit.co.uk</a>.
-                </div>
-
-                <div style="padding-top:10px;">
-                  {% if about_url %}<a href="{{ about_url }}" style="color:#2f5fa8; text-decoration:none;">About</a>{% endif %}
-                  {% if pricing_url %} &nbsp;•&nbsp; <a href="{{ pricing_url }}" style="color:#2f5fa8; text-decoration:none;">Pricing</a>{% endif %}
-                  {% if faq_url %} &nbsp;•&nbsp; <a href="{{ faq_url }}" style="color:#2f5fa8; text-decoration:none;">FAQ</a>{% endif %}
-                </div>
-
-                <div style="padding-top:12px; text-align:center; color:#64748b;">
-                  © {{ year }} MintKit. All rights reserved.
-                </div>
-              </td>
-            </tr>
-          </table>
-
+        <td style="font-size:12px; color:#1f3b63;">
+          Digital cards • vouchers • tickets
+        </td>
+        <td align="right">
+          {% if site_root %}
+          <a href="{{ site_root }}"
+            style="display:inline-block; padding:9px 14px; border-radius:999px; border:1px solid #2f5fa8; color:#2f5fa8; text-decoration:none; font-size:12px; background:#eff6ff;">
+            Visit site
+          </a>
+          {% endif %}
         </td>
       </tr>
     </table>
-  </body>
+  </td>
+</tr>
+
+
+<tr>
+  <td style="padding:22px 22px 8px 22px; color:#0f172a;">
+    {% block content %}{% endblock %}
+  </td>
+</tr>
+
+<tr>
+  <td style="padding:14px 22px 22px 22px; font-size:12px; color:#334155;">
+    <div style="background:#f1f5ff; border:1px solid #dbeafe; border-radius:12px; padding:12px;">
+      Need help? Reply to this email or contact <a href="mailto:support@mintkit.co.uk"
+        style="color:#2f5fa8; text-decoration:none;">support@mintkit.co.uk</a>.
+    </div>
+
+    <div style="padding-top:10px;">
+      {% if about_url %}<a href="{{ about_url }}" style="color:#2f5fa8; text-decoration:none;">About</a>{% endif %}
+      {% if pricing_url %} &nbsp;•&nbsp; <a href="{{ pricing_url }}"
+        style="color:#2f5fa8; text-decoration:none;">Pricing</a>{% endif %}
+      {% if faq_url %} &nbsp;•&nbsp; <a href="{{ faq_url }}" style="color:#2f5fa8; text-decoration:none;">FAQ</a>{%
+      endif %}
+    </div>
+
+    <div style="padding-top:12px; text-align:center; color:#64748b;">
+      © {{ year }} MintKit. All rights reserved.
+    </div>
+  </td>
+</tr>
+</table>
+
+</td>
+</tr>
+</table>
+</body>
+
 </html>
