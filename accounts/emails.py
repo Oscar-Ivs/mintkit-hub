@@ -40,6 +40,8 @@ def _email_asset_urls(request=None) -> Dict[str, str]:
     """
     header_bg_path = static("img/email.webp")
     watermark_path = static("img/card-211.webp")
+    logo_path = static("img/logo-blue.webp")  # optional if templates use it
+
 
     return {
         "header_bg_url": _build_absolute(request, header_bg_path),
