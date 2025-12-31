@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def register(request):
     """
     Register a new user and create a matching Profile.
-    Sends a welcome email if an email address is provided.
+    Welcome email failures must never block registration.
     """
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
@@ -33,10 +33,10 @@ def register(request):
                 },
             )
 
-            # Email issues must not block registration
             try:
                 send_welcome_email(user, request=request)
             except Exception:
+                # Email issues must not block registration
                 logger.exception("Welcome email failed for user_id=%s", user.id)
 
             messages.success(request, "Your account has been created. You can now log in.")
@@ -45,7 +45,6 @@ def register(request):
         form = CustomUserCreationForm()
 
     return render(request, "accounts/register.html", {"form": form})
-
 
 
 def logout_view(request):

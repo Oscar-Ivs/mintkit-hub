@@ -1,8 +1,8 @@
 # accounts/emails.py
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Sequence
+import logging
+from typing import Any
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -10,91 +10,44 @@ from django.template.loader import render_to_string
 from django.templatetags.static import static
 from django.utils import timezone
 
-
-@dataclass(frozen=True)
-class BrandedLinks:
-    site_root: str = ""
-    dashboard_url: str = ""
-    about_url: str = ""
-    pricing_url: str = ""
-    faq_url: str = ""
+logger = logging.getLogger(__name__)
 
 
-def _build_absolute(request, path: str) -> str:
+def _site_root(request=None) -> str:
     """
-    Build an absolute URL for a given path using request host.
-    Returns empty string if request is missing.
+    Best-effort site root for absolute links in emails.
     """
-    if request is None:
+    if request is not None:
+        return request.build_absolute_uri("/").rstrip("/")
+    return getattr(settings, "SITE_ROOT", "").rstrip("/")
+
+
+def _abs(request, path_or_url: str) -> str:
+    """
+    Convert /static/... or /path/... into an absolute URL when possible.
+    """
+    if not path_or_url:
         return ""
-    return request.build_absolute_uri(path)
+    if path_or_url.startswith("http://") or path_or_url.startswith("https://"):
+        return path_or_url
+    root = _site_root(request)
+    if not root:
+        return path_or_url
+    if not path_or_url.startswith("/"):
+        path_or_url = "/" + path_or_url
+    return f"{root}{path_or_url}"
 
 
-def _brand_links(request=None) -> BrandedLinks:
-    """
-    Provide absolute site links for use inside emails.
-    """
-    if request is None:
-        return BrandedLinks()
-
-    site_root = request.build_absolute_uri("/").rstrip("/")
-    return BrandedLinks(
-        site_root=site_root,
-        dashboard_url=f"{site_root}/accounts/dashboard/",
-        about_url=f"{site_root}/about/",
-        pricing_url=f"{site_root}/pricing/",
-        faq_url=f"{site_root}/faq/",
-    )
-
-
-def _email_asset_urls(request=None) -> Dict[str, str]:
-    """
-    Provide absolute URLs for logo + watermark assets used in email templates.
-    """
-    # Requested logo:
-    logo_path = static("img/logo-22.png")
-
-    # Watermark image used on About/Pricing/FAQ:
-    watermark_path = static("img/card-211.png")
-
-    return {
-        "logo_url": _build_absolute(request, logo_path),
-        "watermark_url": _build_absolute(request, watermark_path),
-    }
-
-
-def _normalise_reply_to(value: Optional[Sequence[str] | str]) -> List[str]:
+def _normalise_reply_to(value) -> list[str] | None:
     """
     Django requires reply_to to be a list/tuple.
-    Returns an empty list when not provided.
     """
     if not value:
-        return []
+        return None
     if isinstance(value, (list, tuple)):
-        return [str(v).strip() for v in value if str(v).strip()]
+        cleaned = [str(v).strip() for v in value if str(v).strip()]
+        return cleaned or None
     return [str(value).strip()]
-
-
-def _render_plain_fallback(user_name: str, main_line: str, links: BrandedLinks) -> str:
-    """
-    Plain-text fallback for clients that block HTML emails.
-    """
-    lines = [
-        f"Hi {user_name},",
-        "",
-        main_line,
-    ]
-
-    if links.dashboard_url:
-        lines += ["", f"Dashboard: {links.dashboard_url}"]
-    if links.site_root:
-        lines += ["", f"Website: {links.site_root}"]
-
-    lines += [
-        "",
-        "Need help? Reply to this email or contact support@mintkit.co.uk.",
-    ]
-    return "\n".join(lines)
 
 
 def send_templated_email(
@@ -102,14 +55,13 @@ def send_templated_email(
     subject: str,
     to_email: str,
     template_html: str,
-    context: Dict[str, Any],
-    from_email: Optional[str] = None,
-    reply_to: Optional[Sequence[str] | str] = None,
+    context: dict[str, Any],
+    from_email: str | None = None,
+    reply_to=None,
     fail_silently: bool = True,
 ) -> bool:
     """
-    Send a branded HTML email with a plain-text fallback.
-    Returns True if sent, False otherwise.
+    Send a HTML email with a plain-text fallback.
     """
     if not to_email:
         return False
@@ -118,53 +70,66 @@ def send_templated_email(
     if not resolved_from:
         return False
 
-    # Always pass a list/tuple into EmailMultiAlternatives
-    reply_to_list = _normalise_reply_to(
-        reply_to or getattr(settings, "DEFAULT_REPLY_TO_EMAIL", "") or ""
-    )
-
-    plain_text = context.get("plain_text") or "MintKit notification."
     html_body = render_to_string(template_html, context)
+    text_body = context.get("plain_text") or "MintKit notification."
 
-    msg = EmailMultiAlternatives(
-        subject=subject,
-        body=plain_text,
-        from_email=resolved_from,
-        to=[to_email],
-        reply_to=reply_to_list,  # must be list/tuple (can be empty list)
+    reply_to_list = _normalise_reply_to(reply_to) or _normalise_reply_to(
+        getattr(settings, "DEFAULT_REPLY_TO_EMAIL", None)
     )
-    msg.attach_alternative(html_body, "text/html")
 
-    sent = msg.send(fail_silently=fail_silently)
-    return sent > 0
+    try:
+        msg = EmailMultiAlternatives(
+            subject=subject,
+            body=text_body,
+            from_email=resolved_from,
+            to=[to_email],
+            reply_to=reply_to_list,
+        )
+        msg.attach_alternative(html_body, "text/html")
+        sent = msg.send(fail_silently=fail_silently)
+        return bool(sent)
+    except Exception:
+        if fail_silently:
+            logger.exception("Email send failed (subject=%s, to=%s)", subject, to_email)
+            return False
+        raise
 
 
 def send_welcome_email(user, request=None) -> bool:
     """
-    Send a branded welcome email after successful registration.
+    Welcome email sent after successful registration.
     """
     user_email = getattr(user, "email", "") or ""
     if not user_email:
         return False
 
-    links = _brand_links(request)
-    assets = _email_asset_urls(request)
+    site_root = _site_root(request)
+    assets = {
+        "logo_url": _abs(request, static("img/email.webp")),
+        "watermark_url": _abs(request, static("img/card-211.webp")),
+    }
 
-    context: Dict[str, Any] = {
+    context: dict[str, Any] = {
         "user_name": getattr(user, "username", "there"),
         "year": timezone.now().year,
-        "site_root": links.site_root,
-        "dashboard_url": links.dashboard_url,
-        "about_url": links.about_url,
-        "pricing_url": links.pricing_url,
-        "faq_url": links.faq_url,
+        "site_root": site_root,
+        "dashboard_url": f"{site_root}/accounts/dashboard/" if site_root else "/accounts/dashboard/",
+        "about_url": f"{site_root}/about/" if site_root else "/about/",
+        "pricing_url": f"{site_root}/pricing/" if site_root else "/pricing/",
+        "faq_url": f"{site_root}/faq/" if site_root else "/faq/",
         **assets,
     }
 
-    context["plain_text"] = _render_plain_fallback(
-        user_name=context["user_name"],
-        main_line="Your account is ready. MintKit helps publish digital cards, vouchers, and tickets with a clean storefront link you can share anywhere.",
-        links=links,
+    context["plain_text"] = "\n".join(
+        [
+            f"Welcome to MintKit, {context['user_name']}!",
+            "",
+            "Your account is ready. MintKit helps small businesses publish digital gift cards, vouchers, and tickets.",
+            "",
+            f"Dashboard: {context['dashboard_url']}",
+            "",
+            "Need help? Reply to this email or contact support@mintkit.co.uk.",
+        ]
     )
 
     return send_templated_email(
@@ -172,43 +137,6 @@ def send_welcome_email(user, request=None) -> bool:
         to_email=user_email,
         template_html="emails/welcome.html",
         context=context,
-        fail_silently=True,  # registration should not be blocked by email delivery
-    )
-
-
-def send_subscription_confirmed_email(user, request=None) -> bool:
-    """
-    Send a subscription confirmation email.
-    Call this after Stripe webhook / successful checkout.
-    """
-    user_email = getattr(user, "email", "") or ""
-    if not user_email:
-        return False
-
-    links = _brand_links(request)
-    assets = _email_asset_urls(request)
-
-    context: Dict[str, Any] = {
-        "user_name": getattr(user, "username", "there"),
-        "year": timezone.now().year,
-        "site_root": links.site_root,
-        "dashboard_url": links.dashboard_url,
-        "about_url": links.about_url,
-        "pricing_url": links.pricing_url,
-        "faq_url": links.faq_url,
-        **assets,
-    }
-
-    context["plain_text"] = _render_plain_fallback(
-        user_name=context["user_name"],
-        main_line="Your subscription is confirmed. Thanks for supporting MintKit.",
-        links=links,
-    )
-
-    return send_templated_email(
-        subject="Subscription confirmed",
-        to_email=user_email,
-        template_html="emails/subscription_confirmed.html",
-        context=context,
+        reply_to=["support@mintkit.co.uk"],
         fail_silently=True,
     )
