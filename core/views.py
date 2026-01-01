@@ -57,8 +57,55 @@ def about(request):
 
 
 def pricing(request):
-    """Simple Pricing page stub."""
-    return render(request, "core/pricing.html")
+    """
+    Pricing page.
+
+    Provides trial status context so the template can:
+    - Show correct CTA text (start trial / trial active / used)
+    - Disable the Free Trial button after activation/usage
+    """
+    subscription = None
+    trial_active = False
+    trial_used = False
+    trial_end = None
+
+    if request.user.is_authenticated:
+        profile, _ = Profile.objects.get_or_create(
+            user=request.user,
+            defaults={
+                "business_name": request.user.username,
+                "contact_email": getattr(request.user, "email", "") or "",
+            },
+        )
+
+        subscription = (
+            Subscription.objects.filter(profile=profile)
+            .order_by("-started_at")
+            .first()
+        )
+
+        if subscription:
+            trial_used = True
+
+            status = (getattr(subscription, "status", "") or "").lower()
+            if status in {"trial", "trialing"}:
+                trial_end = _to_date(getattr(subscription, "current_period_end", None))
+                if trial_end is None:
+                    trial_active = True
+                else:
+                    trial_active = trial_end >= timezone.localdate()
+
+    return render(
+        request,
+        "core/pricing.html",
+        {
+            "subscription": subscription,
+            "trial_active": trial_active,
+            "trial_used": trial_used,
+            "trial_end": trial_end,
+        },
+    )
+
 
 
 def faq(request):

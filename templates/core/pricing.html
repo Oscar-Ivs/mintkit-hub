@@ -5,21 +5,49 @@
 
 {% block content %}
 
-<header class="mk-page-head">
-  <h1 class="mk-page-title">Pricing</h1> {% if user.is_authenticated %}
-  <a href="{% url 'start_trial' %}" class="btn btn-primary">
-    Start free trial
-  </a>
-{% else %}
-  <a href="{% url 'login' %}" class="btn btn-primary">
-    Log in to start free trial
-  </a>
-{% endif %}
+<header class="mk-page-head d-flex justify-content-between align-items-start flex-wrap gap-3">
+  <div>
+    <h1 class="mk-page-title">Pricing</h1>
 
-  <p class="mk-page-lead">
-    MintKit Hub starts with a short <strong>free trial</strong>, then an affordable <strong>Basic</strong> plan.
-    A more advanced <strong>Pro</strong> tier is planned for the future.
-  </p>
+    <p class="mk-page-lead">
+      MintKit Hub starts with a short <strong>free trial</strong>, then an affordable <strong>Basic</strong> plan.
+      A more advanced <strong>Pro</strong> tier is planned for the future.
+    </p>
+
+    {% if user.is_authenticated %}
+      {% if trial_active %}
+        <span class="badge bg-success">
+          Trial active{% if trial_end %} • ends {{ trial_end|date:"F j, Y" }}{% endif %}
+        </span>
+      {% elif trial_used %}
+        <span class="badge bg-secondary">Trial used</span>
+      {% else %}
+        <span class="badge bg-primary">Eligible for free trial</span>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  <div class="text-end">
+    {% if user.is_authenticated %}
+      {% if trial_active %}
+        <a href="{% url 'studio' %}" class="btn btn-primary btn-sm">
+          Open Studio
+        </a>
+      {% elif trial_used %}
+        <a href="{% url 'pricing' %}" class="btn btn-secondary btn-sm disabled" aria-disabled="true">
+          Trial already used
+        </a>
+      {% else %}
+        <a href="{% url 'start_trial' %}" class="btn btn-primary btn-sm">
+          Start free trial
+        </a>
+      {% endif %}
+    {% else %}
+      <a href="{% url 'login' %}" class="btn btn-primary btn-sm">
+        Log in to start free trial
+      </a>
+    {% endif %}
+  </div>
 </header>
 
 <section class="mk-pricing" aria-label="Plans">
@@ -52,9 +80,26 @@
         <span class="mk-price-term">for 14 days</span>
       </div>
 
-      <button class="btn btn-primary mk-plan-btn" type="button" disabled>
-        Start trial
-      </button>
+      {# Trial button logic #}
+      {% if user.is_authenticated %}
+        {% if trial_active %}
+          <button class="btn btn-primary mk-plan-btn" type="button" disabled>
+            Trial active{% if trial_end %} • ends {{ trial_end|date:"M j" }}{% endif %}
+          </button>
+        {% elif trial_used %}
+          <button class="btn btn-secondary mk-plan-btn" type="button" disabled>
+            Trial already used
+          </button>
+        {% else %}
+          <a href="{% url 'start_trial' %}" class="btn btn-primary mk-plan-btn">
+            Start trial
+          </a>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-primary mk-plan-btn">
+          Log in to start
+        </a>
+      {% endif %}
 
       <ul class="mk-feature-list">
         <li class="mk-feature mk-feature--on">Full access to MintKit Hub dashboard</li>
