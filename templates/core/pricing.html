@@ -84,24 +84,25 @@
 
       {# Trial button logic #}
       {% if user.is_authenticated %}
-      {% if trial_active %}
-      <button class="btn btn-primary mk-plan-btn" type="button" disabled>
-        Trial active{% if trial_end %} • ends {{ trial_end|date:"M j" }}{% endif %}
-      </button>
-      {% elif trial_used %}
-      <button class="btn btn-secondary mk-plan-btn" type="button" disabled>
-        Trial already used
-      </button>
-      {% else %}
-      <a href="{% url 'start_trial' %}" class="btn btn-primary mk-plan-btn">
+      {% if not trial_used and not trial_active %}
+      <a class="btn btn-primary mk-plan-btn" href="{% url 'start_trial' %}">
         Start trial
       </a>
+      {% elif trial_active %}
+      <button class="btn btn-primary mk-plan-btn" type="button" disabled>
+        Trial active
+      </button>
+      {% else %}
+      <button class="btn btn-primary mk-plan-btn" type="button" disabled>
+        Trial used
+      </button>
       {% endif %}
       {% else %}
-      <a href="{% url 'login' %}" class="btn btn-primary mk-plan-btn">
+      <a class="btn btn-primary mk-plan-btn" href="{% url 'login' %}">
         Log in to start
       </a>
       {% endif %}
+
 
       <ul class="mk-feature-list">
         <li class="mk-feature mk-feature--on">Full access to MintKit Hub dashboard</li>

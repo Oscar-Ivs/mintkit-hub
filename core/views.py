@@ -57,17 +57,7 @@ def about(request):
 
 
 def pricing(request):
-    """
-    Pricing page.
-
-    Provides trial status context so the template can:
-    - Show correct CTA text (start trial / trial active / used)
-    - Disable the Free Trial button after activation/usage
-    """
-    subscription = None
-    trial_active = False
-    trial_used = False
-    trial_end = None
+    context = {}
 
     if request.user.is_authenticated:
         profile, _ = Profile.objects.get_or_create(
@@ -84,28 +74,30 @@ def pricing(request):
             .first()
         )
 
-        if subscription:
-            trial_used = True
+        status = (getattr(subscription, "status", "") or "").lower() if subscription else ""
+        today = timezone.localdate()
 
-            status = (getattr(subscription, "status", "") or "").lower()
-            if status in {"trial", "trialing"}:
-                trial_end = _to_date(getattr(subscription, "current_period_end", None))
-                if trial_end is None:
-                    trial_active = True
-                else:
-                    trial_active = trial_end >= timezone.localdate()
+        trial_end = getattr(subscription, "current_period_end", None) if subscription else None
+        end_date = _to_date(trial_end)
 
-    return render(
-        request,
-        "core/pricing.html",
-        {
-            "subscription": subscription,
-            "trial_active": trial_active,
-            "trial_used": trial_used,
-            "trial_end": trial_end,
-        },
-    )
+        trial_active = (
+            status in {"trial", "trialing"}
+            and (end_date is None or end_date >= today)
+        )
 
+        trial_used = subscription is not None  # one-trial-only rule
+
+        context.update(
+            {
+                "subscription": subscription,
+                "studio_access": _studio_access(subscription),
+                "trial_active": trial_active,
+                "trial_used": trial_used,
+                "trial_end": trial_end,
+            }
+        )
+
+    return render(request, "core/pricing.html", context)
 
 
 def faq(request):
