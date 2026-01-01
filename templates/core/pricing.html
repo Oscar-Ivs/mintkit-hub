@@ -15,39 +15,41 @@
     </p>
 
     {% if user.is_authenticated %}
+    <div style="margin: 10px 0 16px 0;">
       {% if trial_active %}
-        <span class="badge bg-success">
-          Trial active{% if trial_end %} • ends {{ trial_end|date:"F j, Y" }}{% endif %}
-        </span>
+      <span>
+        Trial active{% if trial_end %} • ends {{ trial_end|date:"F j, Y" }}{% endif %}
+      </span>
       {% elif trial_used %}
-        <span class="badge bg-secondary">Trial used</span>
+      <span>Trial used</span>
       {% else %}
-        <span class="badge bg-primary">Eligible for free trial</span>
+      <span>Eligible for free trial</span>
       {% endif %}
+    </div>
     {% endif %}
-  </div>
 
-  <div class="text-end">
-    {% if user.is_authenticated %}
+
+    <div class="text-end">
+      {% if user.is_authenticated %}
       {% if trial_active %}
-        <a href="{% url 'studio' %}" class="btn btn-primary btn-sm">
-          Open Studio
-        </a>
+      <a href="{% url 'studio' %}" class="btn btn-primary btn-sm">
+        Open Studio
+      </a>
       {% elif trial_used %}
-        <a href="{% url 'pricing' %}" class="btn btn-secondary btn-sm disabled" aria-disabled="true">
-          Trial already used
-        </a>
+      <a href="{% url 'pricing' %}" class="btn btn-secondary btn-sm disabled" aria-disabled="true">
+        Trial already used
+      </a>
       {% else %}
-        <a href="{% url 'start_trial' %}" class="btn btn-primary btn-sm">
-          Start free trial
-        </a>
+      <a href="{% url 'start_trial' %}" class="btn btn-primary btn-sm">
+        Start free trial
+      </a>
       {% endif %}
-    {% else %}
+      {% else %}
       <a href="{% url 'login' %}" class="btn btn-primary btn-sm">
         Log in to start free trial
       </a>
-    {% endif %}
-  </div>
+      {% endif %}
+    </div>
 </header>
 
 <section class="mk-pricing" aria-label="Plans">
@@ -82,23 +84,23 @@
 
       {# Trial button logic #}
       {% if user.is_authenticated %}
-        {% if trial_active %}
-          <button class="btn btn-primary mk-plan-btn" type="button" disabled>
-            Trial active{% if trial_end %} • ends {{ trial_end|date:"M j" }}{% endif %}
-          </button>
-        {% elif trial_used %}
-          <button class="btn btn-secondary mk-plan-btn" type="button" disabled>
-            Trial already used
-          </button>
-        {% else %}
-          <a href="{% url 'start_trial' %}" class="btn btn-primary mk-plan-btn">
-            Start trial
-          </a>
-        {% endif %}
+      {% if trial_active %}
+      <button class="btn btn-primary mk-plan-btn" type="button" disabled>
+        Trial active{% if trial_end %} • ends {{ trial_end|date:"M j" }}{% endif %}
+      </button>
+      {% elif trial_used %}
+      <button class="btn btn-secondary mk-plan-btn" type="button" disabled>
+        Trial already used
+      </button>
       {% else %}
-        <a href="{% url 'login' %}" class="btn btn-primary mk-plan-btn">
-          Log in to start
-        </a>
+      <a href="{% url 'start_trial' %}" class="btn btn-primary mk-plan-btn">
+        Start trial
+      </a>
+      {% endif %}
+      {% else %}
+      <a href="{% url 'login' %}" class="btn btn-primary mk-plan-btn">
+        Log in to start
+      </a>
       {% endif %}
 
       <ul class="mk-feature-list">
@@ -110,10 +112,11 @@
         <li class="mk-feature">About <strong>20 cards</strong> per batch</li>
       </ul>
 
-      {# A <p> cannot be inside a <ul> #}
-      <p class="mk-plan-footnote">
-        Stripe subscription flow will be wired here in the final version.
-      </p>
+      {# A <p> cannot be inside a
+      <ul> #}
+        <p class="mk-plan-footnote">
+          Stripe subscription flow will be wired here in the final version.
+        </p>
     </article>
 
     <!-- Basic (Recommended) -->
