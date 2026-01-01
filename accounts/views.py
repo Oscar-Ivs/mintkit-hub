@@ -13,8 +13,8 @@ from django.utils import timezone
 from storefronts.models import Storefront
 from subscriptions.models import Subscription
 
-from .emails import send_welcome_email, _brand_links, _email_asset_urls  # email preview helpers live here :contentReference[oaicite:1]{index=1}
-from .forms import CustomUserCreationForm, ProfileForm, AccountEmailForm  # AccountEmailForm must exist
+from .emails import send_welcome_email, _brand_links, _email_asset_urls
+from .forms import CustomUserCreationForm, ProfileForm, AccountEmailForm
 from .models import Profile
 
 logger = logging.getLogger(__name__)
@@ -61,7 +61,14 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     """Main dashboard for the logged-in user."""
-    profile = request.user.profile
+    profile, _ = Profile.objects.get_or_create(
+        user=request.user,
+        defaults={
+            "business_name": request.user.username,
+            "contact_email": getattr(request.user, "email", "") or "",
+        },
+    )
+
     storefront = Storefront.objects.filter(profile=profile).first()
 
     subscription = (
@@ -70,10 +77,16 @@ def dashboard(request):
         .first()
     )
 
+    # Keep template logic simple and reliable
+    studio_access = bool(
+        subscription and subscription.status in ("active", "trial", "trialing")
+    )
+
     context = {
         "profile": profile,
         "storefront": storefront,
         "subscription": subscription,
+        "studio_access": studio_access,
     }
     return render(request, "accounts/dashboard.html", context)
 
@@ -107,7 +120,7 @@ def edit_profile(request):
         profile_form = ProfileForm(instance=profile)
         email_form = AccountEmailForm(instance=request.user)
 
-    # "form" kept for backwards compatibility with templates already using {{ form }}
+    # "form" kept for backwards compatibility with templates using {{ form }}
     return render(
         request,
         "accounts/edit_profile.html",
@@ -130,8 +143,8 @@ def email_preview(request, kind: str):
     if not settings.DEBUG:
         return HttpResponse("Not found", status=404)
 
-    links = _brand_links(request)  # uses request.build_absolute_uri :contentReference[oaicite:2]{index=2}
-    assets = _email_asset_urls(request)  # absolute static URLs :contentReference[oaicite:3]{index=3}
+    links = _brand_links(request)  # uses request.build_absolute_uri
+    assets = _email_asset_urls(request)  # absolute static URLs
 
     context = {
         "user_name": "Preview User",
