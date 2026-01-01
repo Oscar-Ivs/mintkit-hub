@@ -6,7 +6,16 @@
 {% block content %}
 
 <header class="mk-page-head">
-  <h1 class="mk-page-title">Pricing</h1>
+  <h1 class="mk-page-title">Pricing</h1> {% if user.is_authenticated %}
+  <a href="{% url 'start_trial' %}" class="btn btn-primary">
+    Start free trial
+  </a>
+{% else %}
+  <a href="{% url 'login' %}" class="btn btn-primary">
+    Log in to start free trial
+  </a>
+{% endif %}
+
   <p class="mk-page-lead">
     MintKit Hub starts with a short <strong>free trial</strong>, then an affordable <strong>Basic</strong> plan.
     A more advanced <strong>Pro</strong> tier is planned for the future.
