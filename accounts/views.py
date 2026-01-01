@@ -1,5 +1,6 @@
 # accounts/views.py
 import logging
+from datetime import date, datetime
 
 from django.conf import settings
 from django.contrib import messages
@@ -9,8 +10,6 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
-from datetime import date, datetime
-
 
 from storefronts.models import Storefront
 from subscriptions.models import Subscription
@@ -20,6 +19,54 @@ from .forms import CustomUserCreationForm, ProfileForm, AccountEmailForm
 from .models import Profile
 
 logger = logging.getLogger(__name__)
+
+
+def _to_date(value):
+    """Convert a date/datetime to a date object, otherwise return None."""
+    if value is None:
+        return None
+
+    if isinstance(value, datetime):
+        # Convert aware datetime to local time before taking the date
+        if timezone.is_aware(value):
+            value = timezone.localtime(value)
+        return value.date()
+
+    if isinstance(value, date):
+        return value
+
+    return None
+
+
+def _studio_access_flags(subscription):
+    """
+    Determine Studio access based on subscription status + trial end date.
+    Returns: (studio_access: bool, trial_expired: bool)
+    """
+    if not subscription:
+        return False, False
+
+    status = (getattr(subscription, "status", "") or "").lower()
+    today = timezone.localdate()
+
+    # Active subscription always grants access
+    if status == "active":
+        return True, False
+
+    # Trial access only valid while end date is not in the past
+    if status in {"trial", "trialing"}:
+        end_date = _to_date(getattr(subscription, "current_period_end", None))
+
+        # If end date missing, keep access (useful during early/dev setups)
+        if end_date is None:
+            return True, False
+
+        if end_date < today:
+            return False, True
+
+        return True, False
+
+    return False, False
 
 
 def register(request):
@@ -79,33 +126,7 @@ def dashboard(request):
         .first()
     )
 
-    # Compute access flags once; keep template logic simple.
-    studio_access = False
-    trial_expired = False
-
-    def _to_date(value):
-        if value is None:
-            return None
-        if isinstance(value, datetime):
-            return value.date()
-        if isinstance(value, date):
-            return value
-        return None
-
-    today = timezone.localdate()
-
-    if subscription:
-        if subscription.status == "active":
-            studio_access = True
-
-        elif subscription.status in ("trial", "trialing"):
-            end_date = _to_date(getattr(subscription, "current_period_end", None))
-
-            if end_date and end_date >= today:
-                studio_access = True
-            else:
-                trial_expired = True
-                studio_access = False
+    studio_access, trial_expired = _studio_access_flags(subscription)
 
     context = {
         "profile": profile,
@@ -115,6 +136,7 @@ def dashboard(request):
         "trial_expired": trial_expired,
     }
     return render(request, "accounts/dashboard.html", context)
+
 
 @login_required
 def edit_profile(request):
@@ -145,7 +167,7 @@ def edit_profile(request):
         profile_form = ProfileForm(instance=profile)
         email_form = AccountEmailForm(instance=request.user)
 
-    # "form" kept for backwards compatibility with templates using {{ form }}
+    # "form" kept for backwards compatibility with templates already using {{ form }}
     return render(
         request,
         "accounts/edit_profile.html",
@@ -179,8 +201,6 @@ def email_preview(request, kind: str):
         "about_url": links.about_url,
         "pricing_url": links.pricing_url,
         "faq_url": links.faq_url,
-        "studio_access": studio_access,
-        "trial_expired": trial_expired,
         **assets,
     }
 

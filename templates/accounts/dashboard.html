@@ -12,16 +12,15 @@
 
   <div class="sf-header-actions">
     {% if studio_access %}
-    <a href="{% url 'studio' %}" class="btn btn-primary">
-      Open MintKit Studio
-    </a>
+      <a href="{% url 'studio' %}" class="btn btn-primary">
+        Open MintKit Studio
+      </a>
     {% else %}
-    <a href="{% url 'pricing' %}" class="btn btn-primary">
-      Start trial / Subscribe
-    </a>
+      <a href="{% url 'pricing' %}" class="btn btn-primary">
+        Start trial / choose a plan
+      </a>
     {% endif %}
   </div>
-
 </header>
 
 <div class="sf-grid">
@@ -35,9 +34,9 @@
     </p>
 
     {% if profile.logo %}
-    <div class="dashboard-profile-logo">
-      <img src="{{ profile.logo.url }}" alt="{{ profile.business_name|default:'Business' }} profile image">
-    </div>
+      <div class="dashboard-profile-logo">
+        <img src="{{ profile.logo.url }}" alt="{{ profile.business_name|default:'Business' }} profile image">
+      </div>
     {% endif %}
 
     <ul>
@@ -46,11 +45,7 @@
         {{ profile.business_name|default:"Not set yet" }}
       </li>
       <li>
-        <strong>Account email (login):</strong>
-        {{ request.user.email|default:"Not set yet" }}
-      </li>
-      <li>
-        <strong>Business contact email:</strong>
+        <strong>Contact email:</strong>
         {{ profile.contact_email|default:"Not set yet" }}
       </li>
       <li>
@@ -59,62 +54,61 @@
       </li>
     </ul>
 
-    <div class="d-flex flex-wrap gap-2">
+    <p>
       <a href="{% url 'edit_profile' %}" class="btn btn-primary">
         Edit business profile
       </a>
-      <a href="{% url 'password_change' %}" class="btn btn-secondary">
-        Change password
-      </a>
-    </div>
+      <a href="{% url 'password_reset' %}" class="btn btn-secondary">Forgot password?</a>
+    </p>
 
     <hr>
 
     <h2>Your subscription</h2>
 
     {% if subscription %}
-    <p><strong>Plan:</strong> {{ subscription.plan.name }}</p>
+      <p><strong>Plan:</strong> {{ subscription.plan.name }}</p>
 
-    {% if subscription.status == "trial" or subscription.status == "trialing" %}
-    <p>
-      Status: Free trial
-      {% if subscription.current_period_end %}
-      – ends on {{ subscription.current_period_end|date:"F j, Y" }}.
+      {% if subscription.status == "trial" or subscription.status == "trialing" %}
+        <p>
+          Status: Free trial
+          {% if subscription.current_period_end %}
+            - ends on {{ subscription.current_period_end|date:"F j, Y" }}.
+          {% endif %}
+        </p>
+
+        {% if trial_expired %}
+          <p class="text-muted small">
+            Your free trial has ended. Start a plan to regain MintKit Studio access.
+          </p>
+        {% endif %}
+
+      {% elif subscription.status == "active" %}
+        <p>Status: Active {{ subscription.plan.name }} subscription.</p>
+
+      {% else %}
+        <p>Status: {{ subscription.status|default:"Unknown" }}</p>
       {% endif %}
-    </p>
 
-    {% if trial_expired %}
-    <p class="text-muted small">
-      Your free trial has ended. Start a plan to regain MintKit Studio access.
-    </p>
-    {% endif %}
-
-    {% elif subscription.status == "active" %}
-    <p>Status: Active {{ subscription.plan.name }} subscription.</p>
+      {% if studio_access %}
+        <p class="text-muted small">MintKit Studio access is enabled for this account.</p>
+      {% else %}
+        <p class="text-muted small">
+          MintKit Studio is locked until a trial or active subscription is started.
+        </p>
+      {% endif %}
 
     {% else %}
-    <p>Status: {{ subscription.status|default:"Unknown" }}</p>
+      <p>
+        You don't have a subscription yet. You're currently on the default
+        free tier.
+      </p>
+      <p class="text-muted small">
+        MintKit Studio is locked until a trial or active subscription is started.
+      </p>
+      <p>
+        <a href="{% url 'pricing' %}">View pricing &amp; start a trial →</a>
+      </p>
     {% endif %}
-
-    {% if studio_access %}
-    <p class="text-muted small">MintKit Studio access is enabled for this account.</p>
-    {% else %}
-    <p class="text-muted small">
-      MintKit Studio is locked until a trial or active subscription is started.
-    </p>
-    {% endif %}
-
-    {% else %}
-    <p>
-      You don't have a subscription yet. You're currently on the default
-      free tier.
-    </p>
-    <p class="text-muted small">
-      MintKit Studio is locked until a trial or active subscription is started.
-    </p>
-    {% endif %}
-
-
   </section>
 
   <!-- RIGHT: storefront status + next steps -->
@@ -122,39 +116,39 @@
     <h2>Your storefront</h2>
 
     {% if storefront %}
-    <p>
-      <strong>Status:</strong>
-      {% if storefront.is_active %}
-      <span class="sf-badge sf-badge-success">Active / public</span>
-      {% else %}
-      <span class="sf-badge sf-badge-muted">Hidden (not public yet)</span>
-      {% endif %}
-    </p>
+      <p>
+        <strong>Status:</strong>
+        {% if storefront.is_active %}
+          <span class="sf-badge sf-badge-success">Active / public</span>
+        {% else %}
+          <span class="sf-badge sf-badge-muted">Hidden (not public yet)</span>
+        {% endif %}
+      </p>
 
-    <p>
-      <strong>Public URL:</strong>
-      {% if storefront.slug %}
-      <a href="{% url 'storefront_detail' storefront.slug %}" target="_blank" rel="noopener">
-        {% url 'storefront_detail' storefront.slug %}
-      </a>
-      {% else %}
-      Not set yet.
-      {% endif %}
-    </p>
+      <p>
+        <strong>Public URL:</strong>
+        {% if storefront.slug %}
+          <a href="{% url 'storefront_detail' storefront.slug %}" target="_blank" rel="noopener">
+            {% url 'storefront_detail' storefront.slug %}
+          </a>
+        {% else %}
+          Not set yet.
+        {% endif %}
+      </p>
 
-    <p>
-      <a href="{% url 'my_storefront' %}" class="btn btn-primary">
-        Manage my storefront
-      </a>
-    </p>
+      <p>
+        <a href="{% url 'my_storefront' %}" class="btn btn-primary">
+          Manage my storefront
+        </a>
+      </p>
 
     {% else %}
-    <p>You haven't created a storefront yet.</p>
-    <p>
-      <a href="{% url 'my_storefront' %}" class="btn btn-primary">
-        Create my first storefront
-      </a>
-    </p>
+      <p>You haven't created a storefront yet.</p>
+      <p>
+        <a href="{% url 'my_storefront' %}" class="btn btn-primary">
+          Create my first storefront
+        </a>
+      </p>
     {% endif %}
 
     <hr>
