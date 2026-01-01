@@ -57,7 +57,17 @@ def about(request):
 
 
 def pricing(request):
-    context = {}
+    """
+    Pricing page.
+
+    Adds trial flags so the template can show:
+    - eligible
+    - active (with end date)
+    - expired (trial already used)
+    """
+    trial_active = False
+    trial_expired = False
+    trial_end = None
 
     if request.user.is_authenticated:
         profile, _ = Profile.objects.get_or_create(
@@ -74,31 +84,26 @@ def pricing(request):
             .first()
         )
 
-        status = (getattr(subscription, "status", "") or "").lower() if subscription else ""
-        today = timezone.localdate()
+        if subscription:
+            status = (subscription.status or "").lower()
+            if status in {"trial", "trialing"}:
+                trial_end = getattr(subscription, "current_period_end", None)
+                today = timezone.localdate()
 
-        trial_end = getattr(subscription, "current_period_end", None) if subscription else None
-        end_date = _to_date(trial_end)
+                if trial_end:
+                    end_date = trial_end.date()
+                    trial_active = end_date >= today
+                    trial_expired = end_date < today
+                else:
+                    # No end date stored => treat as active trial
+                    trial_active = True
 
-        trial_active = (
-            status in {"trial", "trialing"}
-            and (end_date is None or end_date >= today)
-        )
-
-        trial_used = subscription is not None  # one-trial-only rule
-
-        context.update(
-            {
-                "subscription": subscription,
-                "studio_access": _studio_access(subscription),
-                "trial_active": trial_active,
-                "trial_used": trial_used,
-                "trial_end": trial_end,
-            }
-        )
-
+    context = {
+        "trial_active": trial_active,
+        "trial_expired": trial_expired,
+        "trial_end": trial_end,
+    }
     return render(request, "core/pricing.html", context)
-
 
 def faq(request):
     """Simple FAQ page stub."""
