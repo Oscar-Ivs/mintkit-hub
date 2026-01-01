@@ -9,6 +9,8 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
+from datetime import date, datetime
+
 
 from storefronts.models import Storefront
 from subscriptions.models import Subscription
@@ -77,19 +79,42 @@ def dashboard(request):
         .first()
     )
 
-    # Keep template logic simple and reliable
-    studio_access = bool(
-        subscription and subscription.status in ("active", "trial", "trialing")
-    )
+    # Compute access flags once; keep template logic simple.
+    studio_access = False
+    trial_expired = False
+
+    def _to_date(value):
+        if value is None:
+            return None
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, date):
+            return value
+        return None
+
+    today = timezone.localdate()
+
+    if subscription:
+        if subscription.status == "active":
+            studio_access = True
+
+        elif subscription.status in ("trial", "trialing"):
+            end_date = _to_date(getattr(subscription, "current_period_end", None))
+
+            if end_date and end_date >= today:
+                studio_access = True
+            else:
+                trial_expired = True
+                studio_access = False
 
     context = {
         "profile": profile,
         "storefront": storefront,
         "subscription": subscription,
         "studio_access": studio_access,
+        "trial_expired": trial_expired,
     }
     return render(request, "accounts/dashboard.html", context)
-
 
 @login_required
 def edit_profile(request):
@@ -154,6 +179,8 @@ def email_preview(request, kind: str):
         "about_url": links.about_url,
         "pricing_url": links.pricing_url,
         "faq_url": links.faq_url,
+        "studio_access": studio_access,
+        "trial_expired": trial_expired,
         **assets,
     }
 
