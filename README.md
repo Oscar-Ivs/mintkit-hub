@@ -525,6 +525,20 @@ Using a dedicated mail subdomain helps deliverability and keeps DNS/email record
 
 ---
 
+## Dashboard – MintKit PID helper (small custom JS)
+
+**Purpose:**
+- Formats a pasted MintKit Principal ID into grouped chunks (e.g. `abcde-fghij-...`)
+- Provides a “Copy” button to copy the linked PID to clipboard
+
+**Browser APIs used:**
+- DOM events (`paste`, `blur`, `click`)
+- Clipboard API (`navigator.clipboard.writeText`) with a safe fallback
+
+**Source / attribution:**
+- Custom script written for this project, based on standard Web API usage patterns (MDN Web Docs).
+
+
 
 </details>
 
