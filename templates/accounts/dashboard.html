@@ -138,105 +138,79 @@
 
     {% endif %}
 
-    <hr>
+<hr>
 
-<h2>MintKit Studio link</h2>
-<p class="text-muted small">
-  Paste your MintKit Studio Principal ID to connect this Hub account to your Studio login.
-  Plan limits and future Hub ↔ Studio syncing will use this link.
-</p>
+<details {% if show_pid_form %}open{% endif %} style="margin-top:6px;">
+  <summary style="list-style:none; display:flex; align-items:center; gap:12px; cursor:pointer;">
+    <h2 style="margin:0;">MintKit Studio link</h2>
 
-{% if mintkit_access %}
-  <div style="display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-bottom:12px;">
-    <strong>Linked PID:</strong>
-    <code id="linkedPid">{{ masked_pid }}</code>
+    <span class="btn btn-secondary btn-sm" style="margin-left:auto;">
+      {% if mintkit_access %}Change PID{% else %}Link Studio{% endif %}
+    </span>
+  </summary>
 
-    <button type="button" class="btn btn-outline-secondary btn-sm"
-            onclick="copyPidToClipboard()">
-      Copy
-    </button>
+  <div style="margin-top:12px;">
+    <p class="text-muted small">
+      Optional. Paste your MintKit Studio Principal ID to connect this Hub account to your Studio login.
+      Plan limits and future Hub ↔ Studio syncing will use this link.
+    </p>
 
-    <details {% if show_pid_form %}open{% endif %} style="display:inline-block;">
-      <summary class="btn btn-secondary btn-sm" style="cursor:pointer;">
-        Change PID
-      </summary>
+    {% if mintkit_access %}
+      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:8px; margin-bottom:12px;">
+        <span class="text-muted small">Linked PID:</span>
+        <code id="linkedPid">{{ masked_pid }}</code>
 
-      <div style="margin-top:12px;">
-        <div class="alert alert-warning py-2 small mb-2">
-          Replacing the PID changes which MintKit Studio login this Hub account is linked to.
-        </div>
-
-        <form method="post">
-          {% csrf_token %}
-          <input type="hidden" name="form_name" value="mintkit_pid">
-
-          {% if mintkit_form.non_field_errors %}
-            <div class="alert alert-danger py-2 small">
-              {{ mintkit_form.non_field_errors|striptags }}
-            </div>
-          {% endif %}
-
-          <div class="mb-2">
-            {{ mintkit_form.principal_id.label_tag }}
-            {{ mintkit_form.principal_id }}
-
-            <div class="form-text">
-              Placeholder shows grouping only. Paste works — formatting is applied automatically.
-            </div>
-
-            {% if mintkit_form.principal_id.errors %}
-              <div class="form-error">
-                {{ mintkit_form.principal_id.errors|striptags }}
-              </div>
-            {% endif %}
-          </div>
-
-          <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="confirmReplace" name="confirm_replace">
-            <label class="form-check-label small" for="confirmReplace">
-              Confirm PID replacement
-            </label>
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-sm">
-            Update PID
-          </button>
-        </form>
+        <button type="button" class="btn btn-outline-secondary btn-sm"
+                onclick="copyPidToClipboard()">
+          Copy
+        </button>
       </div>
-    </details>
-  </div>
 
-{% else %}
-  <form method="post" class="mt-2">
-    {% csrf_token %}
-    <input type="hidden" name="form_name" value="mintkit_pid">
-
-    {% if mintkit_form.non_field_errors %}
-      <div class="alert alert-danger py-2 small">
-        {{ mintkit_form.non_field_errors|striptags }}
+      <div class="alert alert-warning py-2 small mb-2">
+        Replacing the PID changes which MintKit Studio login this Hub account is linked to.
       </div>
     {% endif %}
 
-    <div class="mb-2">
-      {{ mintkit_form.principal_id.label_tag }}
-      {{ mintkit_form.principal_id }}
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="form_name" value="mintkit_pid">
 
-      <div class="form-text">
-        Paste your PID from MintKit Studio. Formatting is applied automatically.
-      </div>
-
-      {% if mintkit_form.principal_id.errors %}
-        <div class="form-error">
-          {{ mintkit_form.principal_id.errors|striptags }}
+      {% if mintkit_form.non_field_errors %}
+        <div class="alert alert-danger py-2 small">
+          {{ mintkit_form.non_field_errors|striptags }}
         </div>
       {% endif %}
-    </div>
 
-    <button type="submit" class="btn btn-primary btn-sm">
-      Save PID
-    </button>
-  </form>
-{% endif %}
+      <div class="mb-2">
+        {{ mintkit_form.principal_id.label_tag }}
+        {{ mintkit_form.principal_id }}
+
+        <div class="form-text">
+          Paste the PID from MintKit Studio — formatting is applied automatically.
+        </div>
+
+        {% if mintkit_form.principal_id.errors %}
+          <div class="form-error">
+            {{ mintkit_form.principal_id.errors|striptags }}
+          </div>
+        {% endif %}
+      </div>
+
+      {% if mintkit_access %}
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="confirmReplace" name="confirm_replace">
+          <label class="form-check-label small" for="confirmReplace">
+            Confirm PID replacement
+          </label>
+        </div>
+      {% endif %}
+
+      <button type="submit" class="btn btn-primary btn-sm">
+        {% if mintkit_access %}Update PID{% else %}Save PID{% endif %}
+      </button>
+    </form>
+  </div>
+</details>
 
 <script>
   function formatPidValue(val) {
