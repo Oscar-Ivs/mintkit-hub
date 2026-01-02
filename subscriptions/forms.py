@@ -1,7 +1,5 @@
 # subscriptions/forms.py
 import re
-from urllib.parse import urlparse
-
 from django import forms
 from .models import MintKitAccess
 
@@ -17,33 +15,27 @@ class MintKitAccessForm(forms.ModelForm):
             "principal_id": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "Paste PID from MintKit Studio (top-right)",
+                    "placeholder": "----- ----- ----- ----- -----",
                     "autocomplete": "off",
+                    "spellcheck": "false",
                 }
             )
         }
 
     def clean_principal_id(self):
-        raw = (self.cleaned_data.get("principal_id") or "").strip()
+        raw = (self.cleaned_data.get("principal_id") or "").strip().lower()
 
-        # If someone pastes a URL, try to extract the first hostname label
-        if raw.lower().startswith("http"):
-            try:
-                host = urlparse(raw).hostname or ""
-                if host:
-                    raw = host.split(".")[0]
-            except Exception:
-                pass
+        # Allow paste with spaces / no hyphens and normalize
+        cleaned = re.sub(r"[^a-z0-9]", "", raw)
 
-        pid = raw.strip().lower().replace(" ", "")
-
-        if len(pid) < 5:
+        if len(cleaned) < 10:
             raise forms.ValidationError("PID looks too short. Paste the full Principal ID from MintKit Studio.")
 
-        if not re.fullmatch(r"[a-z0-9-]+", pid):
-            raise forms.ValidationError("PID contains invalid characters. Use only letters, numbers, and hyphens.")
+        # Group into 5-char chunks: abcde-fghij-...
+        grouped = "-".join(cleaned[i : i + 5] for i in range(0, len(cleaned), 5))
 
-        if "-" not in pid:
-            raise forms.ValidationError("PID format looks wrong. It usually contains hyphens (e.g. abcde-fghij-...).")
+        # Basic sanity check (letters/numbers + hyphens)
+        if not re.fullmatch(r"[a-z0-9-]+", grouped):
+            raise forms.ValidationError("PID format looks invalid. Paste the full Principal ID from MintKit Studio.")
 
-        return pid
+        return grouped

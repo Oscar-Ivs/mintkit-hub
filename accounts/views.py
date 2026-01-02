@@ -125,18 +125,34 @@ def dashboard(request):
 
     # MintKit PID link (one-to-one to profile)
     mintkit_access = MintKitAccess.objects.filter(profile=profile).first()
-    mintkit_form = MintKitAccessForm(instance=mintkit_access)
+
+    def _mask_pid(pid: str) -> str:
+        parts = (pid or "").split("-")
+        if len(parts) <= 6:
+            return pid
+        return "-".join(parts[:3]) + "-…" + "-".join(parts[-2:])
+
+    masked_pid = _mask_pid(mintkit_access.principal_id) if mintkit_access else ""
+    show_pid_form = False
+
+    # Always render an empty field by default (keeps UI clean and prevents accidental overwrites)
+    mintkit_form = MintKitAccessForm()
 
     if request.method == "POST" and request.POST.get("form_name") == "mintkit_pid":
+        show_pid_form = True
         mintkit_form = MintKitAccessForm(request.POST, instance=mintkit_access)
 
         if mintkit_form.is_valid():
-            obj = mintkit_form.save(commit=False)
-            obj.profile = profile
-            obj.save()
+            # If a PID already exists, require explicit confirmation before replacing it
+            if mintkit_access and request.POST.get("confirm_replace") != "on":
+                mintkit_form.add_error(None, "Tick the confirmation box to replace the currently linked PID.")
+            else:
+                obj = mintkit_form.save(commit=False)
+                obj.profile = profile
+                obj.save()
 
-            messages.success(request, "MintKit Principal ID saved.")
-            return redirect("dashboard")
+                messages.success(request, "MintKit Principal ID saved.")
+                return redirect("dashboard")
 
     context = {
         "profile": profile,
@@ -145,7 +161,9 @@ def dashboard(request):
         "studio_access": studio_access,
         "trial_expired": trial_expired,
         "mintkit_access": mintkit_access,
+        "masked_pid": masked_pid,
         "mintkit_form": mintkit_form,
+        "show_pid_form": show_pid_form,
     }
     return render(request, "accounts/dashboard.html", context)
 

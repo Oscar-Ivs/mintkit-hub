@@ -12,13 +12,13 @@
 
   <div class="sf-header-actions">
     {% if studio_access %}
-      <a href="{% url 'studio' %}" class="btn btn-primary">
-        Open MintKit Studio
-      </a>
+    <a href="{% url 'studio' %}" class="btn btn-primary">
+      Open MintKit Studio
+    </a>
     {% else %}
-      <a href="{% url 'pricing' %}" class="btn btn-primary">
-        Start trial / choose a plan
-      </a>
+    <a href="{% url 'pricing' %}" class="btn btn-primary">
+      Start trial / choose a plan
+    </a>
     {% endif %}
   </div>
 </header>
@@ -35,11 +35,9 @@
     </p>
 
     {% if profile.logo %}
-      <div class="dashboard-profile-logo">
-        <img
-          src="{{ profile.logo.url }}"
-          alt="{{ profile.business_name|default:'Business' }} profile image">
-      </div>
+    <div class="dashboard-profile-logo">
+      <img src="{{ profile.logo.url }}" alt="{{ profile.business_name|default:'Business' }} profile image">
+    </div>
     {% endif %}
 
     <ul>
@@ -72,71 +70,73 @@
 
     {% if subscription %}
 
-      <p class="mb-2">
-        <strong>Plan:</strong> {{ subscription.plan.name|default:"Free tier" }}
-      </p>
+    <p class="mb-2">
+      <strong>Plan:</strong> {{ subscription.plan.name|default:"Free tier" }}
+    </p>
 
-      {% with status=subscription.status|default:""|lower %}
-        <p class="mb-2">
-          <strong>Status:</strong>
+    {% with status=subscription.status|default:""|lower %}
+    <p class="mb-2">
+      <strong>Status:</strong>
 
-          {% if status == "active" %}
-            <span class="sf-badge sf-badge-success">Active</span>
+      {% if status == "active" %}
+      <span class="sf-badge sf-badge-success">Active</span>
 
-          {% elif status == "trial" or status == "trialing" %}
-            {% if trial_expired %}
-              <span class="sf-badge sf-badge-muted">Trial ended</span>
-            {% else %}
-              <span class="sf-badge sf-badge-success">Trial active</span>
-            {% endif %}
-
-          {% else %}
-            <span class="sf-badge sf-badge-muted">
-              {{ status|default:"Unknown"|capfirst }}
-            </span>
-          {% endif %}
-
-          {% if status == "trial" or status == "trialing" %}
-            {% if subscription.current_period_end %}
-              <span class="text-muted">
-                - ends on {{ subscription.current_period_end|date:"F j, Y" }}.
-              </span>
-            {% endif %}
-          {% endif %}
-        </p>
-      {% endwith %}
-
+      {% elif status == "trial" or status == "trialing" %}
       {% if trial_expired %}
-        <p class="text-muted small mb-2">
-          Your free trial has ended. Start a plan to regain MintKit Studio access.
-        </p>
+      <span class="sf-badge sf-badge-muted">Trial ended</span>
+      {% else %}
+      <span class="sf-badge sf-badge-success">Trial active</span>
       {% endif %}
 
-      {% if studio_access %}
-        <p class="text-muted small mb-0">
-          MintKit Studio access is enabled for this account.
-        </p>
       {% else %}
-        <p class="text-muted small mb-0">
-          MintKit Studio is locked until a trial or active subscription is started.
-        </p>
+      <span class="sf-badge sf-badge-muted">
+        {{ status|default:"Unknown"|capfirst }}
+      </span>
       {% endif %}
+
+      {% if status == "trial" or status == "trialing" %}
+      {% if subscription.current_period_end %}
+      <span class="text-muted">
+        - ends on {{ subscription.current_period_end|date:"F j, Y" }}.
+      </span>
+      {% endif %}
+      {% endif %}
+    </p>
+    {% endwith %}
+
+    {% if trial_expired %}
+    <p class="text-muted small mb-2">
+      Your free trial has ended. Start a plan to regain MintKit Studio access.
+    </p>
+    {% endif %}
+
+    {% if studio_access %}
+    <p class="text-muted small mb-0">
+      MintKit Studio access is enabled for this account.
+    </p>
+    {% else %}
+    <p class="text-muted small mb-0">
+      MintKit Studio is locked until a trial or active subscription is started.
+    </p>
+    {% endif %}
 
     {% else %}
 
-      <p>
-        You don't have a subscription yet. You're currently on the default free tier.
-      </p>
+    <p>
+      You don't have a subscription yet. You're currently on the default free tier.
+    </p>
 
-      <p class="text-muted small">
-        MintKit Studio is locked until a trial or active subscription is started.
-      </p>
+    <p class="text-muted small">
+      MintKit Studio is locked until a trial or active subscription is started.
+    </p>
 
-      <p class="mb-0">
-        <a href="{% url 'pricing' %}">View pricing &amp; start a trial →</a>
-      </p>
+    <p class="mb-0">
+      <a href="{% url 'pricing' %}">View pricing &amp; start a trial →</a>
+    </p>
 
     {% endif %}
+
+    <hr>
 
     <hr>
 
@@ -147,39 +147,138 @@
     </p>
 
     {% if mintkit_access %}
-      <p class="mb-2">
-        <strong>Linked PID:</strong>
-        <code>{{ mintkit_access.principal_id }}</code>
-      </p>
-    {% else %}
-      <p class="text-muted small mb-2">Not linked yet.</p>
-    {% endif %}
+    <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+      <strong>Linked PID:</strong>
+      <code id="linkedPid">{{ masked_pid }}</code>
 
+      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="copyPidToClipboard()">
+        Copy
+      </button>
+    </div>
+
+    <details class="mt-2" {% if show_pid_form %}open{% endif %}>
+      <summary class="btn btn-secondary btn-sm" style="cursor:pointer;">
+        Change PID
+      </summary>
+
+      <div class="mt-3">
+        <div class="alert alert-warning py-2 small mb-2">
+          Replacing the PID changes which MintKit Studio login this Hub account is linked to.
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="form_name" value="mintkit_pid">
+
+          {% if mintkit_form.non_field_errors %}
+          <div class="alert alert-danger py-2 small">
+            {{ mintkit_form.non_field_errors|striptags }}
+          </div>
+          {% endif %}
+
+          <div class="mb-2">
+            {{ mintkit_form.principal_id.label_tag }}
+            {{ mintkit_form.principal_id }}
+
+            <div class="form-text">
+              Placeholder shows grouping only. Paste works — formatting is applied automatically.
+            </div>
+
+            {% if mintkit_form.principal_id.errors %}
+            <div class="form-error">
+              {{ mintkit_form.principal_id.errors|striptags }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="confirmReplace" name="confirm_replace">
+            <label class="form-check-label small" for="confirmReplace">
+              Confirm PID replacement
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-sm">
+            Update PID
+          </button>
+        </form>
+      </div>
+    </details>
+
+    {% else %}
     <form method="post" class="mt-2">
       {% csrf_token %}
       <input type="hidden" name="form_name" value="mintkit_pid">
+
+      {% if mintkit_form.non_field_errors %}
+      <div class="alert alert-danger py-2 small">
+        {{ mintkit_form.non_field_errors|striptags }}
+      </div>
+      {% endif %}
 
       <div class="mb-2">
         {{ mintkit_form.principal_id.label_tag }}
         {{ mintkit_form.principal_id }}
 
+        <div class="form-text">
+          Paste your PID from MintKit Studio. Formatting is applied automatically.
+        </div>
+
         {% if mintkit_form.principal_id.errors %}
-          <div class="form-error">
-            {{ mintkit_form.principal_id.errors|striptags }}
-          </div>
+        <div class="form-error">
+          {{ mintkit_form.principal_id.errors|striptags }}
+        </div>
         {% endif %}
       </div>
-
-      {% if mintkit_form.non_field_errors %}
-        <div class="form-error">
-          {{ mintkit_form.non_field_errors|striptags }}
-        </div>
-      {% endif %}
 
       <button type="submit" class="btn btn-primary btn-sm">
         Save PID
       </button>
     </form>
+    {% endif %}
+
+    <script>
+      function formatPidValue(val) {
+        const cleaned = (val || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        if (!cleaned) return "";
+        return cleaned.match(/.{1,5}/g).join("-");
+      }
+
+      function attachPidFormatter() {
+        const input = document.querySelector('input[name="principal_id"]');
+        if (!input) return;
+
+        input.addEventListener("blur", () => {
+          input.value = formatPidValue(input.value);
+        });
+
+        input.addEventListener("paste", () => {
+          setTimeout(() => {
+            input.value = formatPidValue(input.value);
+          }, 0);
+        });
+      }
+
+      function copyPidToClipboard() {
+        const fullPid = "{{ mintkit_access.principal_id|default:'' }}";
+        if (!fullPid) return;
+
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(fullPid);
+          return;
+        }
+
+        const temp = document.createElement("textarea");
+        temp.value = fullPid;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+      }
+
+      attachPidFormatter();
+    </script>
+
   </section>
 
   <!-- RIGHT: storefront status + next steps -->
@@ -187,39 +286,39 @@
     <h2>Your storefront</h2>
 
     {% if storefront %}
-      <p>
-        <strong>Status:</strong>
-        {% if storefront.is_active %}
-          <span class="sf-badge sf-badge-success">Active / public</span>
-        {% else %}
-          <span class="sf-badge sf-badge-muted">Hidden (not public yet)</span>
-        {% endif %}
-      </p>
+    <p>
+      <strong>Status:</strong>
+      {% if storefront.is_active %}
+      <span class="sf-badge sf-badge-success">Active / public</span>
+      {% else %}
+      <span class="sf-badge sf-badge-muted">Hidden (not public yet)</span>
+      {% endif %}
+    </p>
 
-      <p>
-        <strong>Public URL:</strong>
-        {% if storefront.slug %}
-          <a href="{% url 'storefront_detail' storefront.slug %}" target="_blank" rel="noopener">
-            {% url 'storefront_detail' storefront.slug %}
-          </a>
-        {% else %}
-          Not set yet.
-        {% endif %}
-      </p>
+    <p>
+      <strong>Public URL:</strong>
+      {% if storefront.slug %}
+      <a href="{% url 'storefront_detail' storefront.slug %}" target="_blank" rel="noopener">
+        {% url 'storefront_detail' storefront.slug %}
+      </a>
+      {% else %}
+      Not set yet.
+      {% endif %}
+    </p>
 
-      <p>
-        <a href="{% url 'my_storefront' %}" class="btn btn-primary">
-          Manage my storefront
-        </a>
-      </p>
+    <p>
+      <a href="{% url 'my_storefront' %}" class="btn btn-primary">
+        Manage my storefront
+      </a>
+    </p>
 
     {% else %}
-      <p>You haven't created a storefront yet.</p>
-      <p>
-        <a href="{% url 'my_storefront' %}" class="btn btn-primary">
-          Create my first storefront
-        </a>
-      </p>
+    <p>You haven't created a storefront yet.</p>
+    <p>
+      <a href="{% url 'my_storefront' %}" class="btn btn-primary">
+        Create my first storefront
+      </a>
+    </p>
     {% endif %}
 
     <hr>
