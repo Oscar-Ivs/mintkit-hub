@@ -1,13 +1,10 @@
 {% extends "base.html" %}
 
-{# Reuse the same watermark system used on About #}
 {% block main_class %}page-container mk-watermark{% endblock %}
 
 {% block content %}
 
 <header class="mk-page-head d-flex justify-content-between align-items-start flex-wrap gap-4">
-
-  {# LEFT: title + lead #}
   <div>
     <h1 class="mk-page-title">Pricing</h1>
 
@@ -15,11 +12,14 @@
       MintKit Hub starts with a short <strong>free trial</strong>, then an affordable <strong>Basic</strong> plan.
       A more advanced <strong>Pro</strong> tier is planned for the future.
     </p>
+
+    <p class="mk-muted small mb-0">
+      <strong>Note:</strong> MintKit Studio is currently in beta. Plan limits (collections / batch sizes) will be enforced
+      once Hub ↔ Studio syncing is enabled. Until then, new users can create unlimited collections.
+    </p>
   </div>
 
-  {# RIGHT: trial status + primary CTA (keeps spacing consistent on mobile too) #}
   <div class="text-end">
-
     {% if user.is_authenticated %}
 
     {% if trial_active %}
@@ -57,13 +57,11 @@
       Log in
     </a>
     {% endif %}
-
   </div>
 </header>
 
 
 <section class="mk-pricing" aria-label="Plans">
-  {# Checkbox drives the monthly/annual UI (CSS-only toggle, no JS needed) #}
   <input class="mk-billing-toggle" type="checkbox" id="mk-billing-toggle">
 
   <div class="mk-billing-row">
@@ -117,12 +115,17 @@
         <li class="mk-feature mk-feature--on">Set up business profile and storefront</li>
         <li class="mk-feature mk-feature--on">Connect Stripe (test mode for this project)</li>
         <li class="mk-feature mk-feature--on">Create a small set of gift cards / tickets / vouchers</li>
-        <li class="mk-feature">Up to <strong>3 collections</strong></li>
-        <li class="mk-feature">About <strong>20 cards</strong> per batch</li>
+
+        <li class="mk-feature">
+          Collections: <strong>Unlimited</strong> <span class="text-muted small">(beta access)</span>
+        </li>
+        <li class="mk-feature">
+          Batch size: <strong>Flexible</strong> <span class="text-muted small">(limits enforced later)</span>
+        </li>
       </ul>
 
       <p class="mk-plan-footnote">
-        Stripe subscription flow will be wired here in the final version.
+        Planned caps (when gating goes live): Trial up to <strong>3 collections</strong>.
       </p>
     </article>
 
@@ -154,10 +157,20 @@
         <li class="mk-feature mk-feature--on">Everything in the Free Trial</li>
         <li class="mk-feature mk-feature--on">Live (non-trial) access to MintKit Studio</li>
         <li class="mk-feature mk-feature--on">Higher minting allowance for real customers</li>
-        <li class="mk-feature mk-feature--on">Up to <strong>5 collections</strong></li>
-        <li class="mk-feature mk-feature--on">Up to <strong>100 active cards</strong> in total</li>
+
+        <li class="mk-feature mk-feature--on">
+          Collections: <strong>Unlimited</strong> <span class="text-muted small">(beta access)</span>
+        </li>
+        <li class="mk-feature mk-feature--on">
+          Active cards: <strong>Flexible</strong> <span class="text-muted small">(limits enforced later)</span>
+        </li>
+
         <li class="mk-feature mk-feature--on">Email support with reasonable response time</li>
       </ul>
+
+      <p class="mk-plan-footnote">
+        Planned caps (when gating goes live): Basic up to <strong>5 collections</strong>.
+      </p>
     </article>
 
     <!-- Pro (Coming soon) -->
@@ -201,8 +214,8 @@
 <section class="mk-pricing-notes" aria-label="Notes">
   <h2 class="mk-section-title">Notes for this college project</h2>
   <p class="mk-muted">
-    The limits and fees above help explain how MintKit Hub could work as a real SaaS product.
-    For the Code Institute submission the focus is on:
+    The pricing and limits above explain how MintKit Hub could work as a real SaaS product.
+    Currently, MintKit Studio does not yet read subscription limits from the Hub — those caps will be enabled later.
   </p>
 
   <ul class="mk-bullet">
