@@ -55,14 +55,15 @@
       </li>
     </ul>
 
-    <div class="d-flex flex-wrap gap-2 mt-3">
-      <a href="{% url 'edit_profile' %}" class="btn btn-primary">
+    <div class="d-flex flex-wrap mt-3">
+      <a href="{% url 'edit_profile' %}" class="btn btn-primary me-2 mr-2 mb-2">
         Edit business profile
       </a>
-      <a href="{% url 'password_change' %}" class="btn btn-secondary">
+      <a href="{% url 'password_change' %}" class="btn btn-secondary mb-2">
         Change password
       </a>
     </div>
+
 
     <hr>
 
@@ -145,137 +146,139 @@
     </p>
 
     {% if mintkit_access %}
-    <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
-      <strong>Linked PID:</strong>
-      <code id="linkedPid">{{ masked_pid }}</code>
+    <div class="d-flex align-items-center flex-wrap mb-2">
+      <strong class="me-2 mr-2">Linked PID:</strong>
+      <code id="linkedPid" class="me-2 mr-2">{{ masked_pid }}</code>
 
-      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="copyPidToClipboard()">
+      <button type="button" class="btn btn-outline-secondary btn-sm me-2 mr-2 mb-2" onclick="copyPidToClipboard()">
         Copy
       </button>
-    </div>
 
-    <details class="mt-2" {% if show_pid_form %}open{% endif %}>
-      <summary class="btn btn-secondary btn-sm" style="cursor:pointer;">
-        Change PID
-      </summary>
+      <details class="d-inline-block mb-2" {% if show_pid_form %}open{% endif %}>
+        <summary class="btn btn-secondary btn-sm mb-0" style="cursor:pointer;">
+          Change PID
+        </summary>
 
-      <div class="mt-3">
-        <div class="alert alert-warning py-2 small mb-2">
-          Replacing the PID changes which MintKit Studio login this Hub account is linked to.
-        </div>
+        <div class="mt-3">
+          <!-- keep the inside of your details exactly the same -->
 
-        <form method="post">
-          {% csrf_token %}
-          <input type="hidden" name="form_name" value="mintkit_pid">
-
-          {% if mintkit_form.non_field_errors %}
-          <div class="alert alert-danger py-2 small">
-            {{ mintkit_form.non_field_errors|striptags }}
-          </div>
-          {% endif %}
-
-          <div class="mb-2">
-            {{ mintkit_form.principal_id.label_tag }}
-            {{ mintkit_form.principal_id }}
-
-            <div class="form-text">
-              Placeholder shows grouping only. Paste works — formatting is applied automatically.
+          <div class="mt-3">
+            <div class="alert alert-warning py-2 small mb-2">
+              Replacing the PID changes which MintKit Studio login this Hub account is linked to.
             </div>
 
-            {% if mintkit_form.principal_id.errors %}
-            <div class="form-error">
-              {{ mintkit_form.principal_id.errors|striptags }}
-            </div>
-            {% endif %}
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="form_name" value="mintkit_pid">
+
+              {% if mintkit_form.non_field_errors %}
+              <div class="alert alert-danger py-2 small">
+                {{ mintkit_form.non_field_errors|striptags }}
+              </div>
+              {% endif %}
+
+              <div class="mb-2">
+                {{ mintkit_form.principal_id.label_tag }}
+                {{ mintkit_form.principal_id }}
+
+                <div class="form-text">
+                  Placeholder shows grouping only. Paste works — formatting is applied automatically.
+                </div>
+
+                {% if mintkit_form.principal_id.errors %}
+                <div class="form-error">
+                  {{ mintkit_form.principal_id.errors|striptags }}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="confirmReplace" name="confirm_replace">
+                <label class="form-check-label small" for="confirmReplace">
+                  Confirm PID replacement
+                </label>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-sm">
+                Update PID
+              </button>
+            </form>
           </div>
+      </details>
 
-          <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="confirmReplace" name="confirm_replace">
-            <label class="form-check-label small" for="confirmReplace">
-              Confirm PID replacement
-            </label>
-          </div>
+      {% else %}
+      <form method="post" class="mt-2">
+        {% csrf_token %}
+        <input type="hidden" name="form_name" value="mintkit_pid">
 
-          <button type="submit" class="btn btn-primary btn-sm">
-            Update PID
-          </button>
-        </form>
-      </div>
-    </details>
-
-    {% else %}
-    <form method="post" class="mt-2">
-      {% csrf_token %}
-      <input type="hidden" name="form_name" value="mintkit_pid">
-
-      {% if mintkit_form.non_field_errors %}
-      <div class="alert alert-danger py-2 small">
-        {{ mintkit_form.non_field_errors|striptags }}
-      </div>
-      {% endif %}
-
-      <div class="mb-2">
-        {{ mintkit_form.principal_id.label_tag }}
-        {{ mintkit_form.principal_id }}
-
-        <div class="form-text">
-          Paste your PID from MintKit Studio. Formatting is applied automatically.
-        </div>
-
-        {% if mintkit_form.principal_id.errors %}
-        <div class="form-error">
-          {{ mintkit_form.principal_id.errors|striptags }}
+        {% if mintkit_form.non_field_errors %}
+        <div class="alert alert-danger py-2 small">
+          {{ mintkit_form.non_field_errors|striptags }}
         </div>
         {% endif %}
-      </div>
 
-      <button type="submit" class="btn btn-primary btn-sm">
-        Save PID
-      </button>
-    </form>
-    {% endif %}
+        <div class="mb-2">
+          {{ mintkit_form.principal_id.label_tag }}
+          {{ mintkit_form.principal_id }}
 
-    <script>
-      function formatPidValue(val) {
-        const cleaned = (val || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-        if (!cleaned) return "";
-        return cleaned.match(/.{1,5}/g).join("-");
-      }
+          <div class="form-text">
+            Paste your PID from MintKit Studio. Formatting is applied automatically.
+          </div>
 
-      function attachPidFormatter() {
-        const input = document.querySelector('input[name="principal_id"]');
-        if (!input) return;
+          {% if mintkit_form.principal_id.errors %}
+          <div class="form-error">
+            {{ mintkit_form.principal_id.errors|striptags }}
+          </div>
+          {% endif %}
+        </div>
 
-        input.addEventListener("blur", () => {
-          input.value = formatPidValue(input.value);
-        });
+        <button type="submit" class="btn btn-primary btn-sm">
+          Save PID
+        </button>
+      </form>
+      {% endif %}
 
-        input.addEventListener("paste", () => {
-          setTimeout(() => {
-            input.value = formatPidValue(input.value);
-          }, 0);
-        });
-      }
-
-      function copyPidToClipboard() {
-        const fullPid = "{{ mintkit_access.principal_id|default:'' }}";
-        if (!fullPid) return;
-
-        if (navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard.writeText(fullPid);
-          return;
+      <script>
+        function formatPidValue(val) {
+          const cleaned = (val || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+          if (!cleaned) return "";
+          return cleaned.match(/.{1,5}/g).join("-");
         }
 
-        const temp = document.createElement("textarea");
-        temp.value = fullPid;
-        document.body.appendChild(temp);
-        temp.select();
-        document.execCommand("copy");
-        document.body.removeChild(temp);
-      }
+        function attachPidFormatter() {
+          const input = document.querySelector('input[name="principal_id"]');
+          if (!input) return;
 
-      attachPidFormatter();
-    </script>
+          input.addEventListener("blur", () => {
+            input.value = formatPidValue(input.value);
+          });
+
+          input.addEventListener("paste", () => {
+            setTimeout(() => {
+              input.value = formatPidValue(input.value);
+            }, 0);
+          });
+        }
+
+        function copyPidToClipboard() {
+          const fullPid = "{{ mintkit_access.principal_id|default:'' }}";
+          if (!fullPid) return;
+
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(fullPid);
+            return;
+          }
+
+          const temp = document.createElement("textarea");
+          temp.value = fullPid;
+          document.body.appendChild(temp);
+          temp.select();
+          document.execCommand("copy");
+          document.body.removeChild(temp);
+        }
+
+        attachPidFormatter();
+      </script>
 
   </section>
 
