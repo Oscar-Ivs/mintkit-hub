@@ -93,9 +93,10 @@
 
       {% if user.is_authenticated %}
       {% if trial_active %}
-      <a class="btn btn-primary mk-plan-btn" href="{% url 'dashboard' %}">
+      <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true" tabindex="-1">
         Trial active
-      </a>
+      </span>
+
       {% elif trial_expired %}
       <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true">
         Trial used
