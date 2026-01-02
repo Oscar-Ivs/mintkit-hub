@@ -12,7 +12,8 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from storefronts.models import Storefront
-from subscriptions.models import Subscription
+from subscriptions.models import Subscription, MintKitAccess
+from subscriptions.forms import MintKitAccessForm
 
 from .emails import send_welcome_email, _brand_links, _email_asset_urls
 from .forms import CustomUserCreationForm, ProfileForm, AccountEmailForm
@@ -27,7 +28,6 @@ def _to_date(value):
         return None
 
     if isinstance(value, datetime):
-        # Convert aware datetime to local time before taking the date
         if timezone.is_aware(value):
             value = timezone.localtime(value)
         return value.date()
@@ -49,15 +49,13 @@ def _studio_access_flags(subscription):
     status = (getattr(subscription, "status", "") or "").lower()
     today = timezone.localdate()
 
-    # Active subscription always grants access
     if status == "active":
         return True, False
 
-    # Trial access only valid while end date is not in the past
     if status in {"trial", "trialing"}:
         end_date = _to_date(getattr(subscription, "current_period_end", None))
 
-        # If end date missing, keep access (useful during early/dev setups)
+        # If end date missing, keep access (useful for dev/admin testing)
         if end_date is None:
             return True, False
 
@@ -70,10 +68,7 @@ def _studio_access_flags(subscription):
 
 
 def register(request):
-    """
-    Register a new user and create a matching Profile.
-    Email failures must not block registration.
-    """
+    """Register a new user and create a matching Profile."""
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -128,23 +123,36 @@ def dashboard(request):
 
     studio_access, trial_expired = _studio_access_flags(subscription)
 
+    # MintKit PID link (one-to-one to profile)
+    mintkit_access = MintKitAccess.objects.filter(profile=profile).first()
+    mintkit_form = MintKitAccessForm(instance=mintkit_access)
+
+    if request.method == "POST" and request.POST.get("form_name") == "mintkit_pid":
+        mintkit_form = MintKitAccessForm(request.POST, instance=mintkit_access)
+
+        if mintkit_form.is_valid():
+            obj = mintkit_form.save(commit=False)
+            obj.profile = profile
+            obj.save()
+
+            messages.success(request, "MintKit Principal ID saved.")
+            return redirect("dashboard")
+
     context = {
         "profile": profile,
         "storefront": storefront,
         "subscription": subscription,
         "studio_access": studio_access,
         "trial_expired": trial_expired,
+        "mintkit_access": mintkit_access,
+        "mintkit_form": mintkit_form,
     }
     return render(request, "accounts/dashboard.html", context)
 
 
 @login_required
 def edit_profile(request):
-    """
-    Allow the logged-in user to edit:
-    - business profile (Profile)
-    - account email (User.email shown in Django admin)
-    """
+    """Allow the logged-in user to edit profile + account email."""
     profile, _ = Profile.objects.get_or_create(
         user=request.user,
         defaults={
@@ -167,13 +175,12 @@ def edit_profile(request):
         profile_form = ProfileForm(instance=profile)
         email_form = AccountEmailForm(instance=request.user)
 
-    # "form" kept for backwards compatibility with templates already using {{ form }}
     return render(
         request,
         "accounts/edit_profile.html",
         {
             "profile": profile,
-            "form": profile_form,
+            "form": profile_form,  # kept for older templates
             "profile_form": profile_form,
             "email_form": email_form,
         },
@@ -181,17 +188,12 @@ def edit_profile(request):
 
 
 def email_preview(request, kind: str):
-    """
-    Dev-only email preview in the browser.
-    Visit:
-      /accounts/email-preview/welcome/
-      /accounts/email-preview/subscription/
-    """
+    """Dev-only email preview in the browser."""
     if not settings.DEBUG:
         return HttpResponse("Not found", status=404)
 
-    links = _brand_links(request)  # uses request.build_absolute_uri
-    assets = _email_asset_urls(request)  # absolute static URLs
+    links = _brand_links(request)
+    assets = _email_asset_urls(request)
 
     context = {
         "user_name": "Preview User",
