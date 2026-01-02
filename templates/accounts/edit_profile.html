@@ -1,114 +1,114 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <a href="{% url 'dashboard' %}" class="link-back">← Back to dashboard</a>
+<a href="{% url 'dashboard' %}" class="link-back">← Back to dashboard</a>
 
-  <div class="profile-layout">
+<div class="profile-layout">
 
-    <!-- LEFT: current profile image -->
-    <aside class="profile-logo-panel">
-      {% if profile.logo %}
-        <img
-          src="{{ profile.logo.url }}"
-          alt="{{ profile.business_name|default:'Business' }} profile image"
-          class="profile-logo-img"
-        >
-      {% else %}
-        <div class="profile-logo-placeholder">
-          <span>No profile image uploaded yet</span>
+  <!-- LEFT: current profile image -->
+  <aside class="profile-logo-panel">
+    {% if profile.logo %}
+    <img src="{{ profile.logo.url }}" alt="{{ profile.business_name|default:'Business' }} profile image"
+      class="profile-logo-img">
+    {% else %}
+    <div class="profile-logo-placeholder">
+      <span>No profile image uploaded yet</span>
+    </div>
+    {% endif %}
+
+    <p class="text-muted small">
+      “This image is used on your dashboard and can be used as a fallback in Explore listings if your storefront has no
+      logo.”
+      <a href="{% url 'my_storefront' %}">My storefront</a> page.
+    </p>
+  </aside>
+
+  <!-- RIGHT: form fields -->
+  <section class="profile-form-panel">
+    <h1>Edit business profile</h1>
+    <p class="text-muted">
+      Update the details that will be used on your dashboard and in summaries
+      of your account.
+    </p>
+
+    <form method="post" enctype="multipart/form-data" class="form-stacked">
+      {% csrf_token %}
+
+      <!-- Business name -->
+      <div class="form-row">
+        <label for="{{ form.business_name.id_for_label }}">Business name</label>
+        {{ form.business_name }}
+        {% if form.business_name.errors %}
+        <div class="form-error">
+          {{ form.business_name.errors|striptags }}
         </div>
+        {% endif %}
+        <p class="text-muted small">
+          Shown on your dashboard and anywhere your MintKit Hub account
+          is referenced by name.
+        </p>
+      </div>
+
+      <!-- Account email (Django User.email) -->
+      {% if email_form %}
+      <div class="form-row">
+        <label for="{{ email_form.email.id_for_label }}">Account email (login)</label>
+        {{ email_form.email }}
+        {% if email_form.email.errors %}
+        <div class="form-error">
+          {{ email_form.email.errors|striptags }}
+        </div>
+        {% endif %}
+        <p class="text-muted small">
+          This is the email stored on your user account (visible in the admin Users list).
+          Use this for login/account-level settings.
+        </p>
+      </div>
       {% endif %}
 
-      <p class="text-muted small">
-“This image is used on your dashboard and can be used as a fallback in Explore listings if your storefront has no logo.”
-        <a href="{% url 'my_storefront' %}">My storefront</a> page.
-      </p>
-    </aside>
+      <!-- Business contact email (Profile.contact_email) -->
+      <div class="form-row">
+        <label for="{{ form.contact_email.id_for_label }}">Business contact email</label>
+        {{ form.contact_email }}
+        {% if form.contact_email.errors %}
+        <div class="form-error">
+          {{ form.contact_email.errors|striptags }}
+        </div>
+        {% endif %}
+        <p class="text-muted small">
+          This is used as the business contact email for MintKit-related messages and notifications.
+        </p>
+      </div>
 
-    <!-- RIGHT: form fields -->
-    <section class="profile-form-panel">
-      <h1>Edit business profile</h1>
-      <p class="text-muted">
-        Update the details that will be used on your dashboard and in summaries
-        of your account.
-      </p>
+      <!-- Profile image upload -->
+      <div class="form-row">
+        <label>Profile image (optional)</label>
 
-      <form method="post" enctype="multipart/form-data" class="form-stacked">
-        {% csrf_token %}
-
-        <!-- Business name -->
-        <div class="form-row">
-          <label for="{{ form.business_name.id_for_label }}">Business name</label>
-          {{ form.business_name }}
-          {% if form.business_name.errors %}
-            <div class="form-error">
-              {{ form.business_name.errors|striptags }}
-            </div>
-          {% endif %}
-          <p class="text-muted small">
-            Shown on your dashboard and anywhere your MintKit Hub account
-            is referenced by name.
-          </p>
+        <div class="profile-logo-field">
+          {{ form.logo }}
         </div>
 
-        <!-- Account email (Django User.email) -->
-        {% if email_form %}
-          <div class="form-row">
-            <label for="{{ email_form.email.id_for_label }}">Account email (login)</label>
-            {{ email_form.email }}
-            {% if email_form.email.errors %}
-              <div class="form-error">
-                {{ email_form.email.errors|striptags }}
-              </div>
-            {% endif %}
-            <p class="text-muted small">
-              This is the email stored on your user account (visible in the admin Users list).
-              Use this for login/account-level settings.
-            </p>
-          </div>
+        {% if form.logo.errors %}
+        <div class="form-error">
+          {{ form.logo.errors|striptags }}
+        </div>
         {% endif %}
 
-        <!-- Business contact email (Profile.contact_email) -->
-        <div class="form-row">
-          <label for="{{ form.contact_email.id_for_label }}">Business contact email</label>
-          {{ form.contact_email }}
-          {% if form.contact_email.errors %}
-            <div class="form-error">
-              {{ form.contact_email.errors|striptags }}
-            </div>
-          {% endif %}
-          <p class="text-muted small">
-            This is used as the business contact email for MintKit-related messages and notifications.
-          </p>
-        </div>
+        <p class="text-muted small">
+          Upload a square-ish image - it will be resized automatically.
+          <br>
+          Shown on your dashboard. If your storefront logo is not set, this can be used as a fallback image in Explore
+          listings.
+        </p>
+        <br>
+      </div>
 
-        <!-- Profile image upload -->
-        <div class="form-row">
-          <label>Profile image (optional)</label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save profile</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </section>
 
-          <div class="profile-logo-field">
-            {{ form.logo }}
-          </div>
-
-          {% if form.logo.errors %}
-            <div class="form-error">
-              {{ form.logo.errors|striptags }}
-            </div>
-          {% endif %}
-
-          <p class="text-muted small">
-            Upload a square-ish image - it will be resized automatically.<br>
-            If you ever need to remove it completely, you can do that from
-            the admin area or by adding a small “remove image” button later.
-          </p>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Save profile</button>
-          <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
-        </div>
-      </form>
-    </section>
-
-  </div>
+</div>
 {% endblock %}

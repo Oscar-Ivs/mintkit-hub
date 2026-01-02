@@ -24,18 +24,21 @@
 </header>
 
 <div class="sf-grid">
+
   <!-- LEFT: business profile + subscription -->
   <section class="sf-panel">
     <h2>Your business profile</h2>
 
     <p>
       Welcome,
-      <strong>{{ request.user.first_name|default:request.user.username }}</strong>.
+      <strong>{% firstof request.user.first_name request.user.username %}</strong>.
     </p>
 
     {% if profile.logo %}
       <div class="dashboard-profile-logo">
-        <img src="{{ profile.logo.url }}" alt="{{ profile.business_name|default:'Business' }} profile image">
+        <img
+          src="{{ profile.logo.url }}"
+          alt="{{ profile.business_name|default:'Business' }} profile image">
       </div>
     {% endif %}
 
@@ -50,64 +53,91 @@
       </li>
       <li>
         <strong>Member since:</strong>
-        {{ profile.user.date_joined|date:"Y-m-d H:i" }}
+        {{ request.user.date_joined|date:"Y-m-d H:i" }}
       </li>
     </ul>
 
-    <p>
+    <!-- Buttons: wrap + consistent gap on small screens -->
+    <div class="d-flex flex-wrap gap-2 mt-3">
       <a href="{% url 'edit_profile' %}" class="btn btn-primary">
         Edit business profile
       </a>
-      <a href="{% url 'password_reset' %}" class="btn btn-secondary">Forgot password?</a>
-    </p>
+      <a href="{% url 'password_change' %}" class="btn btn-secondary">
+        Change password
+      </a>
+    </div>
 
     <hr>
 
     <h2>Your subscription</h2>
 
+    {# Subscription block (guards the {% else %} correctly) #}
     {% if subscription %}
-      <p><strong>Plan:</strong> {{ subscription.plan.name }}</p>
 
-      {% if subscription.status == "trial" or subscription.status == "trialing" %}
-        <p>
-          Status: Free trial
-          {% if subscription.current_period_end %}
-            - ends on {{ subscription.current_period_end|date:"F j, Y" }}.
+      <p class="mb-2">
+        <strong>Plan:</strong> {{ subscription.plan.name|default:"Free tier" }}
+      </p>
+
+      {% with status=subscription.status|default:""|lower %}
+        <p class="mb-2">
+          <strong>Status:</strong>
+
+          {% if status == "active" %}
+            <span class="sf-badge sf-badge-success">Active</span>
+
+          {% elif status == "trial" or status == "trialing" %}
+            {% if trial_expired %}
+              <span class="sf-badge sf-badge-muted">Trial ended</span>
+            {% else %}
+              <span class="sf-badge sf-badge-success">Trial active</span>
+            {% endif %}
+
+          {% else %}
+            <span class="sf-badge sf-badge-muted">
+              {{ status|default:"Unknown"|capfirst }}
+            </span>
+          {% endif %}
+
+          {% if status == "trial" or status == "trialing" %}
+            {% if subscription.current_period_end %}
+              <span class="text-muted">
+                - ends on {{ subscription.current_period_end|date:"F j, Y" }}.
+              </span>
+            {% endif %}
           {% endif %}
         </p>
+      {% endwith %}
 
-        {% if trial_expired %}
-          <p class="text-muted small">
-            Your free trial has ended. Start a plan to regain MintKit Studio access.
-          </p>
-        {% endif %}
-
-      {% elif subscription.status == "active" %}
-        <p>Status: Active {{ subscription.plan.name }} subscription.</p>
-
-      {% else %}
-        <p>Status: {{ subscription.status|default:"Unknown" }}</p>
+      {% if trial_expired %}
+        <p class="text-muted small mb-2">
+          Your free trial has ended. Start a plan to regain MintKit Studio access.
+        </p>
       {% endif %}
 
       {% if studio_access %}
-        <p class="text-muted small">MintKit Studio access is enabled for this account.</p>
+        <p class="text-muted small mb-0">
+          MintKit Studio access is enabled for this account.
+        </p>
       {% else %}
-        <p class="text-muted small">
+        <p class="text-muted small mb-0">
           MintKit Studio is locked until a trial or active subscription is started.
         </p>
       {% endif %}
 
     {% else %}
+
       <p>
-        You don't have a subscription yet. You're currently on the default
-        free tier.
+        You don't have a subscription yet. You're currently on the default free tier.
       </p>
+
       <p class="text-muted small">
         MintKit Studio is locked until a trial or active subscription is started.
       </p>
-      <p>
+
+      <p class="mb-0">
         <a href="{% url 'pricing' %}">View pricing &amp; start a trial →</a>
       </p>
+
     {% endif %}
   </section>
 
@@ -157,9 +187,11 @@
     <ul class="text-muted">
       <li>Check your business profile details are correct.</li>
       <li>Create or refine your storefront text and logo.</li>
-      <li>Start a trial or plan so you can mint and manage cards in Studio.</li>
+      <li>Use “Featured digital cards” to showcase links from MintKit Studio.</li>
+      <li>Start (or renew) a trial / plan to access MintKit Studio.</li>
     </ul>
   </section>
+
 </div>
 
 {% endblock %}
