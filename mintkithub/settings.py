@@ -44,23 +44,23 @@ if ON_HEROKU and not ALLOWED_HOSTS:
 # CSRF trusted origins (comma-separated)
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 
-# Sensible default for Heroku if not explicitly set
+# Sensible fallback for Heroku if not explicitly set:
+# - only derive from explicit hostnames (skip wildcards like ".herokuapp.com")
 if ON_HEROKU and not CSRF_TRUSTED_ORIGINS:
     for host in ALLOWED_HOSTS:
         if host.startswith("."):
-            CSRF_TRUSTED_ORIGINS.append(f"https://{host[1:]}")
-        else:
-            CSRF_TRUSTED_ORIGINS.append(f"https://{host}")
+            continue
+        CSRF_TRUSTED_ORIGINS.append(f"https://{host}")
 
-# If behind a proxy (Heroku), let Django know HTTPS is forwarded correctly
+# If behind a proxy (Heroku/Cloudflare), let Django know HTTPS is forwarded correctly
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-# These should be True on Heroku (prod) and False locally
+# Cookies secure only in production
 SESSION_COOKIE_SECURE = ON_HEROKU and not DEBUG
 CSRF_COOKIE_SECURE = ON_HEROKU and not DEBUG
 
-# Optional: force HTTPS in prod
-SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=False)
+# Force HTTPS in production unless explicitly disabled
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=(ON_HEROKU and not DEBUG))
 
 # -------------------------
 # Auth redirects
@@ -197,20 +197,17 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("MAILGUN_SMTP_LOGIN", "")
 EMAIL_HOST_PASSWORD = os.getenv("MAILGUN_SMTP_PASSWORD", "")
 
-# IMPORTANT: your verified sending domain is mg.mintkit.co.uk
+# Verified sending domain is mg.mintkit.co.uk
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL",
     "MintKit <no-reply@mg.mintkit.co.uk>",
 )
 
+# Optional project-level default (used by custom email helpers if present)
 DEFAULT_REPLY_TO_EMAIL = os.getenv(
     "DEFAULT_REPLY_TO_EMAIL",
     "support@mintkit.co.uk",
 )
-
-# Transactional email defaults
-DEFAULT_REPLY_TO_EMAIL = ["support@mintkit.co.uk"]
-
 
 # -------------------------
 # Logging
