@@ -24,68 +24,6 @@ class BrandedLinks:
     faq_url: str = ""
 
 
-def _build_absolute(request, path: str) -> str:
-    """Convert a URL path into an absolute URL using the incoming request."""
-    if request is None:
-        return ""
-    return request.build_absolute_uri(path)
-
-
-def _email_asset_urls(request=None) -> Dict[str, str]:
-    """
-    Provide absolute URLs for images used in email templates.
-    - header_bg_url: wide header image (static/img/email.webp)
-    - watermark_url: card background image (static/img/card-211.webp)
-    - logo_url: optional logo (kept for flexibility)
-    """
-    header_bg_path = static("img/email.webp")
-    watermark_path = static("img/card-211.webp")
-    logo_path = static("img/logo-blue.webp")  # optional if templates use it
-
-
-    return {
-        "header_bg_url": _build_absolute(request, header_bg_path),
-        "watermark_url": _build_absolute(request, watermark_path),
-        "logo_url": _build_absolute(request, logo_path),
-    }
-
-
-def _brand_links(request=None) -> BrandedLinks:
-    """Provide absolute site links."""
-    if request is None:
-        return BrandedLinks()
-
-    site_root = request.build_absolute_uri("/").rstrip("/")
-    return BrandedLinks(
-        site_root=site_root,
-        dashboard_url=f"{site_root}/accounts/dashboard/",
-        about_url=f"{site_root}/about/",
-        pricing_url=f"{site_root}/pricing/",
-        faq_url=f"{site_root}/faq/",
-    )
-
-
-def _render_plain_fallback(user_name: str, main_line: str, links: BrandedLinks) -> str:
-    """Plain-text fallback for clients that block HTML."""
-    lines = [
-        f"Hi {user_name},",
-        "",
-        main_line,
-    ]
-
-    if links.dashboard_url:
-        lines += ["", f"Dashboard: {links.dashboard_url}"]
-
-    if links.site_root:
-        lines += ["", f"Website: {links.site_root}"]
-
-    lines += [
-        "",
-        "Need help? Reply to this email or contact support@mintkit.co.uk.",
-    ]
-    return "\n".join(lines)
-
-
 def _normalise_reply_to(value: Optional[object]) -> Optional[list[str]]:
     """
     Django requires reply_to to be a list/tuple.
@@ -102,6 +40,96 @@ def _normalise_reply_to(value: Optional[object]) -> Optional[list[str]]:
     return [cleaned] if cleaned else None
 
 
+def _resolve_support_email() -> str:
+    """
+    Resolve a support/reply-to address used in plain-text fallbacks.
+    """
+    reply_to = _normalise_reply_to(getattr(settings, "DEFAULT_REPLY_TO_EMAIL", None))
+    if reply_to:
+        return reply_to[0]
+    return "support@mintkit.co.uk"
+
+
+def _resolve_site_root(request=None) -> str:
+    """
+    Resolve the site root for absolute URLs.
+    Preference:
+    1) request.build_absolute_uri("/")
+    2) settings.SITE_URL (recommended to set on Heroku)
+    """
+    if request is not None:
+        return request.build_absolute_uri("/").rstrip("/")
+
+    site_url = getattr(settings, "SITE_URL", "") or ""
+    return site_url.rstrip("/")
+
+
+def _build_absolute(request, path: str) -> str:
+    """
+    Convert a URL path into an absolute URL using request or SITE_URL fallback.
+    """
+    site_root = _resolve_site_root(request)
+    if not site_root or not path:
+        return ""
+    return f"{site_root}{path}"
+
+
+def _email_asset_urls(request=None) -> Dict[str, str]:
+    """
+    Provide absolute URLs for images used in email templates.
+    - header_bg_url: wide header image (static/img/email.webp)
+    - watermark_url: card background image (static/img/card-211.webp)
+    - logo_url: optional logo (kept for flexibility)
+    """
+    header_bg_path = static("img/email.webp")
+    watermark_path = static("img/card-211.webp")
+    logo_path = static("img/logo-blue.webp")  # optional if templates use it
+
+    return {
+        "header_bg_url": _build_absolute(request, header_bg_path),
+        "watermark_url": _build_absolute(request, watermark_path),
+        "logo_url": _build_absolute(request, logo_path),
+    }
+
+
+def _brand_links(request=None) -> BrandedLinks:
+    """Provide absolute site links."""
+    site_root = _resolve_site_root(request)
+    if not site_root:
+        return BrandedLinks()
+
+    return BrandedLinks(
+        site_root=site_root,
+        dashboard_url=f"{site_root}/accounts/dashboard/",
+        about_url=f"{site_root}/about/",
+        pricing_url=f"{site_root}/pricing/",
+        faq_url=f"{site_root}/faq/",
+    )
+
+
+def _render_plain_fallback(user_name: str, main_line: str, links: BrandedLinks) -> str:
+    """Plain-text fallback for clients that block HTML."""
+    support_email = _resolve_support_email()
+
+    lines = [
+        f"Hi {user_name},",
+        "",
+        main_line,
+    ]
+
+    if links.dashboard_url:
+        lines += ["", f"Dashboard: {links.dashboard_url}"]
+
+    if links.site_root:
+        lines += ["", f"Website: {links.site_root}"]
+
+    lines += [
+        "",
+        f"Need help? Reply to this email or contact {support_email}.",
+    ]
+    return "\n".join(lines)
+
+
 def _resolve_from_email(from_email: Optional[str]) -> str:
     """
     Resolve a safe From address.
@@ -109,7 +137,7 @@ def _resolve_from_email(from_email: Optional[str]) -> str:
     1) Explicit from_email argument
     2) settings.DEFAULT_FROM_EMAIL
     3) settings.EMAIL_HOST_USER
-    4) fallback (won't match DMARC, but prevents silent False)
+    4) fallback (prevents silent failure in dev)
     """
     if from_email:
         return from_email
@@ -143,7 +171,10 @@ def send_templated_email(
         return False
 
     resolved_from = _resolve_from_email(from_email)
-    reply_to_value = _normalise_reply_to(reply_to)
+
+    # Default reply-to comes from settings unless explicitly overridden
+    effective_reply_to = reply_to if reply_to is not None else getattr(settings, "DEFAULT_REPLY_TO_EMAIL", None)
+    reply_to_value = _normalise_reply_to(effective_reply_to) or []
 
     text_body = context.get("plain_text") or "MintKit notification."
     html_body = render_to_string(template_html, context)
@@ -153,7 +184,7 @@ def send_templated_email(
         body=text_body,
         from_email=resolved_from,
         to=[to_email],
-        reply_to=reply_to_value or [],
+        reply_to=reply_to_value,
     )
     msg.attach_alternative(html_body, "text/html")
 
@@ -161,7 +192,6 @@ def send_templated_email(
         sent_count = msg.send(fail_silently=fail_silently)
         return sent_count > 0
     except Exception:
-        # fail_silently=False will raise here; keep a log either way
         logger.exception("Email send failed (template=%s, to=%s)", template_html, to_email)
         if fail_silently:
             return False
@@ -199,7 +229,5 @@ def send_welcome_email(user, request=None) -> bool:
         to_email=user_email,
         template_html="emails/welcome.html",
         context=context,
-        # Optional: set reply-to if you have it in settings, otherwise omit
-        reply_to=getattr(settings, "DEFAULT_REPLY_TO_EMAIL", None),
         fail_silently=True,
     )
