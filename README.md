@@ -261,7 +261,7 @@ The list below separates **core MVP features** (for this project) from **future 
 - Toggle storefront **active/inactive**:
   - When **active**, the storefront is publicly visible to anyone (including unregistered visitors).
   - When **inactive**, the storefront is hidden from the public but still manageable by the business owner via the dashboard.
-- Public storefront page accessible via a clean URL (e.g. `/storefront/<slug>/`).
+- Public storefront page accessible via a clean URL (e.g. `mintkit.co.ukwww.mintkit.co.uk,mintkit-hub-8a979ce863e4.herokuapp.com`).
 
 
 #### 4. Stripe Subscription Integration & Trial Logic
@@ -1006,7 +1006,14 @@ The MintKit Hub Django application is deployed to **Heroku** with the following 
 - **Git-based deployment** via the Heroku CLI
 
 **Live URL:**  
-https://mintkit-hub-8a979ce863e4.herokuapp.com/
+https://mintkit.co.uk/
+
+
+
+**Other domains (routing notes):**
+- `www.mintkit.co.uk` points to `mintkit.co.uk`
+- `mintkit.org` redirects to `mintkit.co.uk`
+- The Heroku app URL is kept as a fallback/admin access route (not advertised)
 
 ---
 
