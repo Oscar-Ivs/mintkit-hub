@@ -47,9 +47,9 @@ Design, develop and integrate an e-commerce payment system (e.g. Stripe).
 
 | Area / Criteria (summary) | How MintKit Hub addresses it |
 |---------------------------|------------------------------|
-| 4.1 Django app with e-commerce using Stripe | The `subscriptions` app integrates with Stripe Checkout to handle subscription-based payments for business owners. |
+| 4.1 Django app with e-commerce using Stripe | The `subscriptions` app integrates with Stripe (payments) — *in progress* to handle subscription-based payments for business owners. |
 | 4.2 Feedback on successful/failed purchases | Success and cancel pages (and dashboard messages) inform users whether the subscription process completed or was cancelled, with clear guidance on next steps. |
-| Trial + subscription logic | Trial period and Stripe subscription status determine access to MintKit; this business logic is visible and testable via the dashboard. |
+| Trial + subscription logic | Trial period and Stripe (payments) — *in progress* status determine access to MintKit; this business logic is visible and testable via the dashboard. |
 
 ---
 

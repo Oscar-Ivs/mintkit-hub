@@ -27,6 +27,11 @@ It does three main things:
 
 The MintKit app itself lives at a separate URL (for example `studio.mintkit.co.uk`) and is treated as a **third-party integration** for this project. MintKit Hub only controls access and provides the link.
 
+> **Project status (as of 2026-01-03):**
+> - Hub is deployed and working (auth, storefronts, featured cards, emails).
+> - Stripe payments/subscriptions are **in progress** (see `docs/STRIPE_MINTKIT_INTEGRATION.md`).
+> - Studio is a separate application linked from the Hub.
+
 ### How it works – simple flow
 
 For a typical business owner:
@@ -261,7 +266,7 @@ The list below separates **core MVP features** (for this project) from **future 
 - Toggle storefront **active/inactive**:
   - When **active**, the storefront is publicly visible to anyone (including unregistered visitors).
   - When **inactive**, the storefront is hidden from the public but still manageable by the business owner via the dashboard.
-- Public storefront page accessible via a clean URL (e.g. `mintkit.co.ukwww.mintkit.co.uk,mintkit-hub-8a979ce863e4.herokuapp.com`).
+- Public storefront page accessible via a clean URL (e.g. `/storefront/<slug>/`).
 
 
 #### 4. Stripe Subscription Integration & Trial Logic
@@ -350,7 +355,7 @@ These are ideas for future development and are not required for the initial Code
 - **Virtual Environment** (`venv` or similar) – isolates Python dependencies for the project.
 - **pip** – package manager for Python dependencies.
 
-### Deployment (To Be Finalised)
+### Deployment
 
 The exact deployment stack will be documented once chosen (for example, a cloud platform that supports Django, PostgreSQL, and environment variables for Stripe keys). This section will be updated with:
 
@@ -524,20 +529,6 @@ Incoming support mail is handled via **Cloudflare Email Routing**, forwarding:
 Using a dedicated mail subdomain helps deliverability and keeps DNS/email records isolated from the main website domain.
 
 ---
-
-## Dashboard – MintKit PID helper (small custom JS)
-
-**Purpose:**
-- Formats a pasted MintKit Principal ID into grouped chunks (e.g. `abcde-fghij-...`)
-- Provides a “Copy” button to copy the linked PID to clipboard
-
-**Browser APIs used:**
-- DOM events (`paste`, `blur`, `click`)
-- Clipboard API (`navigator.clipboard.writeText`) with a safe fallback
-
-**Source / attribution:**
-- Custom script written for this project, based on standard Web API usage patterns (MDN Web Docs).
-
 
 
 </details>
@@ -971,7 +962,7 @@ The following are either not implemented yet or cannot be fully tested within th
 - Internet Identity authentication flows (external)
 - QR redemption flow and MintKit Studio / canister logic (external app)
 - Full Stripe payments (real card payments, refunds, disputes)
-- Email sending/receipts (not implemented yet)
+- Transactional email improvements (delivery tracking, retries, receipts)
 - High-load / concurrency testing (e.g. many users purchasing simultaneously)
 - Automated UI testing suites (planned for future iteration)
 
@@ -1008,12 +999,10 @@ The MintKit Hub Django application is deployed to **Heroku** with the following 
 **Live URL:**  
 https://mintkit.co.uk/
 
-
-
 **Other domains (routing notes):**
 - `www.mintkit.co.uk` points to `mintkit.co.uk`
 - `mintkit.org` redirects to `mintkit.co.uk`
-- The Heroku app URL is kept as a fallback/admin access route (not advertised)
+- The Heroku app URL is kept as a fallback/admin route (not advertised)
 
 ---
 
@@ -1025,7 +1014,8 @@ The following environment variables are configured in the Heroku dashboard:
 |--------------|--------|
 | `SECRET_KEY` | Django secret key (production-safe) |
 | `DEBUG` | Set to `False` in production |
-| `ALLOWED_HOSTS` | Comma-separated hosts (e.g. `mintkit-hub.herokuapp.com,mintkit-hub-8a979ce863e4.herokuapp.com`) |
+| `ALLOWED_HOSTS` | Comma-separated hosts (e.g. `mintkit.co.uk,www.mintkit.co.uk,mintkit-hub-8a979ce863e4.herokuapp.com`) |
+| `CSRF_TRUSTED_ORIGINS` | Comma-separated trusted origins (e.g. `https://mintkit.co.uk,https://www.mintkit.co.uk`) |
 | `DATABASE_URL` | Automatically added by Heroku Postgres |
 
 ---
