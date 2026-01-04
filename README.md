@@ -1004,6 +1004,13 @@ https://mintkit.co.uk/
 - `mintkit.org` redirects to `mintkit.co.uk`
 - The Heroku app URL is kept as a fallback/admin route (not advertised)
 
+### Known limitations & beta notes
+
+- **Edit Layout on mobile:** the drag/resize layout editor is designed for **desktop/tablet**. On small touch screens, precise positioning is difficult. Storefront viewing and general management works on mobile, but layout editing is recommended on a larger screen.
+- **Studio (beta integration):** the **Studio** link opens an external companion app. Studio is under active development and may change; the Hub remains fully functional without Studio.
+
+
+
 ---
 
 ### Environment Variables (Heroku Config Vars)

@@ -18,7 +18,7 @@
     <span class="sf-badge sf-badge-muted">Hidden from Explore</span>
     {% endif %}
 
-    <a href="{{ public_url }}" target="_blank" rel="noopener" class="btn btn-primary">
+    <a href="{{ public_url }}" target="_blank" rel="noopener" class="btn btn-primary text-break">
       View public storefront
     </a>
   </div>
@@ -34,10 +34,14 @@
       </button>
     </div>
 
-    <div class="sf-preview-card">
+<div class="alert alert-info mt-2 mb-3" role="alert">
+  <strong>Tip:</strong> Edit Layout works best on <strong>desktop/tablet</strong>. On small touch screens, drag/resize positioning can be less precise.
+</div>
+
+    <div class="sf-preview-card w-100 overflow-hidden">
       <div class="sf-preview-logo">
         {% if storefront.logo %}
-        <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
+        <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large img-fluid">
         {% endif %}
       </div>
 
@@ -61,7 +65,7 @@
 
     <div class="sf-card-grid">
       {% for card in storefront.cards.all %}
-      <article class="sf-card">
+      <article class="sf-card text-break">
         {% if card.image_url %}
         <div class="sf-card-image-wrap">
           <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
@@ -81,7 +85,7 @@
 
         {% if card.buy_url %}
         <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-          class="btn btn-sm btn-primary storefront-preview-card-button">
+          class="btn btn-sm btn-primary storefront-preview-card-button text-break">
           Buy now
         </a>
         {% endif %}
@@ -283,7 +287,7 @@
             </span>
 
             <span class="sf-card-summary-right">
-              <img src="{% static 'img/logo-blue.webp' %}" alt="Featured cards preview" class="sf-card-summary-thumb">
+              <img src="{% static 'img/logo-blue.webp' %}" alt="Featured cards preview" class="sf-card-summary-thumb img-fluid">
             </span>
           </span>
         </summary>
@@ -346,7 +350,7 @@
       {# Actions #}
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">Save storefront</button>
-        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary text-break">Cancel</a>
       </div>
     </form>
   </section>
@@ -437,7 +441,7 @@
 
             <div class="sf-preview-logo" data-sf-block="logo" data-sf-label="Logo">
               {% if storefront.logo %}
-              <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
+              <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large img-fluid">
               {% endif %}
             </div>
 
@@ -464,7 +468,7 @@
 
             <div class="sf-card-grid" data-sf-label="Cards grid">
               {% for card in storefront.cards.all|slice:":3" %}
-              <article class="sf-card" data-sf-block="card_{{ forloop.counter }}"
+              <article class="sf-card text-break" data-sf-block="card_{{ forloop.counter }}"
                 data-sf-label="Card {{ forloop.counter }}">
                 {% if card.image_url %}
                 <div class="sf-card-image-wrap">
@@ -485,7 +489,7 @@
 
                 {% if card.buy_url %}
                 <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-                  class="btn btn-sm btn-primary storefront-preview-card-button">
+                  class="btn btn-sm btn-primary storefront-preview-card-button text-break">
                   Buy now
                 </a>
                 {% endif %}
