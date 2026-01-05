@@ -210,6 +210,19 @@ DEFAULT_REPLY_TO_EMAIL = os.getenv(
 )
 
 # -------------------------
+# Stripe
+# -------------------------
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+STRIPE_PRICE_BASIC = os.getenv("STRIPE_PRICE_BASIC", "")
+STRIPE_PRICE_PRO = os.getenv("STRIPE_PRICE_PRO", "")
+
+SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000").rstrip("/")
+
+
+# -------------------------
 # Logging
 # -------------------------
 LOGGING = {
