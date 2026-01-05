@@ -8,11 +8,12 @@
   <div>
     <h1 class="mk-page-title">Pricing</h1>
 
-<div class="alert alert-info mt-3" role="alert">
-  <ul class="mb-0">
-    <li><strong>Studio</strong> is an external companion app (beta). The Hub works independently even while Studio features are evolving.</li>
-  </ul>
-</div>
+    <div class="alert alert-info mt-3" role="alert">
+      <ul class="mb-0">
+        <li><strong>Studio</strong> is an external companion app (beta). The Hub works independently even while Studio
+          features are evolving.</li>
+      </ul>
+    </div>
 
     <p class="mk-page-lead">
       MintKit Hub starts with a short <strong>free trial</strong>, then an affordable <strong>Basic</strong> plan.
@@ -158,9 +159,10 @@
         </span>
       </div>
 
-      <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true">
-        Upgrade (Stripe next)
-      </span>
+      <a class="btn btn-primary mk-plan-btn" href="{% url 'subscriptions_checkout' 'basic' %}">
+        Upgrade
+      </a>
+
 
       <ul class="mk-feature-list">
         <li class="mk-feature mk-feature--on">Everything in the Free Trial</li>

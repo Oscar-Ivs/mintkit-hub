@@ -218,6 +218,7 @@ STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
 # Stripe Price IDs
 STRIPE_PRICE_BASIC = os.getenv("STRIPE_PRICE_BASIC", "")
+STRIPE_PRICE_BASIC_ANNUAL = os.getenv("STRIPE_PRICE_BASIC_ANNUAL", "")
 STRIPE_PRICE_PRO = os.getenv("STRIPE_PRICE_PRO", "")  # optional for later
 
 # Base site URL (used for Stripe redirect URLs)
