@@ -21,13 +21,18 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls')),  # auth routes
-    path('', include('core.urls')),              # homepage & general pages
-    path('storefront/', include('storefronts.urls')),  # storefront related pages
-    path("subscriptions/", include("subscriptions.urls")),  # subscription management
-     path("accounts/", include("django.contrib.auth.urls")),  # adds password_change, password_reset, etc.
+    path("admin/", admin.site.urls),
+
+    # Auth
+    path("accounts/", include("django.contrib.auth.urls")),  # password reset/change etc.
+    path("accounts/", include("accounts.urls")),             # your app routes (profile, etc.)
+
+    # App
+    path("subscriptions/", include("subscriptions.urls")),
+    path("storefront/", include("storefronts.urls")),
+    path("", include("core.urls")),
 ]
+
 
 
 # Serve media files (like uploaded logos) in development

@@ -11,6 +11,13 @@ from accounts.models import Profile
 from .models import Subscription, SubscriptionPlan
 from .stripe_service import init_stripe, get_stripe_price_id
 
+from django.shortcuts import redirect
+
+def subscriptions_home(request):
+    # Redirect /subscriptions/ somewhere useful
+    return redirect("pricing")
+
+
 TRIAL_DAYS = 14
 
 
