@@ -2,6 +2,7 @@
 import datetime
 import logging
 
+from urllib.parse import urlsplit
 import stripe
 from django.conf import settings
 from django.http import HttpResponse
@@ -157,17 +158,42 @@ def stripe_webhook(request):
                     cancel_at_period_end=False,
                 )
 
-            # Send confirmed email only on transition to active
+                        # Send confirmed email only on transition to active
             if prev_status != Subscription.STATUS_ACTIVE and sub_obj.status == Subscription.STATUS_ACTIVE:
                 to_email = profile.contact_email or profile.user.email
                 if to_email:
+                    raw_site = (settings.SITE_URL or "").rstrip("/")
+                    parts = urlsplit(raw_site)
+
+                    if parts.scheme and parts.netloc:
+                        protocol = parts.scheme
+                        domain = parts.netloc
+                        site_root = f"{protocol}://{domain}"
+                    else:
+                        domain = raw_site.replace("https://", "").replace("http://", "").split("/")[0]
+                        protocol = "https"
+                        site_root = f"{protocol}://{domain}"
+
                     ctx = {
                         "first_name": profile.user.first_name or profile.user.username,
                         "plan_name": plan.name,
-                        "manage_url": f"{settings.SITE_URL}/subscriptions/portal/",
-                        "site_url": settings.SITE_URL,
+
+                        # base_email.html expects these (same as welcome/reset)
+                        "protocol": protocol,
+                        "domain": domain,
+                        "site_root": site_root,
+
+                        # Buttons / links used inside email content
+                        "dashboard_url": f"{site_root}/dashboard/",
+                        "portal_url": f"{site_root}/subscriptions/portal/",
+
+                        # Footer / support
                         "support_email": "support@mintkit.co.uk",
+                        "about_url": f"{site_root}/about/",
+                        "pricing_url": f"{site_root}/pricing/",
+                        "faq_url": f"{site_root}/faq/",
                     }
+
                     _send_email(
                         "emails/subscription_confirmed.html",
                         "emails/subscription_confirmed.txt",

@@ -85,16 +85,45 @@ def _trial_eligible(profile: Profile) -> bool:
 def _send_subscription_email_confirmed(profile: Profile, plan: SubscriptionPlan) -> None:
     """
     Sends the styled subscription confirmed email (HTML + text fallback).
+    Includes protocol/domain so base_email.html can render the banner + watermark images.
     """
     to_email = profile.contact_email or profile.user.email
     if not to_email:
         return
 
+    raw_site = (settings.SITE_URL or "").rstrip("/")
+    parts = urlsplit(raw_site)
+
+    # Build protocol/domain even if SITE_URL is missing a scheme
+    if parts.scheme and parts.netloc:
+        protocol = parts.scheme
+        domain = parts.netloc
+        site_root = f"{protocol}://{domain}"
+    else:
+        # Fallback: treat SITE_URL as a domain
+        domain = raw_site.replace("https://", "").replace("http://", "").split("/")[0]
+        protocol = "https"
+        site_root = f"{protocol}://{domain}"
+
+    portal_url = f"{site_root}{reverse('subscriptions_billing_portal')}"
+    dashboard_url = f"{site_root}{reverse('dashboard')}"
+
     ctx = {
+        # Content
         "first_name": profile.user.first_name or profile.user.username,
         "plan_name": plan.name,
-        "manage_url": f"{settings.SITE_URL}{reverse('subscriptions_billing_portal')}",
-        "site_url": settings.SITE_URL,
+        "dashboard_url": dashboard_url,
+        "portal_url": portal_url,
+
+        # base_email.html needs these for full header/watermark + Visit site button
+        "protocol": protocol,
+        "domain": domain,
+        "site_root": site_root,
+
+        # Optional footer links (nice to have)
+        "about_url": f"{site_root}/about/",
+        "pricing_url": f"{site_root}/pricing/",
+        "faq_url": f"{site_root}/faq/",
         "support_email": "support@mintkit.co.uk",
     }
 
@@ -105,6 +134,7 @@ def _send_subscription_email_confirmed(profile: Profile, plan: SubscriptionPlan)
     msg = EmailMultiAlternatives(subject=subject, body=text_body, to=[to_email])
     msg.attach_alternative(html_body, "text/html")
     msg.send(fail_silently=False)
+
 
 
 @login_required
