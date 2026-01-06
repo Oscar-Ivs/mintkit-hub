@@ -1,0 +1,12 @@
+Hi {{ first_name }},
+
+Thanks for subscribing to MintKit {{ plan_name }}.
+
+Your subscription is now active.
+
+Manage billing:
+{{ manage_url }}
+
+Need help? Email {{ support_email }}
+
+— MintKit

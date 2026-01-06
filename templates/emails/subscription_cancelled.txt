@@ -1,0 +1,12 @@
+Hi {{ first_name }},
+
+Your MintKit subscription ({{ plan_name }}) has been cancelled.
+
+{% if ends_on %}Access remains available until: {{ ends_on }}{% endif %}
+
+Manage billing:
+{{ manage_url }}
+
+Need help? Email {{ support_email }}
+
+— MintKit

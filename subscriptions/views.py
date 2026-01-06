@@ -1,63 +1,28 @@
 # subscriptions/views.py
-from datetime import timedelta
+import datetime
+import logging
 
+import stripe
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.mail import send_mail
-from django.shortcuts import redirect, get_object_or_404
+from django.core.mail import EmailMultiAlternatives
+from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 
 from accounts.models import Profile
 from .models import Subscription, SubscriptionPlan
 from .stripe_service import init_stripe, get_stripe_price_id
-from .webhooks import _update_subscription_from_stripe  # reuse the same sync logic as webhook
 
-
-TRIAL_DAYS = 14
-
-
-def subscriptions_home(request):
-    # Redirect /subscriptions/ somewhere useful
-    return redirect("pricing")
-
-
-def _get_or_create_profile(user) -> Profile:
-    profile, _ = Profile.objects.get_or_create(
-        user=user,
-        defaults={
-            "business_name": user.username,
-            "contact_email": getattr(user, "email", "") or "",
-        },
-    )
-    return profile
-
-
-def _trial_is_active(subscription) -> bool:
-    if not subscription:
-        return False
-
-    status = (subscription.status or "").lower()
-    if status not in {"trial", "trialing"}:
-        return False
-
-    end = getattr(subscription, "current_period_end", None)
-    if end is None:
-        return True
-
-    # current_period_end might be date or datetime
-    if hasattr(end, "date"):
-        try:
-            end = end.date()
-        except TypeError:
-            pass
-
-    return end >= timezone.localdate()
+logger = logging.getLogger(__name__)
 
 
 def _active_paid_subscription_exists(profile: Profile) -> bool:
-    # Paid = has Stripe subscription id, and is not canceled
+    """
+    True if there is any active paid subscription (Stripe-backed).
+    """
     return (
         Subscription.objects.filter(profile=profile)
         .exclude(stripe_subscription_id="")
@@ -66,147 +31,222 @@ def _active_paid_subscription_exists(profile: Profile) -> bool:
     )
 
 
-@login_required
-def start_trial(request):
-    profile = _get_or_create_profile(request.user)
-
-    existing = Subscription.objects.filter(profile=profile).order_by("-started_at").first()
-
-    # Already has active trial
-    if existing and _trial_is_active(existing):
-        messages.info(request, "Your free trial is already active.")
-        return redirect("dashboard")
-
-    # Any existing subscription record means trial was already used (simple rule for now)
-    if existing:
-        messages.warning(request, "Your free trial has already been used.")
-        return redirect("pricing")
-
-    trial_plan = (
-        SubscriptionPlan.objects.filter(name__icontains="trial").first()
-        or SubscriptionPlan.objects.first()
+def _trial_used(profile: Profile) -> bool:
+    """
+    Treat trial as used if:
+      - a trial subscription exists (even canceled), OR
+      - any paid subscription exists (even canceled)
+    """
+    return (
+        Subscription.objects.filter(profile=profile, plan__code="trial").exists()
+        or Subscription.objects.filter(profile=profile).exclude(plan__code="trial").exists()
     )
 
-    if not trial_plan:
-        messages.error(request, "No subscription plans found. Add one in Django admin first.")
+
+def _send_subscription_email_confirmed(profile: Profile, plan: SubscriptionPlan) -> None:
+    """
+    Sends the styled subscription confirmed email (HTML + text fallback).
+    """
+    to_email = profile.contact_email or profile.user.email
+    if not to_email:
+        return
+
+    ctx = {
+        "first_name": profile.user.first_name or profile.user.username,
+        "plan_name": plan.name,
+        "manage_url": f"{settings.SITE_URL}{reverse('subscriptions_billing_portal')}",
+        "site_url": settings.SITE_URL,
+        "support_email": "support@mintkit.co.uk",
+    }
+
+    subject = f"Your MintKit {plan.name} subscription is active ✅"
+    html_body = render_to_string("emails/subscription_confirmed.html", ctx)
+    text_body = render_to_string("emails/subscription_confirmed.txt", ctx)
+
+    msg = EmailMultiAlternatives(subject=subject, body=text_body, to=[to_email])
+    msg.attach_alternative(html_body, "text/html")
+    msg.send(fail_silently=False)
+
+
+@login_required
+def start_trial(request):
+    profile = request.user.profile
+
+    if _trial_used(profile):
+        messages.error(request, "Free trial has already been used on this account.")
         return redirect("pricing")
+
+    trial_plan = SubscriptionPlan.objects.filter(code="trial", is_active=True).first()
+    if not trial_plan:
+        messages.error(request, "Trial plan is not configured.")
+        return redirect("pricing")
+
+    now = timezone.now()
+    trial_ends = now + datetime.timedelta(days=14)
 
     Subscription.objects.create(
         profile=profile,
         plan=trial_plan,
         status=Subscription.STATUS_TRIALING,
-        current_period_end=timezone.now() + timedelta(days=TRIAL_DAYS),
+        current_period_end=trial_ends,
+        stripe_customer_id="",
+        stripe_subscription_id="",
+        cancel_at_period_end=False,
+        canceled_at=None,
     )
 
-    messages.success(request, f"Free trial started ({TRIAL_DAYS} days). MintKit Studio is now unlocked.")
+    messages.success(request, "Free trial started! Enjoy MintKit Hub 🚀")
     return redirect("dashboard")
 
 
 @login_required
 def checkout(request, plan_code: str):
     """
-    Starts Stripe Checkout (subscription mode) and redirects to Stripe-hosted page.
+    Creates a Stripe Checkout session.
     """
-    stripe = init_stripe()
-    profile = _get_or_create_profile(request.user)
+    profile = request.user.profile
 
-    # Block duplicate payments even if the Pricing button is still visible
-    if _active_paid_subscription_exists(profile):
-        messages.info(request, "An active subscription already exists. Manage it in the billing portal.")
-        return redirect("subscriptions_billing_portal")
+    # Billing cycle (for annual toggle)
+    billing = request.GET.get("billing", "monthly").lower().strip()
+    if billing not in ("monthly", "annual"):
+        billing = "monthly"
 
-    plan = get_object_or_404(SubscriptionPlan, code=plan_code, is_active=True)
-    price_id = get_stripe_price_id(plan.code, fallback_price_id=plan.stripe_price_id)
+    # Prevent buying again if already active paid
+    if _active_paid_subscription_exists(profile) and plan_code in ("basic", "pro"):
+        messages.info(request, "Subscription is already active. Manage billing from your dashboard.")
+        return redirect("dashboard")
 
-    success_url = request.build_absolute_uri(reverse("subscriptions_checkout_success"))
-    success_url = f"{success_url}?session_id={{CHECKOUT_SESSION_ID}}"
-    cancel_url = request.build_absolute_uri(reverse("subscriptions_checkout_cancel"))
+    if plan_code == "trial":
+        messages.info(request, "Trial doesn’t require payment.")
+        return redirect("pricing")
 
-    session = stripe.checkout.Session.create(
-        mode="subscription",
-        line_items=[{"price": price_id, "quantity": 1}],
-        client_reference_id=str(profile.id),
-        customer_email=(request.user.email or None),
-        success_url=success_url,
-        cancel_url=cancel_url,
-        metadata={
+    plan = SubscriptionPlan.objects.filter(code=plan_code, is_active=True).first()
+    if not plan:
+        messages.error(request, "That plan is not available.")
+        return redirect("pricing")
+
+    init_stripe()
+    price_id = get_stripe_price_id(plan_code, billing=billing)
+
+    success_url = f"{settings.SITE_URL}{reverse('subscriptions_checkout_success')}?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = f"{settings.SITE_URL}{reverse('subscriptions_checkout_cancel')}"
+
+    # Ensure Stripe subscription also carries metadata (critical for webhook linking)
+    subscription_data = {
+        "metadata": {
             "profile_id": str(profile.id),
-            "plan_code": plan.code,
-        },
-    )
+            "plan_code": plan_code,
+            "billing": billing,
+        }
+    }
 
-    return redirect(session.url)
+    session_params = {
+        "mode": "subscription",
+        "line_items": [{"price": price_id, "quantity": 1}],
+        "success_url": success_url,
+        "cancel_url": cancel_url,
+        "client_reference_id": str(profile.id),
+        "metadata": {
+            "profile_id": str(profile.id),
+            "plan_code": plan_code,
+            "billing": billing,
+        },
+        "subscription_data": subscription_data,
+    }
+
+    # Reuse existing Stripe customer if known
+    customer_id = getattr(profile, "stripe_customer_id", "") or ""
+    if customer_id:
+        session_params["customer"] = customer_id
+    else:
+        session_params["customer_email"] = profile.contact_email or request.user.email
+
+    session = stripe.checkout.Session.create(**session_params)
+    return redirect(session.url, permanent=False)
 
 
 @login_required
 def checkout_success(request):
     """
-    Sync subscription after Stripe redirects back.
-    Webhook remains the source of truth, but this makes the dashboard correct immediately.
+    Landing page after Stripe checkout.
+    Sync local DB and (if needed) send email once.
     """
-    session_id = request.GET.get("session_id", "")
+    session_id = request.GET.get("session_id")
     if not session_id:
-        messages.success(request, "Payment complete. Subscription will appear on your dashboard shortly.")
-        return redirect("dashboard")
+        messages.error(request, "Missing Stripe session id.")
+        return redirect("pricing")
 
-    stripe = init_stripe()
-    profile = _get_or_create_profile(request.user)
+    init_stripe()
+    profile = request.user.profile
 
-    try:
-        session = stripe.checkout.Session.retrieve(session_id)
-    except Exception:
-        messages.success(request, "Payment complete. Subscription will appear on your dashboard shortly.")
-        return redirect("dashboard")
+    session = stripe.checkout.Session.retrieve(session_id)
+    stripe_subscription_id = session.get("subscription")
+    customer_id = session.get("customer")
 
-    meta = session.get("metadata") or {}
-    session_profile_id = meta.get("profile_id") or session.get("client_reference_id") or ""
-    if str(session_profile_id) != str(profile.id):
-        messages.warning(request, "Payment completed, but it could not be linked to this account.")
-        return redirect("dashboard")
+    if customer_id and hasattr(profile, "stripe_customer_id"):
+        if profile.stripe_customer_id != customer_id:
+            profile.stripe_customer_id = customer_id
+            profile.save(update_fields=["stripe_customer_id"])
 
-    plan_code = meta.get("plan_code") or ""
-    subscription_id = session.get("subscription") or ""
-    customer_id = session.get("customer") or ""
+    # Determine plan code from metadata
+    md = session.get("metadata") or {}
+    plan_code = (md.get("plan_code") or "basic").strip().lower()
 
-    if not plan_code or not subscription_id:
-        messages.success(request, "Payment complete. Subscription will appear on your dashboard shortly.")
-        return redirect("dashboard")
+    plan = SubscriptionPlan.objects.filter(code=plan_code).first()
+    if not plan:
+        messages.error(request, "Subscription plan not found in database.")
+        return redirect("pricing")
 
-    try:
-        plan = SubscriptionPlan.objects.get(code=plan_code, is_active=True)
-        stripe_sub = stripe.Subscription.retrieve(subscription_id)
+    # Retrieve Stripe subscription for period end + cancel flags
+    stripe_sub = stripe.Subscription.retrieve(stripe_subscription_id)
+    stripe_status = stripe_sub.get("status", "")
+    cancel_at_period_end = bool(stripe_sub.get("cancel_at_period_end", False))
+    canceled_at = stripe_sub.get("canceled_at")
 
-        # Create/update local subscription row (same mapping as webhook)
-        _update_subscription_from_stripe(
-            profile=profile,
-            plan=plan,
-            stripe_sub=stripe_sub,
-            customer_id=customer_id,
-        )
+    # Map Stripe status to local
+    local_status = Subscription.STATUS_ACTIVE if stripe_status in ("active", "trialing") else Subscription.STATUS_CANCELED
 
-        # End local trial record so dashboard stops showing trial
+    current_period_end = stripe_sub.get("current_period_end")
+    current_period_end_dt = (
+        datetime.datetime.fromtimestamp(current_period_end, tz=datetime.timezone.utc) if current_period_end else None
+    )
+    canceled_at_dt = (
+        datetime.datetime.fromtimestamp(canceled_at, tz=datetime.timezone.utc) if canceled_at else None
+    )
+
+    existing = Subscription.objects.filter(profile=profile, stripe_subscription_id=stripe_subscription_id).first()
+    prev_status = existing.status if existing else None
+
+    sub_obj, _created = Subscription.objects.update_or_create(
+        profile=profile,
+        stripe_subscription_id=stripe_subscription_id,
+        defaults={
+            "plan": plan,
+            "status": local_status,
+            "stripe_customer_id": customer_id or "",
+            "current_period_end": current_period_end_dt,
+            "cancel_at_period_end": cancel_at_period_end,
+            "canceled_at": canceled_at_dt,
+        },
+    )
+
+    # If a paid subscription became active, cancel any existing local trial record
+    if plan_code != "trial":
         Subscription.objects.filter(
             profile=profile,
-            stripe_subscription_id="",
+            plan__code="trial",
             status=Subscription.STATUS_TRIALING,
-        ).update(status=Subscription.STATUS_CANCELED)
+            stripe_subscription_id="",
+        ).update(status=Subscription.STATUS_CANCELED, canceled_at=timezone.now())
 
-        # Confirmation email (console backend prints to terminal if enabled)
-        to_email = request.user.email or profile.contact_email or ""
-        if to_email:
-            send_mail(
-                subject="MintKit subscription confirmed",
-                message=f"Thanks for subscribing to MintKit ({plan.name}). Your access is now active.",
-                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@example.com"),
-                recipient_list=[to_email],
-                fail_silently=True,
-            )
+    # Send confirmation email only when transitioning into active
+    if prev_status != Subscription.STATUS_ACTIVE and sub_obj.status == Subscription.STATUS_ACTIVE:
+        try:
+            _send_subscription_email_confirmed(profile, plan)
+        except Exception:
+            logger.exception("Failed sending subscription confirmed email")
 
-    except Exception:
-        # Avoid blocking the user; webhook can still sync later
-        pass
-
-    messages.success(request, "Payment complete. Your subscription is now active.")
+    messages.success(request, "Subscription confirmed! Welcome aboard 🚀")
     return redirect("dashboard")
 
 
@@ -219,29 +259,29 @@ def checkout_cancel(request):
 @login_required
 def billing_portal(request):
     """
-    Redirects the user to Stripe Billing Portal to manage/cancel subscription.
+    Opens Stripe Billing Portal for the user's Stripe customer.
     """
-    stripe = init_stripe()
-    profile = Profile.objects.filter(user=request.user).first()
+    init_stripe()
+    profile = request.user.profile
 
-    if not profile:
-        messages.error(request, "Profile not found.")
+    customer_id = getattr(profile, "stripe_customer_id", "") or ""
+
+    if not customer_id:
+        # fallback: try from any subscription
+        latest = (
+            Subscription.objects.filter(profile=profile)
+            .exclude(stripe_customer_id="")
+            .order_by("-created_at")
+            .first()
+        )
+        customer_id = latest.stripe_customer_id if latest else ""
+
+    if not customer_id:
+        messages.error(request, "No Stripe customer found for this account.")
         return redirect("dashboard")
 
-    sub = (
-        Subscription.objects.filter(profile=profile)
-        .exclude(stripe_customer_id="")
-        .order_by("-started_at")
-        .first()
+    portal_session = stripe.billing_portal.Session.create(
+        customer=customer_id,
+        return_url=f"{settings.SITE_URL}{reverse('dashboard')}",
     )
-
-    if not sub or not sub.stripe_customer_id:
-        messages.warning(request, "No Stripe customer found for this account yet.")
-        return redirect("pricing")
-
-    return_url = request.build_absolute_uri(reverse("dashboard"))
-    portal = stripe.billing_portal.Session.create(
-        customer=sub.stripe_customer_id,
-        return_url=return_url,
-    )
-    return redirect(portal.url)
+    return redirect(portal_session.url, permanent=False)
