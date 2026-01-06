@@ -3319,3 +3319,13 @@ body.sf-editor-lock {
   aspect-ratio: 16 / 10;
   object-fit: cover;
 }
+
+/* ===== Logout button ===== */
+.mk-link-button{
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}

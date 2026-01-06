@@ -113,7 +113,13 @@
                 class="mk-desktop-only {% if request.resolver_match.url_name == 'my_storefront' %}is-active{% endif %}">My
                 storefront</a>
 
-            <a href="{% url 'logout' %}" class="mk-desktop-only">Logout</a>
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <a href="#" class="mk-desktop-only" onclick="this.closest('form').submit(); return false;">
+                    Logout
+                </a>
+            </form>
+
             {% else %}
             <a href="{% url 'login' %}"
                 class="mk-desktop-only {% if request.resolver_match.url_name == 'login' %}is-active{% endif %}">Login</a>
