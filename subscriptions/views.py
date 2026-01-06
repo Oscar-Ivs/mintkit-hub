@@ -92,6 +92,7 @@ def start_trial(request):
         stripe_customer_id="",
         stripe_subscription_id="",
         cancel_at_period_end=False,
+        cancel_at=None,
         canceled_at=None,
     )
 
@@ -183,6 +184,11 @@ def checkout_success(request):
     stripe_subscription_id = session.get("subscription")
     customer_id = session.get("customer")
 
+    # Some edge cases can return no subscription id; avoid a 500
+    if not stripe_subscription_id:
+        messages.error(request, "Stripe did not return a subscription id for this session.")
+        return redirect("pricing")
+
     if customer_id and hasattr(profile, "stripe_customer_id"):
         if profile.stripe_customer_id != customer_id:
             profile.stripe_customer_id = customer_id
@@ -199,19 +205,41 @@ def checkout_success(request):
 
     # Retrieve Stripe subscription for period end + cancel flags
     stripe_sub = stripe.Subscription.retrieve(stripe_subscription_id)
-    stripe_status = stripe_sub.get("status", "")
-    cancel_at_period_end = bool(stripe_sub.get("cancel_at_period_end", False))
-    canceled_at = stripe_sub.get("canceled_at")
+    stripe_status = (stripe_sub.get("status") or "").strip().lower()
 
-    # Map Stripe status to local
-    local_status = Subscription.STATUS_ACTIVE if stripe_status in ("active", "trialing") else Subscription.STATUS_CANCELED
+    cancel_at_period_end = bool(stripe_sub.get("cancel_at_period_end", False))
+    cancel_at = stripe_sub.get("cancel_at")          # scheduled cancellation time
+    canceled_at = stripe_sub.get("canceled_at")      # actual cancellation time (if canceled)
+
+    # Map Stripe status to local values without collapsing everything to "canceled"
+    status_map = {
+        "active": Subscription.STATUS_ACTIVE,
+        "trialing": Subscription.STATUS_TRIALING,
+        "past_due": Subscription.STATUS_PAST_DUE,
+        "unpaid": Subscription.STATUS_PAST_DUE,
+        "incomplete": Subscription.STATUS_INCOMPLETE,
+        "incomplete_expired": Subscription.STATUS_INCOMPLETE,
+        "canceled": Subscription.STATUS_CANCELED,
+        "cancelled": Subscription.STATUS_CANCELED,  # defensive spelling
+    }
+    local_status = status_map.get(stripe_status, Subscription.STATUS_CANCELED)
 
     current_period_end = stripe_sub.get("current_period_end")
     current_period_end_dt = (
-        datetime.datetime.fromtimestamp(current_period_end, tz=datetime.timezone.utc) if current_period_end else None
+        datetime.datetime.fromtimestamp(current_period_end, tz=datetime.timezone.utc)
+        if current_period_end
+        else None
+    )
+
+    cancel_at_dt = (
+        datetime.datetime.fromtimestamp(cancel_at, tz=datetime.timezone.utc)
+        if cancel_at
+        else None
     )
     canceled_at_dt = (
-        datetime.datetime.fromtimestamp(canceled_at, tz=datetime.timezone.utc) if canceled_at else None
+        datetime.datetime.fromtimestamp(canceled_at, tz=datetime.timezone.utc)
+        if canceled_at
+        else None
     )
 
     existing = Subscription.objects.filter(profile=profile, stripe_subscription_id=stripe_subscription_id).first()
@@ -226,6 +254,7 @@ def checkout_success(request):
             "stripe_customer_id": customer_id or "",
             "current_period_end": current_period_end_dt,
             "cancel_at_period_end": cancel_at_period_end,
+            "cancel_at": cancel_at_dt,
             "canceled_at": canceled_at_dt,
         },
     )
@@ -237,7 +266,7 @@ def checkout_success(request):
             plan__code="trial",
             status=Subscription.STATUS_TRIALING,
             stripe_subscription_id="",
-        ).update(status=Subscription.STATUS_CANCELED, canceled_at=timezone.now())
+        ).update(status=Subscription.STATUS_CANCELED, canceled_at=timezone.now(), cancel_at=None, cancel_at_period_end=False)
 
     # Send confirmation email only when transitioning into active
     if prev_status != Subscription.STATUS_ACTIVE and sub_obj.status == Subscription.STATUS_ACTIVE:

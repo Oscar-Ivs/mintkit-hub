@@ -93,8 +93,12 @@ class Subscription(models.Model):
     stripe_subscription_id = models.CharField(max_length=120, blank=True)
 
     cancel_at_period_end = models.BooleanField(default=False)
+
+    # Stripe: scheduled cancellation timestamp
     cancel_at = models.DateTimeField(null=True, blank=True)
 
+    # Stripe: actual cancellation timestamp (this field fixes the FieldError)
+    canceled_at = models.DateTimeField(null=True, blank=True)
 
     # Used by pricing/admin in some places; keep it to avoid FieldError
     started_at = models.DateTimeField(

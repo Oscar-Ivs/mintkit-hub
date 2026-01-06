@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def _utc_from_ts(ts):
+    # Stripe timestamps are unix seconds; convert to timezone-aware UTC datetime
     if not ts:
         return None
     return datetime.datetime.fromtimestamp(ts, tz=datetime.timezone.utc)
@@ -32,7 +33,7 @@ def _send_email(template_html, template_txt, subject, to_email, ctx):
 
 def _find_profile_for_subscription(stripe_sub):
     """
-    Prefer subscription metadata (we set this at Checkout creation).
+    Prefer subscription metadata (set at Checkout creation).
     Fallback to local DB via stripe_subscription_id.
     """
     md = stripe_sub.get("metadata") or {}
@@ -74,7 +75,7 @@ def stripe_webhook(request):
     obj = event["data"]["object"]
 
     try:
-        # 1) Checkout completed (good moment to sync + store customer id)
+        # 1) Checkout completed (sync + store customer id)
         if event_type == "checkout.session.completed":
             session = obj
             stripe_sub_id = session.get("subscription")
@@ -88,10 +89,7 @@ def stripe_webhook(request):
             plan_code = (md.get("plan_code") or "basic").strip().lower()
             profile_id = md.get("profile_id")
 
-            profile = None
-            if profile_id:
-                profile = Profile.objects.filter(pk=profile_id).first()
-
+            profile = Profile.objects.filter(pk=profile_id).first() if profile_id else None
             if not profile:
                 profile = _find_profile_for_subscription(stripe_sub)
 
@@ -110,12 +108,23 @@ def stripe_webhook(request):
                 logger.warning("Webhook: plan not found in DB: %s", plan_code)
                 return HttpResponse(status=200)
 
-            stripe_status = stripe_sub.get("status", "")
+            stripe_status = (stripe_sub.get("status") or "").strip().lower()
             cancel_at_period_end = bool(stripe_sub.get("cancel_at_period_end", False))
+            cancel_at = _utc_from_ts(stripe_sub.get("cancel_at"))
             canceled_at = _utc_from_ts(stripe_sub.get("canceled_at"))
             current_period_end = _utc_from_ts(stripe_sub.get("current_period_end"))
 
-            new_status = Subscription.STATUS_ACTIVE if stripe_status in ("active", "trialing") else Subscription.STATUS_CANCELED
+            status_map = {
+                "active": Subscription.STATUS_ACTIVE,
+                "trialing": Subscription.STATUS_TRIALING,
+                "past_due": Subscription.STATUS_PAST_DUE,
+                "unpaid": Subscription.STATUS_PAST_DUE,
+                "incomplete": Subscription.STATUS_INCOMPLETE,
+                "incomplete_expired": Subscription.STATUS_INCOMPLETE,
+                "canceled": Subscription.STATUS_CANCELED,
+                "cancelled": Subscription.STATUS_CANCELED,
+            }
+            new_status = status_map.get(stripe_status, Subscription.STATUS_CANCELED)
 
             existing = Subscription.objects.filter(profile=profile, stripe_subscription_id=stripe_sub_id).first()
             prev_status = existing.status if existing else None
@@ -129,6 +138,7 @@ def stripe_webhook(request):
                     "stripe_customer_id": customer_id or "",
                     "current_period_end": current_period_end,
                     "cancel_at_period_end": cancel_at_period_end,
+                    "cancel_at": cancel_at,
                     "canceled_at": canceled_at,
                 },
             )
@@ -140,7 +150,12 @@ def stripe_webhook(request):
                     plan__code="trial",
                     status=Subscription.STATUS_TRIALING,
                     stripe_subscription_id="",
-                ).update(status=Subscription.STATUS_CANCELED, canceled_at=datetime.datetime.now(tz=datetime.timezone.utc))
+                ).update(
+                    status=Subscription.STATUS_CANCELED,
+                    canceled_at=datetime.datetime.now(tz=datetime.timezone.utc),
+                    cancel_at=None,
+                    cancel_at_period_end=False,
+                )
 
             # Send confirmed email only on transition to active
             if prev_status != Subscription.STATUS_ACTIVE and sub_obj.status == Subscription.STATUS_ACTIVE:
@@ -171,8 +186,9 @@ def stripe_webhook(request):
             sub_id = stripe_sub.get("id")
             existing = Subscription.objects.filter(profile=profile, stripe_subscription_id=sub_id).first()
 
-            stripe_status = stripe_sub.get("status", "")
+            stripe_status = (stripe_sub.get("status") or "").strip().lower()
             cancel_at_period_end = bool(stripe_sub.get("cancel_at_period_end", False))
+            cancel_at = _utc_from_ts(stripe_sub.get("cancel_at"))
             canceled_at = _utc_from_ts(stripe_sub.get("canceled_at"))
             current_period_end = _utc_from_ts(stripe_sub.get("current_period_end"))
             customer_id = stripe_sub.get("customer")
@@ -180,11 +196,20 @@ def stripe_webhook(request):
             md = stripe_sub.get("metadata") or {}
             plan_code = (md.get("plan_code") or "basic").strip().lower()
             plan = SubscriptionPlan.objects.filter(code=plan_code).first()
-
             if not plan:
                 return HttpResponse(status=200)
 
-            new_status = Subscription.STATUS_ACTIVE if stripe_status in ("active", "trialing") else Subscription.STATUS_CANCELED
+            status_map = {
+                "active": Subscription.STATUS_ACTIVE,
+                "trialing": Subscription.STATUS_TRIALING,
+                "past_due": Subscription.STATUS_PAST_DUE,
+                "unpaid": Subscription.STATUS_PAST_DUE,
+                "incomplete": Subscription.STATUS_INCOMPLETE,
+                "incomplete_expired": Subscription.STATUS_INCOMPLETE,
+                "canceled": Subscription.STATUS_CANCELED,
+                "cancelled": Subscription.STATUS_CANCELED,
+            }
+            new_status = status_map.get(stripe_status, Subscription.STATUS_CANCELED)
 
             prev_status = existing.status if existing else None
             prev_cancel_flag = existing.cancel_at_period_end if existing else False
@@ -198,11 +223,12 @@ def stripe_webhook(request):
                     "stripe_customer_id": customer_id or "",
                     "current_period_end": current_period_end,
                     "cancel_at_period_end": cancel_at_period_end,
+                    "cancel_at": cancel_at,
                     "canceled_at": canceled_at,
                 },
             )
 
-            # Cancellation scheduled email (optional but nice)
+            # Cancellation scheduled email
             if (not prev_cancel_flag) and cancel_at_period_end and new_status == Subscription.STATUS_ACTIVE:
                 to_email = profile.contact_email or profile.user.email
                 if to_email:
@@ -253,8 +279,12 @@ def stripe_webhook(request):
             sub_obj = Subscription.objects.filter(profile=profile, stripe_subscription_id=sub_id).first()
             if sub_obj:
                 sub_obj.status = Subscription.STATUS_CANCELED
-                sub_obj.canceled_at = _utc_from_ts(stripe_sub.get("canceled_at")) or datetime.datetime.now(tz=datetime.timezone.utc)
-                sub_obj.save(update_fields=["status", "canceled_at"])
+                sub_obj.cancel_at_period_end = False
+                sub_obj.cancel_at = None
+                sub_obj.canceled_at = _utc_from_ts(stripe_sub.get("canceled_at")) or datetime.datetime.now(
+                    tz=datetime.timezone.utc
+                )
+                sub_obj.save(update_fields=["status", "cancel_at_period_end", "cancel_at", "canceled_at"])
 
     except Exception:
         # Keep 200 so Stripe won’t spam retries, but log properly
