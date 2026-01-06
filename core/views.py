@@ -58,45 +58,42 @@ def about(request):
 
 def pricing(request):
     """
-    Pricing page.
-
-    Adds trial flags so the template can show:
-    - eligible
-    - active (with end date)
-    - expired (trial already used)
+    Pricing page context:
+    - trial_active: trial currently running
+    - trial_expired: trial already used or expired (hide/disable trial CTA)
+    - trial_end: end date for the most recent trial, if available
     """
     trial_active = False
     trial_expired = False
     trial_end = None
 
     if request.user.is_authenticated:
-        profile, _ = Profile.objects.get_or_create(
-            user=request.user,
-            defaults={
-                "business_name": request.user.username,
-                "contact_email": getattr(request.user, "email", "") or "",
-            },
-        )
+        profile = getattr(request.user, "businessprofile", None)
+        if profile:
+            subs_qs = Subscription.objects.filter(profile=profile).order_by("-started_at")
 
-        subscription = (
-            Subscription.objects.filter(profile=profile)
-            .order_by("-started_at")
-            .first()
-        )
+            # Any real subscription attempt (trial/paid/canceled) means the trial is no longer eligible.
+            # Exclude only "incomplete" (failed/abandoned) attempts.
+            trial_used = subs_qs.exclude(status=Subscription.STATUS_INCOMPLETE).exists()
 
-        if subscription:
-            status = (subscription.status or "").lower()
-            if status in {"trial", "trialing"}:
-                trial_end = getattr(subscription, "current_period_end", None)
+            # Find the most recent trial subscription (by status)
+            trial_sub = subs_qs.filter(status__in=["trial", "trialing"]).first()
+            if trial_sub:
+                trial_end = trial_sub.current_period_end
                 today = timezone.localdate()
 
                 if trial_end:
-                    end_date = trial_end.date()
+                    end_date = timezone.localtime(trial_end).date()
                     trial_active = end_date >= today
                     trial_expired = end_date < today
                 else:
-                    # No end date stored => treat as active trial
+                    # No end stored -> treat as active
                     trial_active = True
+                    trial_expired = False
+
+            # If trial is not active and there was any real subscription before, mark trial as used
+            if trial_used and not trial_active:
+                trial_expired = True
 
     context = {
         "trial_active": trial_active,
