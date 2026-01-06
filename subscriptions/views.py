@@ -19,9 +19,37 @@ from .stripe_service import init_stripe, get_stripe_price_id
 logger = logging.getLogger(__name__)
 
 
+def _get_current_subscription(profile: Profile):
+    """
+    Returns the most recent non-canceled subscription record (trial or paid).
+    Used for UX decisions like showing trial eligibility.
+    """
+    return (
+        Subscription.objects.filter(profile=profile)
+        .exclude(status=Subscription.STATUS_CANCELED)
+        .select_related("plan")
+        .order_by("-created_at")
+        .first()
+    )
+
+
+def _has_active_paid_subscription(profile: Profile) -> bool:
+    """
+    True if there is an ACTIVE paid subscription (Stripe-backed, non-trial).
+    """
+    current = _get_current_subscription(profile)
+    return bool(
+        current
+        and current.status == Subscription.STATUS_ACTIVE
+        and current.plan.code != "trial"
+        and (current.stripe_subscription_id or "") != ""
+    )
+
+
 def _active_paid_subscription_exists(profile: Profile) -> bool:
     """
-    True if there is any active paid subscription (Stripe-backed).
+    True if there is any non-canceled Stripe-backed subscription record.
+    Used as a protective guard to prevent duplicate purchases.
     """
     return (
         Subscription.objects.filter(profile=profile)
@@ -41,6 +69,17 @@ def _trial_used(profile: Profile) -> bool:
         Subscription.objects.filter(profile=profile, plan__code="trial").exists()
         or Subscription.objects.filter(profile=profile).exclude(plan__code="trial").exists()
     )
+
+
+def _trial_eligible(profile: Profile) -> bool:
+    """
+    Trial eligibility for UI/business logic.
+    Trial should not be offered if a paid subscription is already active,
+    or if a trial has previously been used.
+    """
+    if _has_active_paid_subscription(profile):
+        return False
+    return not _trial_used(profile)
 
 
 def _send_subscription_email_confirmed(profile: Profile, plan: SubscriptionPlan) -> None:
@@ -72,7 +111,15 @@ def _send_subscription_email_confirmed(profile: Profile, plan: SubscriptionPlan)
 def start_trial(request):
     profile = request.user.profile
 
-    if _trial_used(profile):
+    # Prevent confusing "refresh-only" behaviour when subscribed
+    if _has_active_paid_subscription(profile):
+        messages.info(
+            request,
+            "A paid subscription is already active on this account. Trial is not available.",
+        )
+        return redirect("dashboard")
+
+    if not _trial_eligible(profile):
         messages.error(request, "Free trial has already been used on this account.")
         return redirect("pricing")
 
@@ -112,10 +159,13 @@ def checkout(request, plan_code: str):
     if billing not in ("monthly", "annual"):
         billing = "monthly"
 
-    # Prevent buying again if already active paid
+    # If already subscribed, send to Billing Portal instead of blocking with a dashboard redirect
     if _active_paid_subscription_exists(profile) and plan_code in ("basic", "pro"):
-        messages.info(request, "Subscription is already active. Manage billing from your dashboard.")
-        return redirect("dashboard")
+        messages.info(
+            request,
+            "Subscription is already active — manage billing and cancellations in the customer portal.",
+        )
+        return redirect("subscriptions_billing_portal")
 
     if plan_code == "trial":
         messages.info(request, "Trial doesn’t require payment.")
@@ -266,7 +316,12 @@ def checkout_success(request):
             plan__code="trial",
             status=Subscription.STATUS_TRIALING,
             stripe_subscription_id="",
-        ).update(status=Subscription.STATUS_CANCELED, canceled_at=timezone.now(), cancel_at=None, cancel_at_period_end=False)
+        ).update(
+            status=Subscription.STATUS_CANCELED,
+            canceled_at=timezone.now(),
+            cancel_at=None,
+            cancel_at_period_end=False,
+        )
 
     # Send confirmation email only when transitioning into active
     if prev_status != Subscription.STATUS_ACTIVE and sub_obj.status == Subscription.STATUS_ACTIVE:

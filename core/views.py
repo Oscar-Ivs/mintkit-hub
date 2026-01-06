@@ -62,22 +62,45 @@ def pricing(request):
     - trial_active: trial currently running
     - trial_expired: trial already used or expired (hide/disable trial CTA)
     - trial_end: end date for the most recent trial, if available
+    - has_active_paid: active paid subscription exists (hide trial CTA)
+    - active_plan_name: name of active plan for display
     """
     trial_active = False
     trial_expired = False
     trial_end = None
 
-    if request.user.is_authenticated:
-        profile = getattr(request.user, "businessprofile", None)
-        if profile:
-            subs_qs = Subscription.objects.filter(profile=profile).order_by("-started_at")
+    has_active_paid = False
+    active_plan_name = ""
 
+    if request.user.is_authenticated:
+        profile, _ = Profile.objects.get_or_create(
+            user=request.user,
+            defaults={
+                "business_name": request.user.username,
+                "contact_email": getattr(request.user, "email", "") or "",
+            },
+        )
+
+        subs_qs = Subscription.objects.filter(profile=profile).select_related("plan").order_by("-started_at")
+
+        # Active paid plan (non-trial + Stripe-backed)
+        paid_active = (
+            subs_qs.exclude(plan__code="trial")
+            .exclude(stripe_subscription_id="")
+            .filter(status=Subscription.STATUS_ACTIVE)
+            .first()
+        )
+        has_active_paid = bool(paid_active)
+        active_plan_name = paid_active.plan.name if paid_active else ""
+
+        # Trial state is only relevant if no paid plan is active
+        if not has_active_paid:
             # Any real subscription attempt (trial/paid/canceled) means the trial is no longer eligible.
             # Exclude only "incomplete" (failed/abandoned) attempts.
             trial_used = subs_qs.exclude(status=Subscription.STATUS_INCOMPLETE).exists()
 
-            # Find the most recent trial subscription (by status)
-            trial_sub = subs_qs.filter(status__in=["trial", "trialing"]).first()
+            # Find the most recent trial subscription
+            trial_sub = subs_qs.filter(plan__code="trial").first()
             if trial_sub:
                 trial_end = trial_sub.current_period_end
                 today = timezone.localdate()
@@ -99,8 +122,11 @@ def pricing(request):
         "trial_active": trial_active,
         "trial_expired": trial_expired,
         "trial_end": trial_end,
+        "has_active_paid": has_active_paid,
+        "active_plan_name": active_plan_name,
     }
     return render(request, "core/pricing.html", context)
+
 
 def faq(request):
     """Simple FAQ page stub."""

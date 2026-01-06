@@ -22,48 +22,62 @@
 
     <p class="mk-muted small mb-0">
       <strong>Note:</strong> MintKit Studio is currently in beta. Plan limits (collections / batch sizes) will be
-      enforced
-      once Hub ↔ Studio syncing is enabled. Until then, new users can create unlimited collections.
+      enforced once Hub ↔ Studio syncing is enabled. Until then, new users can create unlimited collections.
     </p>
   </div>
 
   <div class="text-end">
     {% if user.is_authenticated %}
 
-    {% if trial_active %}
-    <div class="text-muted small" style="margin-bottom: 14px;">
-      Trial active
-      {% if trial_end %}— ends on {{ trial_end|date:"F j, Y" }}{% endif %}
-    </div>
-    <a href="{% url 'studio' %}" class="btn btn-primary btn-sm">
-      Open MintKit Studio
-    </a>
+      {# Paid plan takes priority over trial messaging #}
+      {% if has_active_paid %}
+        <div class="text-muted small" style="margin-bottom: 14px;">
+          Plan active{% if active_plan_name %}: {{ active_plan_name }}{% endif %}
+        </div>
 
-    {% elif trial_expired %}
-    <div class="text-muted small" style="margin-bottom: 14px;">
-      Trial already used
-      {% if trial_end %}— ended on {{ trial_end|date:"F j, Y" }}{% endif %}
-    </div>
-    <a href="{% url 'pricing' %}" class="btn btn-primary btn-sm">
-      View plans
-    </a>
+        <div class="d-flex gap-2 justify-content-end flex-wrap">
+          <a href="{% url 'subscriptions_billing_portal' %}" class="btn btn-primary btn-sm">
+            Manage subscription
+          </a>
+          <a href="{% url 'studio' %}" class="btn btn-outline-primary btn-sm">
+            Open MintKit Studio
+          </a>
+        </div>
+
+      {% elif trial_active %}
+        <div class="text-muted small" style="margin-bottom: 14px;">
+          Trial active
+          {% if trial_end %}— ends on {{ trial_end|date:"F j, Y" }}{% endif %}
+        </div>
+        <a href="{% url 'studio' %}" class="btn btn-primary btn-sm">
+          Open MintKit Studio
+        </a>
+
+      {% elif trial_expired %}
+        <div class="text-muted small" style="margin-bottom: 14px;">
+          Trial already used
+          {% if trial_end %}— ended on {{ trial_end|date:"F j, Y" }}{% endif %}
+        </div>
+        <a href="{% url 'pricing' %}" class="btn btn-primary btn-sm">
+          View plans
+        </a>
+
+      {% else %}
+        <div class="text-muted small" style="margin-bottom: 14px;">
+          Eligible for free trial
+        </div>
+        <a href="{% url 'start_trial' %}" class="btn btn-primary btn-sm">
+          Start free trial
+        </a>
+      {% endif %}
 
     {% else %}
-    <div class="text-muted small" style="margin-bottom: 14px;">
-      Eligible for free trial
-    </div>
-    <a href="{% url 'start_trial' %}" class="btn btn-primary btn-sm">
-      Start free trial
-    </a>
-    {% endif %}
-
-    {% else %}
-    <div class="text-muted small" style="margin-bottom: 14px;">
-      Log in to start a free trial
-    </div>
-    <a href="{% url 'login' %}" class="btn btn-primary btn-sm">
-      Log in
-    </a>
+      <div class="text-muted small" style="margin-bottom: 14px;">
+        Log in to start a free trial
+      </div>
+      <a href="{% url 'login' %}" class="btn btn-primary btn-sm">
+        Log in
+      </a>
     {% endif %}
   </div>
 </header>
@@ -85,8 +99,6 @@
     </div>
   </div>
 
-
-
   <div class="mk-pricing-grid">
 
     <!-- Free Trial -->
@@ -100,24 +112,32 @@
       </div>
 
       {% if user.is_authenticated %}
-      {% if trial_active %}
-      <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true" tabindex="-1">
-        Trial active
-      </span>
 
-      {% elif trial_expired %}
-      <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true">
-        Trial used
-      </span>
+        {% if has_active_paid %}
+          <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true" tabindex="-1">
+            Not available (plan active)
+          </span>
+
+        {% elif trial_active %}
+          <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true" tabindex="-1">
+            Trial active
+          </span>
+
+        {% elif trial_expired %}
+          <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true">
+            Trial used
+          </span>
+
+        {% else %}
+          <a class="btn btn-primary mk-plan-btn" href="{% url 'start_trial' %}">
+            Start trial
+          </a>
+        {% endif %}
+
       {% else %}
-      <a class="btn btn-primary mk-plan-btn" href="{% url 'start_trial' %}">
-        Start trial
-      </a>
-      {% endif %}
-      {% else %}
-      <a class="btn btn-primary mk-plan-btn" href="{% url 'login' %}">
-        Log in to start
-      </a>
+        <a class="btn btn-primary mk-plan-btn" href="{% url 'login' %}">
+          Log in to start
+        </a>
       {% endif %}
 
       <ul class="mk-feature-list">
@@ -159,10 +179,15 @@
         </span>
       </div>
 
-      <a class="btn btn-primary mk-plan-btn" href="{% url 'subscriptions_checkout' 'basic' %}">
-        Upgrade
-      </a>
-
+      {% if user.is_authenticated and has_active_paid %}
+        <a class="btn btn-primary mk-plan-btn" href="{% url 'subscriptions_billing_portal' %}">
+          Manage subscription
+        </a>
+      {% else %}
+        <a class="btn btn-primary mk-plan-btn" href="{% url 'subscriptions_checkout' 'basic' %}">
+          Upgrade
+        </a>
+      {% endif %}
 
       <ul class="mk-feature-list">
         <li class="mk-feature mk-feature--on">Everything in the Free Trial</li>
