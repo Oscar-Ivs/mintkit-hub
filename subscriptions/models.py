@@ -92,6 +92,10 @@ class Subscription(models.Model):
     stripe_customer_id = models.CharField(max_length=120, blank=True)
     stripe_subscription_id = models.CharField(max_length=120, blank=True)
 
+    cancel_at_period_end = models.BooleanField(default=False)
+    cancel_at = models.DateTimeField(null=True, blank=True)
+
+
     # Used by pricing/admin in some places; keep it to avoid FieldError
     started_at = models.DateTimeField(
         null=True,

@@ -1,0 +1,41 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Subscription cancelled{% endblock %}
+
+{% block preheader %}
+Your subscription was cancelled. Access continues until the end of your billing period (if applicable).
+{% endblock %}
+
+{% block content %}
+  <p style="margin:0 0 12px 0;">
+    Hi {{ name|default:"there" }},
+  </p>
+
+  {% if cancel_at_period_end and period_end %}
+    <p style="margin:0 0 12px 0;">
+      Your subscription has been cancelled, and it will remain active until <strong>{{ period_end }}</strong>.
+    </p>
+  {% else %}
+    <p style="margin:0 0 12px 0;">
+      Your subscription has been cancelled and access has ended.
+    </p>
+  {% endif %}
+
+  <div style="margin:16px 0; padding:14px 16px; border:1px solid rgba(255,255,255,0.12); border-radius:14px; background: rgba(255,255,255,0.04);">
+    <p style="margin:0;">
+      If you come back later, you can restart anytime — your account and storefront setup will still be here.
+    </p>
+  </div>
+
+  {% if pricing_url %}
+    <p style="margin:18px 0 0 0;">
+      <a href="{{ pricing_url }}" style="display:inline-block; padding:12px 16px; border-radius:12px; text-decoration:none; background:#2f6fed; color:#fff; font-weight:600;">
+        View plans
+      </a>
+    </p>
+  {% endif %}
+
+  <p style="margin:18px 0 0 0; opacity:0.9;">
+    If something didn't meet expectations, reply and tell what was missing — it helps improve MintKit.
+  </p>
+{% endblock %}
