@@ -258,5 +258,27 @@
     <li>Linking to the external MintKit Studio application</li>
   </ul>
 </section>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("mk-billing-toggle");
+  const monthlyPrices = document.querySelectorAll(".mk-price-monthly");
+  const annualPrices = document.querySelectorAll(".mk-price-annual");
+  const upgradeBtn = document.getElementById("upgrade-btn");
+  if (!toggle || !upgradeBtn) return;
+
+  function updateBilling() {
+    const useAnnual = toggle.checked;
+    monthlyPrices.forEach(el => el.style.display = useAnnual ? "none" : "inline");
+    annualPrices.forEach(el => el.style.display = useAnnual ? "inline" : "none");
+    const url = useAnnual
+      ? upgradeBtn.getAttribute("data-annual-url")
+      : upgradeBtn.getAttribute("data-monthly-url");
+    upgradeBtn.href = url;
+  }
+
+  toggle.addEventListener("change", updateBilling);
+  updateBilling(); // initialize
+});
+</script>
 
 {% endblock %}
