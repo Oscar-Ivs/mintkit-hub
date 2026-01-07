@@ -996,12 +996,6 @@ A test email was sent successfully using EmailMessage, confirming Mailgun SMTP c
 - Lighthouse audits (Desktop + Mobile) and performance improvements where feasible
 - HTML/CSS validation (W3C)
 
-### Error Handling
-
-Custom `403.html`, `404.html`, and `500.html` templates are included for a consistent user experience.
-- 404 is triggered automatically for any invalid URL.
-- 403 and 500 templates exist for robustness, although normal navigation and permission design make them rarely reachable.
-
 
 ### Not tested / out of scope for this phase
 The following are either not implemented yet or cannot be fully tested within the constraints of this project:
@@ -1012,6 +1006,12 @@ The following are either not implemented yet or cannot be fully tested within th
 - Transactional email improvements (delivery tracking, retries, receipts)
 - High-load / concurrency testing (e.g. many users purchasing simultaneously)
 - Automated UI testing suites (planned for future iteration)
+
+### Error Handling
+Custom `403.html`, `404.html`, and `500.html` templates are included for a consistent user experience.
+- 404 is triggered automatically for any invalid URL.
+- 403 and 500 templates exist for robustness, although normal navigation and permission design make them rarely reachable.
+
 
 ### Future testing plan (when features expand)
 If/when MintKit Hub moves beyond the current college scope, testing would be expanded to include:
