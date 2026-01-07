@@ -19,19 +19,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import RedirectView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-
-    # Fix /favicon.ico (browsers + Google request this exact path)
-    path(
-        "favicon.ico",
-        RedirectView.as_view(
-            url=f"{settings.STATIC_URL}img/favicon.png",
-            permanent=True
-        ),
-    ),
 
     # Auth
     path("accounts/", include("django.contrib.auth.urls")),  # password reset/change etc.
@@ -42,6 +32,8 @@ urlpatterns = [
     path("storefront/", include("storefronts.urls")),
     path("", include("core.urls")),
 ]
+
+
 
 # Serve media files (like uploaded logos) in development
 if settings.DEBUG:
