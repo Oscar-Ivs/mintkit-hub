@@ -2,6 +2,8 @@
 import datetime
 import logging
 
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from urllib.parse import urlsplit
 import stripe
 from django.conf import settings
@@ -51,7 +53,8 @@ def _find_profile_for_subscription(stripe_sub):
     local = Subscription.objects.select_related("profile").filter(stripe_subscription_id=sub_id).first()
     return local.profile if local else None
 
-
+@csrf_exempt
+@require_POST
 def stripe_webhook(request):
     """
     Stripe webhook endpoint.

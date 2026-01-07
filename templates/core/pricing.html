@@ -31,18 +31,14 @@
 
       {# Paid plan takes priority over trial messaging #}
       {% if has_active_paid %}
-        <div class="text-muted small" style="margin-bottom: 14px;">
-          Plan active{% if active_plan_name %}: {{ active_plan_name }}{% endif %}
+        <div class="text-muted small" style="margin-bottom: 10px;">
+          Plan active: {{ active_plan_name }}
         </div>
 
-        <div class="d-flex gap-2 justify-content-end flex-wrap">
-          <a href="{% url 'subscriptions_billing_portal' %}" class="btn btn-primary btn-sm">
-            Manage subscription
-          </a>
-          <a href="{% url 'studio' %}" class="btn btn-outline-primary btn-sm">
-            Open MintKit Studio
-          </a>
-        </div>
+        {# Keep only Studio button here (no Manage button) #}
+        <a href="{% url 'studio' %}" class="btn btn-primary btn-sm text-nowrap">
+          Open MintKit Studio
+        </a>
 
       {% elif trial_active %}
         <div class="text-muted small" style="margin-bottom: 14px;">
@@ -180,9 +176,9 @@
       </div>
 
       {% if user.is_authenticated and has_active_paid %}
-        <a class="btn btn-primary mk-plan-btn" href="{% url 'subscriptions_billing_portal' %}">
-          Manage subscription
-        </a>
+        <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true">
+          Current plan
+        </span>
       {% else %}
         <a class="btn btn-primary mk-plan-btn" href="{% url 'subscriptions_checkout' 'basic' %}">
           Upgrade

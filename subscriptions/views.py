@@ -2,6 +2,7 @@
 import datetime
 import logging
 
+from urllib.parse import urlsplit
 import stripe
 from django.conf import settings
 from django.contrib import messages
