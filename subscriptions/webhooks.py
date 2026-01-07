@@ -19,14 +19,27 @@ logger = logging.getLogger(__name__)
 
 
 def _utc_from_ts(ts):
-    """Stripe timestamps are unix seconds; convert to timezone-aware UTC datetime."""
+    # Stripe timestamps are unix seconds; convert to timezone-aware UTC datetime
     if not ts:
         return None
     return datetime.datetime.fromtimestamp(ts, tz=datetime.timezone.utc)
 
 
+def _send_email(template_html, template_txt, subject, to_email, ctx):
+    # Render and send an HTML + text email
+    html_body = render_to_string(template_html, ctx)
+    txt_body = render_to_string(template_txt, ctx)
+
+    msg = EmailMultiAlternatives(subject=subject, body=txt_body, to=[to_email])
+    msg.attach_alternative(html_body, "text/html")
+    msg.send(fail_silently=False)
+
+
 def _site_parts():
-    """Return (protocol, domain, site_root) from settings.SITE_URL."""
+    """
+    Build protocol/domain/site_root from SITE_URL.
+    Templates for other emails often rely depend on consistent keys.
+    """
     raw_site = (settings.SITE_URL or "").rstrip("/")
     parts = urlsplit(raw_site)
 
@@ -34,52 +47,34 @@ def _site_parts():
         protocol = parts.scheme
         domain = parts.netloc
         site_root = f"{protocol}://{domain}"
-    else:
-        domain = raw_site.replace("https://", "").replace("http://", "").split("/")[0]
-        protocol = "https"
-        site_root = f"{protocol}://{domain}"
+        return protocol, domain, site_root
 
+    # Fallback when SITE_URL is set without scheme
+    domain = raw_site.replace("https://", "").replace("http://", "").split("/")[0]
+    protocol = "https"
+    site_root = f"{protocol}://{domain}" if domain else ""
     return protocol, domain, site_root
 
 
-def _brand_ctx(profile, plan, *, ends_on=None):
-    """
-    Build email context compatible with branded templates
-    (same style as welcome/reset emails).
-    """
+def _email_base_ctx(profile: Profile):
     protocol, domain, site_root = _site_parts()
-    first_name = profile.user.first_name or profile.user.username
 
     return {
-        "first_name": first_name,
-        "plan_name": plan.name if plan else "Basic",
-        "ends_on": ends_on,
+        "first_name": profile.user.first_name or profile.user.username,
 
-        # base_email.html / branded templates
+        # Keep keys consistent with your “confirmed” email context
         "protocol": protocol,
         "domain": domain,
         "site_root": site_root,
 
-        # Buttons / links
+        # Common links used in email templates/footers
         "dashboard_url": f"{site_root}/dashboard/",
         "portal_url": f"{site_root}/subscriptions/portal/",
-
-        # Footer / support
-        "support_email": "support@mintkit.co.uk",
         "about_url": f"{site_root}/about/",
         "pricing_url": f"{site_root}/pricing/",
         "faq_url": f"{site_root}/faq/",
+        "support_email": "support@mintkit.co.uk",
     }
-
-
-def _send_email(template_html, template_txt, subject, to_email, ctx):
-    """Send multipart HTML+TXT email."""
-    html_body = render_to_string(template_html, ctx)
-    txt_body = render_to_string(template_txt, ctx)
-
-    msg = EmailMultiAlternatives(subject=subject, body=txt_body, to=[to_email])
-    msg.attach_alternative(html_body, "text/html")
-    msg.send(fail_silently=False)
 
 
 def _find_profile_for_subscription(stripe_sub):
@@ -101,8 +96,7 @@ def _find_profile_for_subscription(stripe_sub):
     return local.profile if local else None
 
 
-def _status_from_stripe(stripe_status: str):
-    """Map Stripe status string to local Subscription status."""
+def _map_stripe_status(stripe_status: str) -> str:
     stripe_status = (stripe_status or "").strip().lower()
     status_map = {
         "active": Subscription.STATUS_ACTIVE,
@@ -117,31 +111,12 @@ def _status_from_stripe(stripe_status: str):
     return status_map.get(stripe_status, Subscription.STATUS_CANCELED)
 
 
-def _plan_from_metadata_or_existing(metadata, existing: Subscription | None):
-    """
-    Resolve SubscriptionPlan:
-    1) metadata.plan_code
-    2) existing.plan
-    3) fallback to 'basic'
-    """
-    md = metadata or {}
-    plan_code = (md.get("plan_code") or "").strip().lower()
-
-    if plan_code:
-        plan = SubscriptionPlan.objects.filter(code=plan_code).first()
-        if plan:
-            return plan
-
-    if existing and existing.plan_id:
-        return existing.plan
-
-    return SubscriptionPlan.objects.filter(code="basic").first()
-
-
 @csrf_exempt
 @require_POST
 def stripe_webhook(request):
-    """Stripe webhook endpoint."""
+    """
+    Stripe webhook endpoint.
+    """
     init_stripe()
 
     payload = request.body
@@ -162,7 +137,7 @@ def stripe_webhook(request):
     obj = event["data"]["object"]
 
     try:
-        # 1) Checkout completed (sync subscription + store customer id)
+        # 1) Checkout completed
         if event_type == "checkout.session.completed":
             session = obj
             stripe_sub_id = session.get("subscription")
@@ -171,40 +146,37 @@ def stripe_webhook(request):
 
             stripe_sub = stripe.Subscription.retrieve(stripe_sub_id)
 
-            # Prefer session metadata, then subscription metadata
             md = session.get("metadata") or stripe_sub.get("metadata") or {}
+            plan_code = (md.get("plan_code") or "basic").strip().lower()
             profile_id = md.get("profile_id")
 
             profile = Profile.objects.filter(pk=profile_id).first() if profile_id else None
             if not profile:
                 profile = _find_profile_for_subscription(stripe_sub)
+
             if not profile:
                 logger.warning("Webhook: cannot link checkout to profile (missing metadata/profile).")
                 return HttpResponse(status=200)
 
             customer_id = session.get("customer") or stripe_sub.get("customer")
-
-            # Save customer_id on profile when available
             if customer_id and hasattr(profile, "stripe_customer_id"):
                 if profile.stripe_customer_id != customer_id:
                     profile.stripe_customer_id = customer_id
                     profile.save(update_fields=["stripe_customer_id"])
 
-            existing = Subscription.objects.filter(profile=profile, stripe_subscription_id=stripe_sub_id).first()
-            prev_status = existing.status if existing else None
-
-            plan = _plan_from_metadata_or_existing(md, existing)
+            plan = SubscriptionPlan.objects.filter(code=plan_code).first()
             if not plan:
-                logger.warning("Webhook: no plan found (metadata=%s).", md)
+                logger.warning("Webhook: plan not found in DB: %s", plan_code)
                 return HttpResponse(status=200)
 
-            stripe_status = stripe_sub.get("status")
-            new_status = _status_from_stripe(stripe_status)
-
+            new_status = _map_stripe_status(stripe_sub.get("status"))
             cancel_at_period_end = bool(stripe_sub.get("cancel_at_period_end", False))
             cancel_at = _utc_from_ts(stripe_sub.get("cancel_at"))
             canceled_at = _utc_from_ts(stripe_sub.get("canceled_at"))
             current_period_end = _utc_from_ts(stripe_sub.get("current_period_end"))
+
+            existing = Subscription.objects.filter(profile=profile, stripe_subscription_id=stripe_sub_id).first()
+            prev_status = existing.status if existing else None
 
             sub_obj, _ = Subscription.objects.update_or_create(
                 profile=profile,
@@ -220,8 +192,8 @@ def stripe_webhook(request):
                 },
             )
 
-            # Cancel local trial record if a paid plan activates
-            if plan.code != "trial":
+            # Cancel local trial record if paid activated
+            if plan_code != "trial":
                 Subscription.objects.filter(
                     profile=profile,
                     plan__code="trial",
@@ -238,7 +210,9 @@ def stripe_webhook(request):
             if prev_status != Subscription.STATUS_ACTIVE and sub_obj.status == Subscription.STATUS_ACTIVE:
                 to_email = profile.contact_email or profile.user.email
                 if to_email:
-                    ctx = _brand_ctx(profile, plan)
+                    ctx = _email_base_ctx(profile)
+                    ctx.update({"plan_name": plan.name})
+
                     _send_email(
                         "emails/subscription_confirmed.html",
                         "emails/subscription_confirmed.txt",
@@ -257,22 +231,21 @@ def stripe_webhook(request):
             sub_id = stripe_sub.get("id")
             existing = Subscription.objects.filter(profile=profile, stripe_subscription_id=sub_id).first()
 
-            prev_status = existing.status if existing else None
-            prev_cancel_flag = existing.cancel_at_period_end if existing else False
-
-            stripe_status = stripe_sub.get("status")
-            new_status = _status_from_stripe(stripe_status)
-
+            customer_id = stripe_sub.get("customer")
+            new_status = _map_stripe_status(stripe_sub.get("status"))
             cancel_at_period_end = bool(stripe_sub.get("cancel_at_period_end", False))
             cancel_at = _utc_from_ts(stripe_sub.get("cancel_at"))
             canceled_at = _utc_from_ts(stripe_sub.get("canceled_at"))
             current_period_end = _utc_from_ts(stripe_sub.get("current_period_end"))
-            customer_id = stripe_sub.get("customer")
 
             md = stripe_sub.get("metadata") or {}
-            plan = _plan_from_metadata_or_existing(md, existing)
+            plan_code = (md.get("plan_code") or (existing.plan.code if existing and existing.plan else "basic")).strip().lower()
+            plan = SubscriptionPlan.objects.filter(code=plan_code).first()
             if not plan:
                 return HttpResponse(status=200)
+
+            prev_status = existing.status if existing else None
+            prev_cancel_flag = existing.cancel_at_period_end if existing else False
 
             sub_obj, _ = Subscription.objects.update_or_create(
                 profile=profile,
@@ -288,12 +261,19 @@ def stripe_webhook(request):
                 },
             )
 
-            to_email = profile.contact_email or profile.user.email
-
-            # Cancellation scheduled email (active + newly switched to cancel_at_period_end)
+            # Cancellation scheduled email (cancel at period end)
             if (not prev_cancel_flag) and cancel_at_period_end and new_status == Subscription.STATUS_ACTIVE:
+                to_email = profile.contact_email or profile.user.email
                 if to_email:
-                    ctx = _brand_ctx(profile, plan, ends_on=current_period_end)
+                    ctx = _email_base_ctx(profile)
+                    ctx.update(
+                        {
+                            "plan_name": plan.name,
+                            "ends_on": current_period_end,
+                            "manage_url": ctx.get("portal_url"),
+                            "site_url": settings.SITE_URL,
+                        }
+                    )
                     _send_email(
                         "emails/subscription_cancelled.html",
                         "emails/subscription_cancelled.txt",
@@ -302,10 +282,19 @@ def stripe_webhook(request):
                         ctx,
                     )
 
-            # Cancelled immediately email (status transitions to canceled)
+            # Cancelled immediately (status switched to canceled)
             if prev_status != Subscription.STATUS_CANCELED and sub_obj.status == Subscription.STATUS_CANCELED:
+                to_email = profile.contact_email or profile.user.email
                 if to_email:
-                    ctx = _brand_ctx(profile, plan, ends_on=current_period_end)
+                    ctx = _email_base_ctx(profile)
+                    ctx.update(
+                        {
+                            "plan_name": plan.name,
+                            "ends_on": current_period_end,
+                            "manage_url": ctx.get("portal_url"),
+                            "site_url": settings.SITE_URL,
+                        }
+                    )
                     _send_email(
                         "emails/subscription_cancelled.html",
                         "emails/subscription_cancelled.txt",
@@ -314,19 +303,7 @@ def stripe_webhook(request):
                         ctx,
                     )
 
-            # Optional: active transition email here too (covers delayed activation flows)
-            if prev_status != Subscription.STATUS_ACTIVE and sub_obj.status == Subscription.STATUS_ACTIVE:
-                if to_email:
-                    ctx = _brand_ctx(profile, plan)
-                    _send_email(
-                        "emails/subscription_confirmed.html",
-                        "emails/subscription_confirmed.txt",
-                        f"Your MintKit {plan.name} subscription is active ✅",
-                        to_email,
-                        ctx,
-                    )
-
-        # 3) Subscription deleted (ended)
+        # 3) Subscription deleted (ended or cancelled immediately)
         elif event_type == "customer.subscription.deleted":
             stripe_sub = obj
             profile = _find_profile_for_subscription(stripe_sub)
@@ -334,25 +311,43 @@ def stripe_webhook(request):
                 return HttpResponse(status=200)
 
             sub_id = stripe_sub.get("id")
-            sub_obj = Subscription.objects.filter(profile=profile, stripe_subscription_id=sub_id).first()
+            existing = Subscription.objects.filter(profile=profile, stripe_subscription_id=sub_id).first()
 
             current_period_end = _utc_from_ts(stripe_sub.get("current_period_end"))
             canceled_at = _utc_from_ts(stripe_sub.get("canceled_at")) or datetime.datetime.now(tz=datetime.timezone.utc)
 
+            # Prefer local plan when available (metadata is not always reliable on deleted events)
+            plan = existing.plan if (existing and existing.plan) else None
+
+            prev_status = existing.status if existing else None
+            sub_obj = existing
             if sub_obj:
                 sub_obj.status = Subscription.STATUS_CANCELED
                 sub_obj.cancel_at_period_end = False
                 sub_obj.cancel_at = None
                 sub_obj.canceled_at = canceled_at
-                sub_obj.save(update_fields=["status", "cancel_at_period_end", "cancel_at", "canceled_at"])
+                sub_obj.current_period_end = current_period_end
+                sub_obj.save(
+                    update_fields=["status", "cancel_at_period_end", "cancel_at", "canceled_at", "current_period_end"]
+                )
 
+            # Send a cancellation email when Stripe actually deletes the subscription
+            if prev_status != Subscription.STATUS_CANCELED:
                 to_email = profile.contact_email or profile.user.email
                 if to_email:
-                    ctx = _brand_ctx(profile, sub_obj.plan, ends_on=current_period_end)
+                    ctx = _email_base_ctx(profile)
+                    ctx.update(
+                        {
+                            "plan_name": plan.name if plan else "Subscription",
+                            "ends_on": current_period_end,
+                            "manage_url": ctx.get("portal_url"),
+                            "site_url": settings.SITE_URL,
+                        }
+                    )
                     _send_email(
                         "emails/subscription_cancelled.html",
                         "emails/subscription_cancelled.txt",
-                        "Your MintKit subscription has ended",
+                        "Your MintKit subscription has been cancelled",
                         to_email,
                         ctx,
                     )
