@@ -59,12 +59,17 @@ def about(request):
 def pricing(request):
     """
     Pricing page context:
+    - billing: "monthly" or "annual" (controlled by query param)
     - trial_active: trial currently running
     - trial_expired: trial already used or expired (hide/disable trial CTA)
     - trial_end: end date for the most recent trial, if available
     - has_active_paid: active paid subscription exists (hide trial CTA)
     - active_plan_name: name of active plan for display
     """
+    billing = (request.GET.get("billing") or "monthly").lower()
+    if billing not in ("monthly", "annual"):
+        billing = "monthly"
+
     trial_active = False
     trial_expired = False
     trial_end = None
@@ -83,7 +88,6 @@ def pricing(request):
 
         subs_qs = Subscription.objects.filter(profile=profile).select_related("plan").order_by("-started_at")
 
-        # Active paid plan (non-trial + Stripe-backed)
         paid_active = (
             subs_qs.exclude(plan__code="trial")
             .exclude(stripe_subscription_id="")
@@ -93,13 +97,9 @@ def pricing(request):
         has_active_paid = bool(paid_active)
         active_plan_name = paid_active.plan.name if paid_active else ""
 
-        # Trial state is only relevant if no paid plan is active
         if not has_active_paid:
-            # Any real subscription attempt (trial/paid/canceled) means the trial is no longer eligible.
-            # Exclude only "incomplete" (failed/abandoned) attempts.
             trial_used = subs_qs.exclude(status=Subscription.STATUS_INCOMPLETE).exists()
 
-            # Find the most recent trial subscription
             trial_sub = subs_qs.filter(plan__code="trial").first()
             if trial_sub:
                 trial_end = trial_sub.current_period_end
@@ -110,15 +110,14 @@ def pricing(request):
                     trial_active = end_date >= today
                     trial_expired = end_date < today
                 else:
-                    # No end stored -> treat as active
                     trial_active = True
                     trial_expired = False
 
-            # If trial is not active and there was any real subscription before, mark trial as used
             if trial_used and not trial_active:
                 trial_expired = True
 
     context = {
+        "billing": billing,
         "trial_active": trial_active,
         "trial_expired": trial_expired,
         "trial_end": trial_end,

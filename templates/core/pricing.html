@@ -3,6 +3,7 @@
 {% block main_class %}page-container mk-watermark{% endblock %}
 
 {% block content %}
+{% with current_billing=billing|default:"monthly" %}
 
 <header class="mk-page-head d-flex justify-content-between align-items-start flex-wrap gap-4">
   <div>
@@ -10,8 +11,7 @@
 
     <div class="alert alert-info mt-3" role="alert">
       <ul class="mb-0">
-        <li><strong>Studio</strong> is an external companion app (beta). The Hub works independently even while Studio
-          features are evolving.</li>
+        <li><strong>Studio</strong> is an external companion app (beta). The Hub works independently even while Studio features are evolving.</li>
       </ul>
     </div>
 
@@ -29,66 +29,71 @@
   <div class="text-end">
     {% if user.is_authenticated %}
 
-    {# Paid plan takes priority over trial messaging #}
-    {% if has_active_paid %}
-    <div class="text-muted small" style="margin-bottom: 10px;">
-      Plan active: {{ active_plan_name }}
-    </div>
+      {% if has_active_paid %}
+        <div class="text-muted small" style="margin-bottom: 10px;">
+          Plan active: {{ active_plan_name }}
+        </div>
+        <a href="{% url 'studio' %}" class="btn btn-primary btn-sm text-nowrap">
+          Open MintKit Studio
+        </a>
 
-    {# Keep only Studio button here (no Manage button) #}
-    <a href="{% url 'studio' %}" class="btn btn-primary btn-sm text-nowrap">
-      Open MintKit Studio
-    </a>
+      {% elif trial_active %}
+        <div class="text-muted small" style="margin-bottom: 14px;">
+          Trial active
+          {% if trial_end %}— ends on {{ trial_end|date:"F j, Y" }}{% endif %}
+        </div>
+        <a href="{% url 'studio' %}" class="btn btn-primary btn-sm">
+          Open MintKit Studio
+        </a>
 
-    {% elif trial_active %}
-    <div class="text-muted small" style="margin-bottom: 14px;">
-      Trial active
-      {% if trial_end %}— ends on {{ trial_end|date:"F j, Y" }}{% endif %}
-    </div>
-    <a href="{% url 'studio' %}" class="btn btn-primary btn-sm">
-      Open MintKit Studio
-    </a>
+      {% elif trial_expired %}
+        <div class="text-muted small" style="margin-bottom: 14px;">
+          Trial already used
+          {% if trial_end %}— ended on {{ trial_end|date:"F j, Y" }}{% endif %}
+        </div>
+        <a href="{% url 'subscriptions_checkout' 'basic' %}?billing={{ current_billing }}"
+           class="btn btn-primary btn-sm js-billing-link">
+          Upgrade to Basic
+        </a>
 
-    {% elif trial_expired %}
-    <div class="text-muted small" style="margin-bottom: 14px;">
-      Trial already used
-      {% if trial_end %}— ended on {{ trial_end|date:"F j, Y" }}{% endif %}
-    </div>
-    <a href="{% url 'pricing' %}" class="btn btn-primary btn-sm">
-      View plans
-    </a>
-
-    {% else %}
-    <div class="text-muted small" style="margin-bottom: 14px;">
-      Eligible for free trial
-    </div>
-    <a href="{% url 'start_trial' %}" class="btn btn-primary btn-sm">
-      Start free trial
-    </a>
-    {% endif %}
+      {% else %}
+        <div class="text-muted small" style="margin-bottom: 14px;">
+          Eligible for free trial
+        </div>
+        <a href="{% url 'start_trial' %}" class="btn btn-primary btn-sm">
+          Start free trial
+        </a>
+      {% endif %}
 
     {% else %}
-    <div class="text-muted small" style="margin-bottom: 14px;">
-      Log in to start a free trial
-    </div>
-    <a href="{% url 'login' %}" class="btn btn-primary btn-sm">
-      Log in
-    </a>
+      <div class="text-muted small" style="margin-bottom: 14px;">
+        Log in to start a free trial
+      </div>
+      <a href="{% url 'login' %}" class="btn btn-primary btn-sm">
+        Log in
+      </a>
     {% endif %}
   </div>
 </header>
 
-
 <section class="mk-pricing" aria-label="Plans">
-  <input class="mk-billing-toggle" type="checkbox" id="mk-billing-toggle">
+
+  {# IMPORTANT: input must be a sibling BEFORE .mk-billing-row and .mk-pricing-grid for your CSS to work #}
+  <input class="mk-billing-toggle"
+         type="checkbox"
+         id="mk-billing-toggle"
+         {% if current_billing == "annual" %}checked{% endif %}>
 
   <div class="mk-billing-row">
-    <div class="mk-billing-left d-flex align-items-center flex-wrap">
+    <div class="mk-billing-left">
       <span class="mk-billing-label">Annual pricing</span>
-      <span class="mk-save-pill mx-2">Save 20%</span>
+      <span class="mk-save-pill">Save 20%</span>
 
       <label class="mk-switch mb-0" for="mk-billing-toggle">
-        <span class="sr-only">Toggle annual pricing</span>
+        <span class="sr-only"
+              style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">
+          Toggle annual pricing
+        </span>
         <span class="mk-switch-track"></span>
         <span class="mk-switch-thumb"></span>
       </label>
@@ -108,32 +113,27 @@
       </div>
 
       {% if user.is_authenticated %}
-
-      {% if has_active_paid %}
-      <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true" tabindex="-1">
-        Not available (plan active)
-      </span>
-
-      {% elif trial_active %}
-      <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true" tabindex="-1">
-        Trial active
-      </span>
-
-      {% elif trial_expired %}
-      <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true">
-        Trial used
-      </span>
-
+        {% if has_active_paid %}
+          <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true" tabindex="-1">
+            Not available (plan active)
+          </span>
+        {% elif trial_active %}
+          <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true" tabindex="-1">
+            Trial active
+          </span>
+        {% elif trial_expired %}
+          <span class="btn btn-primary mk-plan-btn disabled" aria-disabled="true" tabindex="-1">
+            Trial used
+          </span>
+        {% else %}
+          <a class="btn btn-primary mk-plan-btn" href="{% url 'start_trial' %}">
+            Start trial
+          </a>
+        {% endif %}
       {% else %}
-      <a class="btn btn-primary mk-plan-btn" href="{% url 'start_trial' %}">
-        Start trial
-      </a>
-      {% endif %}
-
-      {% else %}
-      <a class="btn btn-primary mk-plan-btn" href="{% url 'login' %}">
-        Log in to start
-      </a>
+        <a class="btn btn-primary mk-plan-btn" href="{% url 'login' %}">
+          Log in to start
+        </a>
       {% endif %}
 
       <ul class="mk-feature-list">
@@ -141,7 +141,6 @@
         <li class="mk-feature mk-feature--on">Set up business profile and storefront</li>
         <li class="mk-feature mk-feature--on">Connect Stripe (test mode for this project)</li>
         <li class="mk-feature mk-feature--on">Create a small set of gift cards / tickets / vouchers</li>
-
         <li class="mk-feature">
           Collections: <strong>Unlimited</strong> <span class="text-muted small">(beta access)</span>
         </li>
@@ -175,29 +174,31 @@
         </span>
       </div>
 
-      {% if user.is_authenticated and has_active_paid %}
-      <a class="btn btn-primary mk-plan-btn" href="{% url 'subscriptions_billing_portal' %}">
-        Manage subscription
-      </a>
+      {% if not user.is_authenticated %}
+        <a class="btn btn-primary mk-plan-btn" href="{% url 'login' %}">
+          Log in to upgrade
+        </a>
+      {% elif has_active_paid %}
+        <a class="btn btn-primary mk-plan-btn" href="{% url 'subscriptions_billing_portal' %}">
+          Manage subscription
+        </a>
       {% else %}
-      <a class="btn btn-primary mk-plan-btn" href="{% url 'subscriptions_checkout' 'basic' %}">
-        Upgrade
-      </a>
+        <a class="btn btn-primary mk-plan-btn js-billing-link"
+           href="{% url 'subscriptions_checkout' 'basic' %}?billing={{ current_billing }}">
+          Upgrade
+        </a>
       {% endif %}
-
 
       <ul class="mk-feature-list">
         <li class="mk-feature mk-feature--on">Everything in the Free Trial</li>
         <li class="mk-feature mk-feature--on">Live (non-trial) access to MintKit Studio</li>
         <li class="mk-feature mk-feature--on">Higher minting allowance for real customers</li>
-
         <li class="mk-feature mk-feature--on">
           Collections: <strong>Unlimited</strong> <span class="text-muted small">(beta access)</span>
         </li>
         <li class="mk-feature mk-feature--on">
           Active cards: <strong>Flexible</strong> <span class="text-muted small">(limits enforced later)</span>
         </li>
-
         <li class="mk-feature mk-feature--on">Email support with reasonable response time</li>
       </ul>
 
@@ -224,7 +225,7 @@
         </span>
       </div>
 
-      <span class="btn btn-outline-primary mk-plan-btn disabled" aria-disabled="true">
+      <span class="btn btn-outline-primary mk-plan-btn disabled" aria-disabled="true" tabindex="-1">
         Coming soon
       </span>
 
@@ -258,27 +259,37 @@
     <li>Linking to the external MintKit Studio application</li>
   </ul>
 </section>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.getElementById("mk-billing-toggle");
-  const monthlyPrices = document.querySelectorAll(".mk-price-monthly");
-  const annualPrices = document.querySelectorAll(".mk-price-annual");
-  const upgradeBtn = document.getElementById("upgrade-btn");
-  if (!toggle || !upgradeBtn) return;
 
-  function updateBilling() {
-    const useAnnual = toggle.checked;
-    monthlyPrices.forEach(el => el.style.display = useAnnual ? "none" : "inline");
-    annualPrices.forEach(el => el.style.display = useAnnual ? "inline" : "none");
-    const url = useAnnual
-      ? upgradeBtn.getAttribute("data-annual-url")
-      : upgradeBtn.getAttribute("data-monthly-url");
-    upgradeBtn.href = url;
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const toggle = document.getElementById("mk-billing-toggle");
+  if (!toggle) return;
+
+  function setBilling(billing) {
+    // Update address bar without refreshing the page
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("billing", billing);
+      window.history.replaceState({}, "", url);
+    } catch (e) {}
+
+    // Update any checkout links that must carry billing=...
+    document.querySelectorAll(".js-billing-link").forEach(function (a) {
+      try {
+        const u = new URL(a.getAttribute("href"), window.location.origin);
+        u.searchParams.set("billing", billing);
+        a.setAttribute("href", u.pathname + u.search + u.hash);
+      } catch (e) {}
+    });
   }
 
-  toggle.addEventListener("change", updateBilling);
-  updateBilling(); // initialize
+  setBilling(toggle.checked ? "annual" : "monthly");
+
+  toggle.addEventListener("change", function () {
+    setBilling(toggle.checked ? "annual" : "monthly");
+  });
 });
 </script>
 
+{% endwith %}
 {% endblock %}
