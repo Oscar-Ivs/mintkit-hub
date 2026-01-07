@@ -371,6 +371,46 @@ MintKit Hub relies on a few external services and scripts:
 - **Stripe Checkout & Stripe APIs**  
   Used to handle secure subscription payments for business owners. The Django backend communicates with Stripe’s API using the official Python SDK, and the frontend uses Stripe’s hosted Checkout pages for payment.
 
+- **Pricing page billing toggle (Vanilla JS)**  
+  The Pricing page supports **monthly** / **annual** billing. This small script updates the `billing` query param and updates checkout links **without refreshing** the page.
+
+  - Add `.js-billing-link` to any plan buttons that must carry the billing choice (e.g. the **Upgrade** link).
+  - The toggle checkbox must have `id="mk-billing-toggle"`.
+
+```html
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const toggle = document.getElementById("mk-billing-toggle");
+  if (!toggle) return;
+
+  function setBilling(billing) {
+    // Update address bar without refreshing the page
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("billing", billing);
+      window.history.replaceState({}, "", url);
+    } catch (e) {}
+
+    // Update any checkout links that must carry billing=...
+    document.querySelectorAll(".js-billing-link").forEach(function (a) {
+      try {
+        const u = new URL(a.getAttribute("href"), window.location.origin);
+        u.searchParams.set("billing", billing);
+        a.setAttribute("href", u.pathname + u.search + u.hash);
+      } catch (e) {}
+    });
+  }
+
+  setBilling(toggle.checked ? "annual" : "monthly");
+
+  toggle.addEventListener("change", function () {
+    setBilling(toggle.checked ? "annual" : "monthly");
+  });
+});
+</script>
+```
+
+
 - **External MintKit App (3rd-party)**  
   A separately hosted application (for example at `studio.mintkit.co.uk`) that provides the actual tools for creating and managing digital gift cards, tickets, and vouchers. MintKit Hub does not contain this code; it simply controls access and links users to it.
 
@@ -1197,6 +1237,12 @@ This section collects recurring issues encountered during development and deploy
   - _Cause_: The Storefront model uses a slug field and get_absolute_url for its public URL. For some older or freshly-created rows, slug could be blank. When the dashboard or My storefront view tried to build the public URL, Django attempted to reverse storefront_detail with an empty slug (''), which raised NoReverseMatch.
 
   - _Fix_: Updated the Storefront.save() method so that it always generates a unique slug if one is missing, based on the storefront headline or the profile username. The my_storefront view now also calls storefront.save() whenever it detects a missing slug. This backfills slugs for existing rows and prevents NoReverseMatch errors for new users.
+
+
+**Pricing toggle shows the wrong price / refreshes the page**
+
+- _Cause_: The monthly/annual toggle was implemented with a normal link (full reload), or plan buttons were missing the `billing=...` query string.
+- _Fix_: Use the **Pricing page billing toggle (Vanilla JS)** snippet (see above) and add `.js-billing-link` to all checkout links so they always include `?billing=monthly|annual`.
 
 ### Layout Editor / Storefront Layout — common issues
 

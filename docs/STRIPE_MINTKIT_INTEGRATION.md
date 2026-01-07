@@ -91,3 +91,46 @@ For the purposes of the Code Institute project, this integration is treated as:
 - All payment card data is handled directly by **Stripe**. MintKit Hub never stores card numbers or CVV codes.
 - Only the minimum necessary Stripe identifiers are stored in the database (e.g. customer ID, subscription ID, status).
 - Any future enhancement such as signed URLs, tokens, or SSO for MintKit access will be documented separately, but are not strictly required for this project.
+## Pricing Page: Monthly vs Annual Billing
+
+The Pricing page passes the billing choice as a query param (`billing=monthly` or `billing=annual`). The checkout endpoint reads this value and chooses the matching Stripe **Price ID**.
+
+To avoid a full page refresh when switching between monthly/annual on the Pricing page, the UI uses a small vanilla JS helper that:
+
+- Updates the current URL in the address bar (`history.replaceState`)
+- Updates any checkout links on the page (anchors with `.js-billing-link`) so they always include `billing=...`
+
+```html
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const toggle = document.getElementById("mk-billing-toggle");
+  if (!toggle) return;
+
+  function setBilling(billing) {
+    // Update address bar without refreshing the page
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("billing", billing);
+      window.history.replaceState({}, "", url);
+    } catch (e) {}
+
+    // Update any checkout links that must carry billing=...
+    document.querySelectorAll(".js-billing-link").forEach(function (a) {
+      try {
+        const u = new URL(a.getAttribute("href"), window.location.origin);
+        u.searchParams.set("billing", billing);
+        a.setAttribute("href", u.pathname + u.search + u.hash);
+      } catch (e) {}
+    });
+  }
+
+  setBilling(toggle.checked ? "annual" : "monthly");
+
+  toggle.addEventListener("change", function () {
+    setBilling(toggle.checked ? "annual" : "monthly");
+  });
+});
+</script>
+```
+
+**Template note:** add `.js-billing-link` to plan buttons that point to the checkout view (e.g. the Basic “Upgrade” button).
