@@ -38,7 +38,7 @@
   <strong>Tip:</strong> Edit Layout works best on <strong>desktop/tablet</strong>. On small touch screens, drag/resize positioning can be less precise.
 </div>
 
-    <div class="sf-preview-card w-100 overflow-hidden">
+    <div class="sf-preview-card w-100 overflow-hidden" id="sf-preview-card">
       <div class="sf-preview-logo">
         {% if storefront.logo %}
         <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large img-fluid">
@@ -570,6 +570,41 @@
     const KEY_STYLES = "sf_styles_v4:" + location.pathname;
     const KEY_BG = "sf_bg_v4:" + location.pathname;
 
+
+    // Keep the LEFT preview background in sync with the saved page background
+    const previewCard = document.getElementById("sf-preview-card");
+
+    function applyPreviewBg(color) {
+      if (!previewCard) return;
+      previewCard.style.background = (color || "#ffffff");
+    }
+
+    async function initPreviewBg() {
+      // Fast path: use cached background if present
+      const cached = localStorage.getItem(KEY_BG);
+      if (cached) {
+        applyPreviewBg(cached);
+        return;
+      }
+
+      // Otherwise fetch from server so preview matches the public storefront
+      try {
+        await loadFromServer();
+        const serverBg = localStorage.getItem(KEY_BG);
+        if (serverBg) {
+          applyPreviewBg(serverBg);
+          return;
+        }
+      } catch (e) {
+        // Keep default background if load fails
+      }
+
+      applyPreviewBg("#ffffff");
+    }
+
+    // Run once on page load (editor not required)
+    initPreviewBg();
+
     function readJSON(key, fallback) {
       try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
       catch { return fallback; }
@@ -870,9 +905,11 @@
       if (savedBg) {
         surface.style.background = savedBg;
         bgInput.value = savedBg;
+        applyPreviewBg(savedBg);
       } else {
         surface.style.background = "#ffffff";
         bgInput.value = "#ffffff";
+        applyPreviewBg("#ffffff");
       }
 
       const marked = content.querySelectorAll("[data-sf-block]");
@@ -1091,6 +1128,7 @@
 
     bgInput.addEventListener("input", () => {
       surface.style.background = bgInput.value;
+      applyPreviewBg(bgInput.value);
       localStorage.setItem(KEY_BG, bgInput.value);
       setStatus("Not saved yet", false);
     });
