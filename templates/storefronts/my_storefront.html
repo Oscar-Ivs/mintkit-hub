@@ -34,9 +34,24 @@
       </button>
     </div>
 
-<div class="alert alert-info mt-2 mb-3 text-muted small">
+<div class="alert alert-info mt-2 mb-3" role="alert">
   <strong>Tip:</strong> Edit Layout works best on <strong>desktop/tablet</strong>. On small touch screens, drag/resize positioning can be less precise.
 </div>
+<style>
+  /* Subtle hint for "Featured digital cards" area (kept in-template to avoid global CSS edits) */
+  .sf-hand { display: inline-block; margin-right: .35rem; animation: sf-wiggle 1.1s ease-in-out infinite; }
+  @keyframes sf-wiggle { 0%,100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+
+  .sf-featured-hint, .sf-featured-empty {
+    margin: .5rem 0 1rem;
+    padding: .6rem .75rem;
+    border: 1px dashed rgba(0,0,0,.25);
+    border-radius: 12px;
+    background: rgba(255,255,255,.6);
+    font-size: .95rem;
+  }
+</style>
+
 
     <div class="sf-preview-card w-100 overflow-hidden" id="sf-preview-card">
       <div class="sf-preview-logo">
@@ -60,38 +75,48 @@
     </div>
 
     {# Featured cards - preview #}
-    {% if has_cards %}
     <h3 class="storefront-section-heading">Featured digital cards</h3>
 
-    <div class="sf-card-grid">
-      {% for card in storefront.cards.all %}
-      <article class="sf-card text-break">
-        {% if card.image_url %}
-        <div class="sf-card-image-wrap">
-          <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
-        </div>
-        {% endif %}
+    {% if has_cards %}
+      <div class="sf-featured-hint" aria-live="polite">
+        <span class="sf-hand" aria-hidden="true">👉</span>
+        Tip: click on Featured digital cards to manage them.
+      </div>
 
-        <h4 class="sf-card-title">
-          {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
-          {% if card.price_label %}
-          <span class="sf-card-price">{{ card.price_label }}</span>
+      <div class="sf-card-grid">
+        {% for card in storefront.cards.all %}
+        <article class="sf-card text-break">
+          {% if card.image_url %}
+          <div class="sf-card-image-wrap">
+            <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
+          </div>
           {% endif %}
-        </h4>
 
-        {% if card.description %}
-        <p class="sf-card-text">{{ card.description }}</p>
-        {% endif %}
+          <h4 class="sf-card-title">
+            {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
+            {% if card.price_label %}
+            <span class="sf-card-price">{{ card.price_label }}</span>
+            {% endif %}
+          </h4>
 
-        {% if card.buy_url %}
-        <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-          class="btn btn-sm btn-primary storefront-preview-card-button text-break">
-          Buy now
-        </a>
-        {% endif %}
-      </article>
-      {% endfor %}
-    </div>
+          {% if card.description %}
+          <p class="sf-card-text">{{ card.description }}</p>
+          {% endif %}
+
+          {% if card.buy_url %}
+          <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+            class="btn btn-sm btn-primary storefront-preview-card-button text-break">
+            Buy now
+          </a>
+          {% endif %}
+        </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="sf-featured-empty" aria-live="polite">
+        <span class="sf-hand" aria-hidden="true">👉</span>
+        No featured cards yet — select cards on the right to show them here.
+      </div>
     {% endif %}
 
     {% url 'storefront_detail' storefront.slug as public_path %}
@@ -162,6 +187,32 @@
     </script>
 
   </section>
+
+    <script>
+      (function () {
+        const hintKey = "mk_featured_hint_seen_v1";
+        const hint = document.getElementById("sf-featured-hint");
+        const grid = document.querySelector(".sf-panel-preview .sf-card-grid");
+        if (!hint || !grid) return;
+
+        if (localStorage.getItem(hintKey) === "1") return;
+
+        hint.style.display = "inline-block";
+        grid.style.outline = "2px solid rgba(13, 110, 253, 0.35)";
+        grid.style.outlineOffset = "8px";
+        grid.style.borderRadius = "12px";
+
+        const hide = () => {
+          hint.style.display = "none";
+          grid.style.outline = "";
+          grid.style.outlineOffset = "";
+          localStorage.setItem(hintKey, "1");
+        };
+
+        grid.addEventListener("click", hide, { once: true });
+        setTimeout(hide, 6000);
+      })();
+    </script>
 
   {# ================= RIGHT: EDIT FORM ================= #}
   <section class="sf-panel">
@@ -565,10 +616,12 @@
       toolbar.style.top = "0";
       toolbar.style.zIndex = "5";
     }
+  // IMPORTANT: key draft layout storage by storefrontId so different accounts don't leak styles on /storefront/my/
+  const KEY_PREFIX = `sf_v5:${storefrontId}:`;
+  const KEY_LAYOUT = `${KEY_PREFIX}layout`;
+  const KEY_STYLES = `${KEY_PREFIX}styles`;
+  const KEY_BG = `${KEY_PREFIX}bg`;
 
-    const KEY_LAYOUT = "sf_layout_v4:" + location.pathname;
-    const KEY_STYLES = "sf_styles_v4:" + location.pathname;
-    const KEY_BG = "sf_bg_v4:" + location.pathname;
 
 
     // Keep the LEFT preview background in sync with the saved page background
