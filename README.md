@@ -963,7 +963,7 @@ After applying fixes, all validated templates return **0 HTML errors / 0 warning
 
 ## Email integration testing
 
-### Automated (unit test)
+### Automated unit Test (django)
 Email sending is tested using Django’s in-memory backend (`locmem`) to avoid external SMTP dependency:
 
 ```bash
@@ -982,6 +982,23 @@ Mailgun SMTP was verified manually using the Django shell:
 python manage.py shell
 ```
 A test email was sent successfully using EmailMessage, confirming Mailgun SMTP credentials and DNS verification are correct.
+
+---
+
+### Automated Unit Tests 2 (Django)
+
+A small set of automated tests covers the highest-risk subscription flows:
+
+- **Stripe billing selection**: verifies `monthly` vs `annual` billing is normalised correctly and that the correct Stripe Price ID is chosen.
+- **Studio access gating**: verifies access logic for `active` / `trialing` states and trial end dates.
+
+Run tests locally:
+```bash
+python manage.py test
+```
+<p>
+  <img src="docs/testing/unit_tests.png" width="560">
+</p>
 
 ---
 
