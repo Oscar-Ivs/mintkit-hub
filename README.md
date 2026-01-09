@@ -524,6 +524,35 @@ On the “My storefront” page, users can quickly copy their public storefront 
 - After a successful copy action, the UI should provide feedback (e.g., temporary “Copied!” label, small toast message, or button text change).
 ---
 
+### Featured Digital Cards — “Paste from Studio” Button (JS)
+
+**Purpose:**  
+On **My Storefront → Featured digital cards**, a small **“Paste from Studio”** button lets the user paste the 3‑line output copied from **MintKit Studio** and auto-fill the three mapped fields:
+
+- **Card title** ← `Card type: ...`  
+- **Price label** ← `Price label: ...`  
+- **Digital card image URL** ← `Thumbnail image URL: ...`
+
+**Clipboard format expected (from MintKit Studio):**
+- `Card type: Gift Card`
+- `Price label: £12`
+- `Thumbnail image URL: https://<canister>.raw.icp0.io/.../thumbnail.webp`
+
+**How it works (high level):**
+- Uses the browser **Clipboard API** to read text (`navigator.clipboard.readText()`), with a safe fallback to `prompt()` if clipboard access is blocked.
+- Parses the clipboard lines by key (`Card type`, `Price label`, `Thumbnail image URL`).
+- Writes values into the correct inputs using each button’s `data-*` attributes (points to the Django form input IDs).
+- Dispatches `input` + `change` events so the form behaves consistently.
+
+**Where it lives:**
+- Implemented as a small inline script inside `my_storefront.html`, scoped to the Featured Digital Cards formset.
+
+**Source / attribution:**
+- Clipboard + DOM event patterns were adapted from standards-based browser API examples and MDN documentation (Clipboard API + event dispatch).  
+- Final implementation was integrated and tested in MintKit Hub to match the MintKit Studio clipboard format and the project’s UI.
+
+---
+
 ## Standards-based Scripts (small custom JS)
 
 **HTMLMediaElement playback rate control (video speed)**  
