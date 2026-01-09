@@ -100,8 +100,8 @@ class StorefrontCardForm(forms.ModelForm):
         fields = ["title", "price_label", "image_url", "buy_url", "description"]
         labels = {
             "title": "Card title",
-            "price_label": "Price label (optional)",
-            "image_url": "Thumbnail image URL",
+            "price_label": "Price label",
+            "image_url": "Digital card image URL",
             "buy_url": "Buy / details link",
             "description": "Short description (optional)",
         }
