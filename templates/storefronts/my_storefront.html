@@ -380,13 +380,13 @@
               </h4>
 
               <div style="display:flex; align-items:center; gap:.5rem;">
-                <button type="button" class="btn btn-outline-secondary btn-sm mk-paste-studio"
-                  data-title-id="{{ card_form.title.id_for_label }}"
+                <button type="button" class="btn btn-sm mk-paste-studio"
+                  style="background:#2f5fa8; border-color:#2f5fa8; color:#fff; box-shadow: 0 .25rem .5rem rgba(0,0,0,.08);"
                   data-price-id="{{ card_form.price_label.id_for_label }}"
                   data-image-id="{{ card_form.image_url.id_for_label }}"
                   data-status-id="mk-paste-status-{{ forloop.counter0 }}"
                   title="Paste the 3-line data copied from MintKit Studio">
-                  Paste from Studio
+                  📋 Paste from Studio
                 </button>
 
                 <span id="mk-paste-status-{{ forloop.counter0 }}" class="text-muted small" aria-live="polite"></span>
