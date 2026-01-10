@@ -70,9 +70,9 @@
     <div id="sf-public-surface">
 
       {% if storefront.logo %}
-      <div class="storefront-public-logo" data-sf-block="logo" data-sf-label="Logo">
-        <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
-      </div>
+        <div class="storefront-public-logo" data-sf-block="logo" data-sf-label="Logo">
+          <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo" class="storefront-logo-large">
+        </div>
       {% endif %}
 
       <h1 class="storefront-public-title" data-sf-block="headline" data-sf-label="Headline">
@@ -80,61 +80,61 @@
       </h1>
 
       {% if storefront.description %}
-      <p class="storefront-public-body" data-sf-block="description" data-sf-label="Description">
-        {{ storefront.description }}
-      </p>
+        <p class="storefront-public-body" data-sf-block="description" data-sf-label="Description">
+          {{ storefront.description }}
+        </p>
       {% endif %}
 
       {% if storefront.contact_details %}
-      <h2 class="storefront-public-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
-        Contact details
-      </h2>
-      <p class="storefront-public-body" data-sf-block="contact_text" data-sf-label="Contact text">
-        {{ storefront.contact_details }}
-      </p>
+        <h2 class="storefront-public-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
+          Contact details
+        </h2>
+        <p class="storefront-public-body" data-sf-block="contact_text" data-sf-label="Contact text">
+          {{ storefront.contact_details }}
+        </p>
       {% endif %}
 
       {% if has_cards %}
-      <h2 class="storefront-public-section-title" data-sf-block="cards_title" data-sf-label="Featured cards title">
-        Featured digital cards
-      </h2>
+        <h2 class="storefront-public-section-title" data-sf-block="cards_title" data-sf-label="Featured cards title">
+          Featured digital cards
+        </h2>
 
-      <div class="sf-card-grid" data-sf-label="Cards grid">
-        {% for card in storefront.cards.all|slice:":3" %}
-        {% url "storefront_card_detail" storefront.slug card.id as card_detail_url %}
+        <div class="sf-card-grid" data-sf-label="Cards grid">
+          {% for card in storefront.cards.all|slice:":3" %}
+            {% url "storefront_card_detail" storefront.slug card.id as card_detail_url %}
 
-        <article class="sf-card" data-sf-block="card_{{ forloop.counter }}" data-sf-label="Card {{ forloop.counter }}">
-          {% if card.image_url %}
-          <a href="{{ card_detail_url }}" aria-label="View details for {{ card.title|default:'card' }}">
-            <div class="sf-card-image-wrap">
-              <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
-            </div>
-          </a>
-          {% endif %}
+            <article class="sf-card" data-sf-block="card_{{ forloop.counter }}" data-sf-label="Card {{ forloop.counter }}">
+              {% if card.image_url %}
+                <a href="{{ card_detail_url }}" aria-label="View details for {{ card.title|default:'card' }}">
+                  <div class="sf-card-image-wrap">
+                    <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
+                  </div>
+                </a>
+              {% endif %}
 
-          <h4 class="sf-card-title">
-            {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
-            {% if card.price_label %}
-            <span class="sf-card-price">{{ card.price_label }}</span>
-            {% endif %}
-          </h4>
+              <h4 class="sf-card-title">
+                {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
+                {% if card.price_label %}
+                  <span class="sf-card-price">{{ card.price_label }}</span>
+                {% endif %}
+              </h4>
 
-          {% if card.description %}
-          <p class="sf-card-text">{{ card.description }}</p>
-          {% endif %}
+              {% if card.description %}
+                <p class="sf-card-text">{{ card.description }}</p>
+              {% endif %}
 
-          {# Option B: Always link to internal details page. External checkout lives on the details page. #}
-          <a href="{{ card_detail_url }}" class="btn btn-sm btn-primary storefront-preview-card-button">
-            View details
-          </a>
-        </article>
-        {% endfor %}
-      </div>
+              <a href="{{ card_detail_url }}" class="btn btn-sm btn-primary storefront-preview-card-button">
+                View details
+              </a>
+            </article>
+          {% endfor %}
+        </div>
       {% endif %}
 
     </div>
   </div>
 </div>
+
 
 {{ layout_data|json_script:"sf-public-layout-data" }}
 
