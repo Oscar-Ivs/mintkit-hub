@@ -3422,9 +3422,20 @@ body.sf-editor-lock {
 
 .mk-card-detail__actions{
   margin-top: 14px;
-  display: grid;
+  display: flex;          /* stops full-width stretching */
   gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
 }
+
+.mk-card-detail__actions .btn{
+  width: auto;            /* ensures it stays natural width */
+  display: inline-flex;
+  padding-left: 18px;     
+  padding-right: 18px;
+  border-radius: 999px;   /* matches pill style */
+}
+
 
 .mk-card-detail__hint{
   font-size: 0.95rem;

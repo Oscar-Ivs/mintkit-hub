@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
-{# Keep consistent spacing like other pages (no watermark) #}
-{% block main_class %}page-container{% endblock %}
+{% block main_class %}page-container mk-card-detail-page{% endblock %}
 
 {% block content %}
   <div class="mk-card-detail">
@@ -83,7 +82,7 @@
       const toggle = document.getElementById("mk-card-desc-toggle");
       if (!desc || !toggle) return;
 
-      // If clamped content does not overflow, hide the toggle completely
+      // If clamped content does not overflow, keep the toggle hidden
       const needsToggle = desc.scrollHeight > desc.clientHeight + 2;
       if (!needsToggle) return;
 
