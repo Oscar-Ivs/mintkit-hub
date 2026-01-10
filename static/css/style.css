@@ -3459,3 +3459,47 @@ body.sf-editor-lock {
   display: inline-flex;
   align-self: flex-start;
 }
+
+/* Tighten spacing between description and button on storefront cards */
+.sf-card .sf-card-text{
+  margin-bottom: 10px; /* reduce gap */
+}
+
+/* If any rule is pushing the button down, neutralise it */
+.sf-card .storefront-preview-card-button,
+.storefront-public-card-item .storefront-public-card-button{
+  margin-top: 8px !important; /* instead of auto / huge margin */
+  align-self: flex-start;     /* keeps button "pill", not full width */
+}
+
+/* Clamp long card descriptions in previews/public storefront */
+.sf-card .sf-card-text{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4; /* tweak: 3–5 usually looks best */
+}
+
+/* Remove forced tall cards (prevents empty space at the bottom) */
+.storefront-public-card-item,
+.storefront-preview-card,
+.sf-card{
+  height: auto !important;
+  min-height: unset !important;
+  align-content: start;   /* grid case */
+  justify-content: start; /* flex case */
+}
+
+/* If the card is grid and a row is using 1fr, force rows to size to content */
+.storefront-public-card-item,
+.storefront-preview-card,
+.sf-card{
+  grid-template-rows: auto auto auto auto !important;
+}
+
+/* Ensure the CTA isn't being pushed down by "auto" margins */
+.storefront-public-card-item .btn,
+.storefront-preview-card .btn,
+.sf-card .btn{
+  margin-top: 10px; /* keeps a small consistent gap */
+}
