@@ -350,17 +350,19 @@
 
       <details class="sf-card-formset-wrapper">
         <summary class="sf-card-summary">
-          <span class="sf-card-summary-content">
-            <span class="sf-card-summary-left">
+          <span style="display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;">
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span id="mk-featured-hand" aria-hidden="true" style="display:inline-block;">👉</span>
               <span class="sf-card-summary-label">Featured digital cards (optional)</span>
             </span>
 
-            <span class="sf-card-summary-right">
+            <span style="display:flex;align-items:center;">
               <img src="{% static 'img/logo-blue.webp' %}" alt="Featured cards preview"
-                class="sf-card-summary-thumb img-fluid">
+                class="sf-card-summary-thumb img-fluid" style="height:44px;width:auto;display:block;" loading="lazy">
             </span>
           </span>
         </summary>
+
 
         <p class="text-muted small">
           Add up to three MintKit cards to highlight on your storefront.
@@ -1465,6 +1467,26 @@
     applyFitVisuals(false);
     setStatus("Not saved yet", false);
   })();
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const hand = document.getElementById("mk-featured-hand");
+    if (!hand || typeof hand.animate !== "function") return;
+
+    hand.animate(
+      [
+        { transform: "translateX(0px)" },
+        { transform: "translateX(6px)" }
+      ],
+      {
+        duration: 650,
+        iterations: Infinity,
+        direction: "alternate",
+        easing: "ease-in-out"
+      }
+    );
+  });
 </script>
 
 {% endblock %}
