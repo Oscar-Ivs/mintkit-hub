@@ -599,6 +599,35 @@ Using a dedicated mail subdomain helps deliverability and keeps DNS/email record
 
 ---
 
+### Featured Card Details — “Read more / Show less” toggle (JS)
+
+**Purpose:**  
+Keep the **Featured card details** page compact by clamping long descriptions to a few lines, while still allowing the user to expand the full text when needed.
+
+**How it works (high level):**
+- The description is **clamped by CSS** (multi-line clamp) using the `.mk-card-detail__desc` rules.
+- The toggle button is rendered **hidden by default** (`hidden` attribute).
+- JavaScript checks whether the clamped text actually overflows:
+  - compares `scrollHeight` vs `clientHeight` (with a small tolerance)
+  - if the text does not overflow, the toggle stays hidden
+- On click:
+  - toggles the `.is-expanded` class on the description
+  - swaps button text between **“Read more”** and **“Show less”**
+
+**Where it lives:**
+- Inline script inside the Featured card details template (e.g. `storefront_card_detail.html`)
+- Expects these IDs to exist:
+  - `mk-card-desc` (the description container)
+  - `mk-card-desc-toggle` (the toggle button)
+
+**Notes:**
+- No dependencies (vanilla JS only).
+- If the description is short, the UI stays clean (no unnecessary toggle).
+- Behaviour is controlled by the CSS clamp + `.is-expanded` override.
+
+
+---
+
 
 </details>
 
