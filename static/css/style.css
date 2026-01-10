@@ -3431,31 +3431,31 @@ body.sf-editor-lock {
 .mk-card-detail__actions .btn{
   width: auto;            /* ensures it stays natural width */
   display: inline-flex;
-  padding-left: 18px;     
+  padding-left: 18px;
   padding-right: 18px;
   border-radius: 999px;   /* matches pill style */
 }
-
 
 .mk-card-detail__hint{
   font-size: 0.95rem;
   opacity: 0.8;
 }
 
-/* Clamp featured card descriptions so very long text can't ruin the preview layout */
-.sf-card-grid .sf-card-text{
-  margin: .75rem 0 0;
+/* -----------------------------
+   Featured cards (public storefront + My storefront + layout editor preview)
+   Clamps long descriptions so cards stay visually consistent.
+-------------------------------- */
+.sf-card-text{
+  margin: 0 0 12px; /* gap before button */
   overflow: hidden;
-
-  /* Multi-line clamp */
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 4; /* adjust 3–5 as preferred */
+}
 
-  /* Fallback height for browsers without line-clamp support */
-  line-height: 1.4;
-  max-height: 7em;
-
-  /* Prevent long unbroken strings from stretching the card */
-  overflow-wrap: anywhere;
+.sf-card .storefront-preview-card-button{
+  margin-top: 6px;
+  width: auto;
+  display: inline-flex;
+  align-self: flex-start;
 }

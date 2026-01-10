@@ -761,8 +761,6 @@ If more granular test cases are required in future iterations, these may be expa
 
 ---
 
----
-
 ## Automated Tests (Django)
 
 A small automated test suite was added to validate the most important flows (authentication + storefront access rules) using Django’s built-in test runner.
