@@ -3441,3 +3441,21 @@ body.sf-editor-lock {
   font-size: 0.95rem;
   opacity: 0.8;
 }
+
+/* Clamp featured card descriptions so very long text can't ruin the preview layout */
+.sf-card-grid .sf-card-text{
+  margin: .75rem 0 0;
+  overflow: hidden;
+
+  /* Multi-line clamp */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+
+  /* Fallback height for browsers without line-clamp support */
+  line-height: 1.4;
+  max-height: 7em;
+
+  /* Prevent long unbroken strings from stretching the card */
+  overflow-wrap: anywhere;
+}
