@@ -3329,3 +3329,20 @@ body.sf-editor-lock {
   font: inherit;
   color: inherit;
 }
+/* ======= Card detail page ======= */
+
+/* Constrain width so it doesn't stretch across huge screens */
+.mk-card-detail-wrap {
+  max-width: 1100px;
+}
+
+/* Ensure consistent padding even if something overrides Bootstrap defaults */
+.mk-card-detail-inner {
+  padding: 40px;
+}
+
+@media (max-width: 576px) {
+  .mk-card-detail-inner {
+    padding: 20px;
+  }
+}

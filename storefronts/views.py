@@ -245,18 +245,23 @@ def storefront_layout_save(request, storefront_id):
 
 def storefront_card_detail(request, slug, card_id):
     """
-    Public “card details” page (Option B).
+    Public card details page.
 
     Shows a single featured card (image + title + price + description),
-    with a Buy/Details button that links to the creator’s external URL.
+    with a Buy/Details button that links to the creator’s URL.
     """
     storefront = get_object_or_404(Storefront, slug=slug)
 
     # Ensure the card belongs to this storefront
     card = get_object_or_404(StorefrontCard, storefront=storefront, id=card_id)
 
+    # Reuse the same saved background as the public storefront page
+    layout_obj, _ = StorefrontLayout.objects.get_or_create(storefront=storefront)
+    bg = (layout_obj.bg or "#ffffff").strip() or "#ffffff"
+
     context = {
         "storefront": storefront,
         "card": card,
+        "bg": bg,
     }
     return render(request, "storefronts/storefront_card_detail.html", context)
