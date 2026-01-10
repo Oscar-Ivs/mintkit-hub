@@ -101,11 +101,15 @@
 
       <div class="sf-card-grid" data-sf-label="Cards grid">
         {% for card in storefront.cards.all|slice:":3" %}
+        {% url "storefront_card_detail" storefront.slug card.id as card_detail_url %}
+
         <article class="sf-card" data-sf-block="card_{{ forloop.counter }}" data-sf-label="Card {{ forloop.counter }}">
           {% if card.image_url %}
-          <div class="sf-card-image-wrap">
-            <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
-          </div>
+          <a href="{{ card_detail_url }}" aria-label="View details for {{ card.title|default:'card' }}">
+            <div class="sf-card-image-wrap">
+              <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
+            </div>
+          </a>
           {% endif %}
 
           <h4 class="sf-card-title">
@@ -119,12 +123,10 @@
           <p class="sf-card-text">{{ card.description }}</p>
           {% endif %}
 
-          {% if card.buy_url %}
-          <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-            class="btn btn-sm btn-primary storefront-preview-card-button">
-            Buy now
+          {# Option B: Always link to internal details page. External checkout lives on the details page. #}
+          <a href="{{ card_detail_url }}" class="btn btn-sm btn-primary storefront-preview-card-button">
+            View details
           </a>
-          {% endif %}
         </article>
         {% endfor %}
       </div>
