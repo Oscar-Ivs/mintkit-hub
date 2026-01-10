@@ -21,4 +21,8 @@ urlpatterns = [
 
     # Public storefront page
     path("<slug:slug>/", views.storefront_detail, name="storefront_detail"),
+
+    # Public featured card detail page
+    path("<slug:slug>/cards/<int:card_id>/", views.storefront_card_detail, name="storefront_card_detail"),
+
 ]

@@ -11,7 +11,7 @@ from django.core.paginator import Paginator
 
 
 from .forms import StorefrontForm, StorefrontCardFormSet
-from .models import Storefront, StorefrontLayout
+from .models import Storefront, StorefrontCard, StorefrontLayout
 
 
 @login_required
@@ -242,3 +242,21 @@ def storefront_layout_save(request, storefront_id):
     layout_obj.save()
 
     return JsonResponse({"ok": True})
+
+def storefront_card_detail(request, slug, card_id):
+    """
+    Public “card details” page (Option B).
+
+    Shows a single featured card (image + title + price + description),
+    with a Buy/Details button that links to the creator’s external URL.
+    """
+    storefront = get_object_or_404(Storefront, slug=slug)
+
+    # Ensure the card belongs to this storefront
+    card = get_object_or_404(StorefrontCard, storefront=storefront, id=card_id)
+
+    context = {
+        "storefront": storefront,
+        "card": card,
+    }
+    return render(request, "storefronts/storefront_card_detail.html", context)
