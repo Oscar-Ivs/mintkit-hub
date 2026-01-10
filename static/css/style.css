@@ -3329,20 +3329,104 @@ body.sf-editor-lock {
   font: inherit;
   color: inherit;
 }
-/* ======= Card detail page ======= */
-
-/* Constrain width so it doesn't stretch across huge screens */
-.mk-card-detail-wrap {
+/* -----------------------------
+   Featured card details page
+-------------------------------- */
+.mk-card-detail{
   max-width: 1100px;
+  margin: 0 auto;
 }
 
-/* Ensure consistent padding even if something overrides Bootstrap defaults */
-.mk-card-detail-inner {
-  padding: 40px;
+.mk-card-detail__top{
+  margin: 0 0 12px;
 }
 
-@media (max-width: 576px) {
-  .mk-card-detail-inner {
-    padding: 20px;
+.mk-card-detail__back{
+  text-decoration: none;
+}
+
+.mk-card-detail__panel{
+  border-radius: 18px;
+  padding: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+.mk-card-detail__grid{
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: 26px;
+  align-items: start;
+}
+
+@media (max-width: 992px){
+  .mk-card-detail__grid{
+    grid-template-columns: 1fr;
   }
+}
+
+.mk-card-detail__imgwrap{
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.55);
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mk-card-detail__imgwrap--empty{
+  min-height: 220px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.mk-card-detail__img{
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 56vh; /* prevents huge card */
+  object-fit: contain;
+  display: block;
+}
+
+.mk-card-detail__title{
+  margin: 0 0 10px;
+}
+
+.mk-card-detail__price{
+  margin: 0 0 12px;
+}
+
+.mk-card-detail__desc{
+  margin: 0 0 6px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5; /* clamps long descriptions */
+}
+
+.mk-card-detail__desc.is-expanded{
+  display: block;
+  -webkit-line-clamp: initial;
+}
+
+.mk-card-detail__desc-toggle{
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  margin: 0 0 14px;
+}
+
+.mk-card-detail__actions{
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.mk-card-detail__hint{
+  font-size: 0.95rem;
+  opacity: 0.8;
 }
