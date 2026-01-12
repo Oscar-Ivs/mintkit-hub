@@ -232,7 +232,7 @@ def stripe_webhook(request):
                         ctx,
                     )
 
-        # ------------------------------------------------------------
+               # ------------------------------------------------------------
         # 2) Subscription updated (cancel scheduled/resumed/etc)
         # ------------------------------------------------------------
         elif event_type == "customer.subscription.updated":
@@ -267,6 +267,7 @@ def stripe_webhook(request):
 
             prev_status = existing.status if existing else None
             prev_cancel_flag = existing.cancel_at_period_end if existing else False
+            prev_cancel_at = existing.cancel_at if existing else None
 
             sub_obj, _ = Subscription.objects.update_or_create(
                 profile=profile,
@@ -282,26 +283,50 @@ def stripe_webhook(request):
                 },
             )
 
-            # Email when user presses "Cancel subscription" (schedule end)
-            if (not prev_cancel_flag) and cancel_at_period_end and new_status in (
+            # Stripe can represent "scheduled cancellation" in two ways:
+            # - cancel_at_period_end=True (end of billing period)
+            # - cancel_at=<timestamp>     (portal sometimes sets this while leaving cancel_at_period_end False)
+            scheduled_now = bool(cancel_at_period_end or (cancel_at is not None))
+            scheduled_prev = bool(prev_cancel_flag or (prev_cancel_at is not None))
+
+            # Use cancel_at if present, otherwise fall back to current_period_end
+            ends_on = cancel_at or current_period_end
+
+            logger.warning(
+                "CANCEL CHECK: sub=%s scheduled_prev=%s scheduled_now=%s prev_cap_end=%s prev_cancel_at=%s "
+                "cap_end=%s cancel_at=%s new_status=%s stripe_status=%s",
+                sub_id,
+                scheduled_prev,
+                scheduled_now,
+                prev_cancel_flag,
+                prev_cancel_at,
+                cancel_at_period_end,
+                cancel_at,
+                new_status,
+                stripe_status,
+            )
+
+            # Email when user schedules cancellation (either style)
+            if (not scheduled_prev) and scheduled_now and new_status in (
                 Subscription.STATUS_ACTIVE,
                 Subscription.STATUS_TRIALING,
             ):
                 to_email = _profile_email(profile)
                 if to_email:
                     logger.warning(
-                        "CANCEL EMAIL PATH HIT: sub=%s to=%s cap_end=%s cancel_at_period_end=%s status=%s",
+                        "CANCEL EMAIL PATH HIT: sub=%s to=%s ends_on=%s cap_end=%s cancel_at=%s status=%s",
                         sub_id,
                         to_email,
-                        current_period_end,
+                        ends_on,
                         cancel_at_period_end,
+                        cancel_at,
                         stripe_status,
                     )
 
                     ctx = _base_email_ctx(profile, plan.name)
                     ctx.update(
                         {
-                            "ends_on": current_period_end,
+                            "ends_on": ends_on,
                             "manage_url": ctx["portal_url"],
                             "site_url": ctx["site_root"],
                         }
