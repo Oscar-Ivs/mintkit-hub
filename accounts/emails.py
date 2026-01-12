@@ -231,3 +231,44 @@ def send_welcome_email(user, request=None) -> bool:
         context=context,
         fail_silently=True,
     )
+
+def send_card_received_email(*, to_email: str, viewer_url: str, request=None) -> bool:
+    """
+    Send a branded “card received” email with a viewer link.
+    """
+    if not to_email or not viewer_url:
+        return False
+
+    links = _brand_links(request)
+    assets = _email_asset_urls(request)
+
+    context: Dict[str, Any] = {
+        "year": timezone.now().year,
+        "site_root": links.site_root,
+        "dashboard_url": links.dashboard_url,
+        "about_url": links.about_url,
+        "pricing_url": links.pricing_url,
+        "faq_url": links.faq_url,
+        "viewer_url": viewer_url,
+        **assets,
+    }
+
+    context["plain_text"] = "\n".join(
+        [
+            "Hi,",
+            "",
+            "You’ve received a MintKit card.",
+            "",
+            f"View it here: {viewer_url}",
+            "",
+            f"Need help? Reply to this email or contact {_resolve_support_email()}.",
+        ]
+    )
+
+    return send_templated_email(
+        subject="You’ve received a MintKit card",
+        to_email=to_email,
+        template_html="emails/card_received.html",
+        context=context,
+        fail_silently=False,
+    )
