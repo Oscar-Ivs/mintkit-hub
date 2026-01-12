@@ -1,30 +1,35 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+
 import dj_database_url
+from dotenv import load_dotenv
+from corsheaders.defaults import default_headers
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 # -------------------------
-# Core security / env
+# Helpers
 # -------------------------
 
-# True on Heroku dynos
-ON_HEROKU = "DYNO" in os.environ
-
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "G4GryHSukz7jaFX_JNpHYO8cjtnd8hwKVBuOq60JP2uj2DCQB5ZwLGtIp7ljoMTJod8",
-)
-
-# Helper for env booleans
 def env_bool(name: str, default: bool = False) -> bool:
     val = os.getenv(name)
     if val is None:
         return default
     return val.strip().lower() in ("1", "true", "yes", "on")
 
+
+# True on Heroku dynos
+ON_HEROKU = "DYNO" in os.environ
+
+# -------------------------
+# Core security
+# -------------------------
+
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "G4GryHSukz7jaFX_JNpHYO8cjtnd8hwKVBuOq60JP2uj2DCQB5ZwLGtIp7ljoMTJod8",
+)
 
 # DEBUG:
 # - On Heroku: default False
@@ -34,11 +39,11 @@ DEBUG = env_bool("DEBUG", default=(not ON_HEROKU))
 # Allowed hosts (comma-separated in env)
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
 
-# Local dev always allowed so 127.0.0.1 works without extra setup
+# Local dev always allowed
 if DEBUG:
     ALLOWED_HOSTS += ["127.0.0.1", "localhost"]
 
-# If running on Heroku and ALLOWED_HOSTS is missing, don't hard-crash
+# Heroku fallback if ALLOWED_HOSTS is missing
 if ON_HEROKU and not ALLOWED_HOSTS:
     ALLOWED_HOSTS = [".herokuapp.com"]
 
@@ -71,27 +76,15 @@ LOGOUT_REDIRECT_URL = "home"
 LOGIN_URL = "login"
 
 # -------------------------
-# Studio bridge config (read from env)
+# Studio bridge config
 # -------------------------
-# Shared secret header for Studio -> Hub API calls
 STUDIO_API_KEY = os.getenv("STUDIO_API_KEY", "").strip()
 
-# Base site URL (used for viewer links, absolute images in emails, Stripe redirects, etc.)
 SITE_URL = os.getenv("SITE_URL", "https://mintkit.co.uk").rstrip("/")
 
 # -------------------------
-# Apps / middleware
+# Apps
 # -------------------------
-
-# Optional CORS support (safe import so settings won't crash if not installed yet)
-CORS_HEADERS_AVAILABLE = False
-try:
-    from corsheaders.defaults import default_headers  # type: ignore
-    CORS_HEADERS_AVAILABLE = True
-except Exception:
-    default_headers = ()
-    CORS_HEADERS_AVAILABLE = False
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -99,31 +92,31 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "studio_bridge",
 
-    # Cloudinary (MEDIA uploads) - safe to include always
+    # CORS
+    "corsheaders",
+
+    # Cloudinary
     "cloudinary_storage",
     "cloudinary",
 
-    # Optional: enable only after installing django-cors-headers
-    # pip install django-cors-headers
-]
-
-if CORS_HEADERS_AVAILABLE:
-    INSTALLED_APPS.append("corsheaders")
-
-# Project apps
-INSTALLED_APPS += [
+    # Project apps
     "core",
     "accounts.apps.AccountsConfig",
     "storefronts",
     "subscriptions",
-    # Add this when the app is created:
-    # "studio_bridge",
+    "studio_bridge",
 ]
 
+# -------------------------
+# Middleware
+# -------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+
+    # CORS must be placed before CommonMiddleware
+    "corsheaders.middleware.CorsMiddleware",
+
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -133,12 +126,21 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-if CORS_HEADERS_AVAILABLE:
-    # CORS middleware should be as high as possible (before CommonMiddleware)
-    cors_mw = "corsheaders.middleware.CorsMiddleware"
-    if cors_mw not in MIDDLEWARE:
-        MIDDLEWARE.insert(2, cors_mw)
+# -------------------------
+# CORS (Studio -> Hub)
+# -------------------------
+CORS_ALLOWED_ORIGINS = [
+    "https://mass-crimson-2ia-draft.caffeine.xyz",
+    "https://mintkit-smr.caffeine.xyz",
+]
 
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "x-studio-key",
+]
+
+# -------------------------
+# URLs / Templates
+# -------------------------
 ROOT_URLCONF = "mintkithub.urls"
 
 TEMPLATES = [
@@ -200,9 +202,6 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Storage configuration
-# - Static files: WhiteNoise in production
-# - Media uploads: Cloudinary on Heroku only if CLOUDINARY_URL is set
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -214,11 +213,9 @@ STORAGES = {
     },
 }
 
-# Switch MEDIA to Cloudinary only when running on Heroku AND CLOUDINARY_URL is present
+# Use Cloudinary for MEDIA only when Cloudinary is configured on Heroku
 if ON_HEROKU and os.getenv("CLOUDINARY_URL"):
-    STORAGES["default"] = {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
-    }
+    STORAGES["default"] = {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -234,13 +231,11 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("MAILGUN_SMTP_LOGIN", "")
 EMAIL_HOST_PASSWORD = os.getenv("MAILGUN_SMTP_PASSWORD", "")
 
-# Verified sending domain is mg.mintkit.co.uk
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL",
     "MintKit <no-reply@mg.mintkit.co.uk>",
 )
 
-# Optional project-level default (used by custom email helpers if present)
 DEFAULT_REPLY_TO_EMAIL = os.getenv(
     "DEFAULT_REPLY_TO_EMAIL",
     "support@mintkit.co.uk",
@@ -253,25 +248,9 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
-# Stripe Price IDs
 STRIPE_PRICE_BASIC = os.getenv("STRIPE_PRICE_BASIC", "")
 STRIPE_PRICE_BASIC_ANNUAL = os.getenv("STRIPE_PRICE_BASIC_ANNUAL", "")
-STRIPE_PRICE_PRO = os.getenv("STRIPE_PRICE_PRO", "")  # optional for later
-
-# -------------------------
-# CORS (only if django-cors-headers is installed)
-# -------------------------
-if CORS_HEADERS_AVAILABLE:
-    # Allow Studio (draft + live) to call the Hub API endpoint
-    CORS_ALLOWED_ORIGINS = [
-        "https://mass-crimson-2ia-draft.caffeine.xyz",
-        "https://mintkit-smr.caffeine.xyz",
-    ]
-
-    # Allow custom shared-secret header
-    CORS_ALLOW_HEADERS = list(default_headers) + [
-        "x-studio-key",
-    ]
+STRIPE_PRICE_PRO = os.getenv("STRIPE_PRICE_PRO", "")
 
 # -------------------------
 # Logging
