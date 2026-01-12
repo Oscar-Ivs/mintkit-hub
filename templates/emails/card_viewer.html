@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h1 class="h4 mb-2">You’ve received a MintKit card</h1>
+      <p class="text-muted mb-3">Open the card using the button below.</p>
+
+      {% if link.image_url %}
+        <img src="{{ link.image_url }}" alt="Card preview" class="img-fluid rounded mb-3">
+      {% endif %}
+
+      <a href="{{ link.open_url }}" class="btn btn-primary">Open card</a>
+
+      <p class="small text-muted mt-3 mb-0">
+        Card ID: {{ link.nft_id }}
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
