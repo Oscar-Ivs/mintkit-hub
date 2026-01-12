@@ -99,6 +99,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "studio_bridge",
 
     # Cloudinary (MEDIA uploads) - safe to include always
     "cloudinary_storage",
