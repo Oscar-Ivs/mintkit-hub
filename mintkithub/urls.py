@@ -41,6 +41,9 @@ urlpatterns = [
     path("subscriptions/", include("subscriptions.urls")),
     path("storefront/", include("storefronts.urls")),
     path("", include("core.urls")),
+
+    # Studio bridge
+    path("", include("studio_bridge.urls")),
 ]
 
 # Serve media files (like uploaded logos) in development
