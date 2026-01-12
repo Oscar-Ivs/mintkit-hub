@@ -71,8 +71,27 @@ LOGOUT_REDIRECT_URL = "home"
 LOGIN_URL = "login"
 
 # -------------------------
+# Studio bridge config (read from env)
+# -------------------------
+# Shared secret header for Studio -> Hub API calls
+STUDIO_API_KEY = os.getenv("STUDIO_API_KEY", "").strip()
+
+# Base site URL (used for viewer links, absolute images in emails, Stripe redirects, etc.)
+SITE_URL = os.getenv("SITE_URL", "https://mintkit.co.uk").rstrip("/")
+
+# -------------------------
 # Apps / middleware
 # -------------------------
+
+# Optional CORS support (safe import so settings won't crash if not installed yet)
+CORS_HEADERS_AVAILABLE = False
+try:
+    from corsheaders.defaults import default_headers  # type: ignore
+    CORS_HEADERS_AVAILABLE = True
+except Exception:
+    default_headers = ()
+    CORS_HEADERS_AVAILABLE = False
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -85,11 +104,21 @@ INSTALLED_APPS = [
     "cloudinary_storage",
     "cloudinary",
 
-    # Project apps
+    # Optional: enable only after installing django-cors-headers
+    # pip install django-cors-headers
+]
+
+if CORS_HEADERS_AVAILABLE:
+    INSTALLED_APPS.append("corsheaders")
+
+# Project apps
+INSTALLED_APPS += [
     "core",
     "accounts.apps.AccountsConfig",
     "storefronts",
     "subscriptions",
+    # Add this when the app is created:
+    # "studio_bridge",
 ]
 
 MIDDLEWARE = [
@@ -102,6 +131,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if CORS_HEADERS_AVAILABLE:
+    # CORS middleware should be as high as possible (before CommonMiddleware)
+    cors_mw = "corsheaders.middleware.CorsMiddleware"
+    if cors_mw not in MIDDLEWARE:
+        MIDDLEWARE.insert(2, cors_mw)
 
 ROOT_URLCONF = "mintkithub.urls"
 
@@ -222,9 +257,20 @@ STRIPE_PRICE_BASIC = os.getenv("STRIPE_PRICE_BASIC", "")
 STRIPE_PRICE_BASIC_ANNUAL = os.getenv("STRIPE_PRICE_BASIC_ANNUAL", "")
 STRIPE_PRICE_PRO = os.getenv("STRIPE_PRICE_PRO", "")  # optional for later
 
-# Base site URL (used for Stripe redirect URLs)
-SITE_URL = os.getenv("SITE_URL", "https://mintkit.co.uk").rstrip("/")
+# -------------------------
+# CORS (only if django-cors-headers is installed)
+# -------------------------
+if CORS_HEADERS_AVAILABLE:
+    # Allow Studio (draft + live) to call the Hub API endpoint
+    CORS_ALLOWED_ORIGINS = [
+        "https://mass-crimson-2ia-draft.caffeine.xyz",
+        "https://mintkit-smr.caffeine.xyz",
+    ]
 
+    # Allow custom shared-secret header
+    CORS_ALLOW_HEADERS = list(default_headers) + [
+        "x-studio-key",
+    ]
 
 # -------------------------
 # Logging
