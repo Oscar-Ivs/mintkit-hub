@@ -1,115 +1,83 @@
 {# templates/emails/card_received.html #}
+{% load static %}
+
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>You've received a MintKit card</title>
   </head>
-  <body style="margin:0;padding:0;background:#e9eef6;font-family:Arial,Helvetica,sans-serif;">
 
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#e9eef6;">
+  <body style="margin:0;padding:0;background:#e9effa;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#e9effa;padding:24px 12px;">
       <tr>
-        <td align="center" style="padding:18px 12px;">
+        <td align="center">
 
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 10px 28px rgba(12,24,45,0.12);">
-            <!-- Header image -->
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:620px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 6px 22px rgba(20,40,80,0.10);">
             <tr>
-              <td style="background:#0b2a5b;">
-                {% if header_bg_url %}
-                  <img src="{{ header_bg_url }}" alt="MintKit" style="display:block;width:100%;max-width:560px;height:auto;" />
-                {% else %}
-                  <div style="padding:18px 18px;color:#ffffff;font-weight:700;font-size:18px;">MintKit</div>
-                {% endif %}
+              <td style="padding:0;">
+                <img src="{{ header_bg_url }}" alt="MintKit" style="display:block;width:100%;height:auto;">
               </td>
             </tr>
 
-            <!-- Content -->
             <tr>
-              <td style="padding:22px 20px 10px 20px;">
-
-                <div style="font-size:26px;line-height:1.2;font-weight:800;color:#0b1b33;margin:0 0 10px 0;">
+              <td style="padding:22px 22px 10px 22px;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
+                <div style="font-size:28px;font-weight:800;line-height:1.15;margin:0 0 10px 0;">
                   You've received a MintKit card
                 </div>
 
-                <div style="font-size:15px;line-height:1.5;color:#4a5a73;margin:0 0 16px 0;">
-                  Open your card using the button below.
-                  <br />
-                  The live QR code is shown inside the card viewer and refreshes automatically.
+                <div style="font-size:14px;line-height:1.6;color:#475569;margin:0 0 16px 0;">
+                  Open your card using the button below. The QR code is shown inside the viewer page.
                 </div>
 
-                {% if email_preview_url %}
-                  <div style="margin:0 0 14px 0;border-radius:14px;overflow:hidden;border:1px solid rgba(11,27,51,0.10);">
-                    <img
-                      src="{{ email_preview_url }}"
-                      alt="Card preview"
-                      style="display:block;width:100%;max-width:520px;height:auto;"
-                    />
-                  </div>
-                {% else %}
-                  <div style="margin:0 0 14px 0;border-radius:14px;border:1px dashed rgba(11,27,51,0.18);padding:14px;color:#6a7a93;font-size:13px;">
-                    Preview will load inside the viewer (some email apps block WebP previews).
-                  </div>
-                {% endif %}
-
-                <!-- Primary CTA -->
-                <div style="margin:0 0 10px 0;">
-                  <a
-                    href="{{ viewer_url }}"
-                    style="display:inline-block;background:#1d5bd6;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                <div style="margin:18px 0 10px 0;">
+                  <a href="{{ viewer_url }}"
+                     style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;font-weight:700;
+                            padding:12px 18px;border-radius:999px;font-size:14px;">
                     View card
                   </a>
+
                   {% if site_root %}
-                    <a
-                      href="{{ site_root }}"
-                      style="display:inline-block;margin-left:10px;background:#ffffff;color:#1d5bd6;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;border:1px solid rgba(29,91,214,0.25);"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href="{{ site_root }}"
+                       style="display:inline-block;margin-left:10px;background:#eef2ff;color:#1d4ed8;text-decoration:none;font-weight:700;
+                              padding:12px 18px;border-radius:999px;font-size:14px;">
                       Visit site
                     </a>
                   {% endif %}
                 </div>
 
-                <!-- Fallback link -->
-                <div style="font-size:12px;line-height:1.5;color:#7a8aa3;margin:0 0 10px 0;word-break:break-word;">
-                  If the button doesn't work, open this link:
-                  <br />
-                  <a href="{{ viewer_url }}" target="_blank" rel="noopener noreferrer" style="color:#1d5bd6;text-decoration:underline;">
-                    {{ viewer_url }}
-                  </a>
+                <div style="font-size:12px;line-height:1.5;color:#64748b;margin:10px 0 0 0;">
+                  If the button doesn't work, open this link:<br>
+                  <a href="{{ viewer_url }}" style="color:#1d4ed8;word-break:break-all;">{{ viewer_url }}</a>
                 </div>
 
                 {% if card_id %}
-                  <div style="font-size:12px;line-height:1.5;color:#7a8aa3;word-break:break-word;">
-                    Card ID: {{ card_id }}
+                  <div style="font-size:12px;line-height:1.5;color:#64748b;margin:10px 0 0 0;">
+                    Card ID: <span style="word-break:break-all;">{{ card_id }}</span>
                   </div>
                 {% endif %}
 
+                {% if manual_code %}
+                  <div style="font-size:12px;line-height:1.5;color:#64748b;margin:6px 0 0 0;">
+                    Manual code: <span style="word-break:break-all;">{{ manual_code }}</span>
+                  </div>
+                {% endif %}
               </td>
             </tr>
 
-            <!-- Footer -->
             <tr>
-              <td style="padding:16px 20px 20px 20px;background:#f7f9fd;border-top:1px solid rgba(11,27,51,0.08);">
-
-                <div style="font-size:12px;color:#6a7a93;line-height:1.5;">
-                  Need help? Reply to this email or contact <a href="mailto:{{ support_email }}" style="color:#1d5bd6;text-decoration:none;">{{ support_email }}</a>.
+              <td style="padding:14px 22px 20px 22px;font-family:Arial,Helvetica,sans-serif;color:#64748b;font-size:12px;border-top:1px solid #eef2f7;">
+                Need help? Reply to this email or contact
+                <a href="mailto:{{ support_email }}" style="color:#1d4ed8;text-decoration:none;">{{ support_email }}</a>.
+                <div style="margin-top:10px;">
+                  <a href="{{ about_url }}" style="color:#1d4ed8;text-decoration:none;">About</a>
+                  &nbsp;•&nbsp;
+                  <a href="{{ pricing_url }}" style="color:#1d4ed8;text-decoration:none;">Pricing</a>
+                  &nbsp;•&nbsp;
+                  <a href="{{ faq_url }}" style="color:#1d4ed8;text-decoration:none;">FAQ</a>
                 </div>
-
-                <div style="margin-top:10px;font-size:12px;line-height:1.5;">
-                  {% if about_url %}<a href="{{ about_url }}" style="color:#1d5bd6;text-decoration:none;" target="_blank" rel="noopener noreferrer">About</a>{% endif %}
-                  {% if pricing_url %} &nbsp;•&nbsp; <a href="{{ pricing_url }}" style="color:#1d5bd6;text-decoration:none;" target="_blank" rel="noopener noreferrer">Pricing</a>{% endif %}
-                  {% if faq_url %} &nbsp;•&nbsp; <a href="{{ faq_url }}" style="color:#1d5bd6;text-decoration:none;" target="_blank" rel="noopener noreferrer">FAQ</a>{% endif %}
-                </div>
-
-                <div style="margin-top:10px;font-size:11px;color:#8a9ab3;">
-                  © {{ year }} MintKit. All rights reserved.
-                </div>
-
+                <div style="margin-top:10px;color:#94a3b8;">© {{ year }} MintKit. All rights reserved.</div>
               </td>
             </tr>
           </table>
@@ -117,6 +85,5 @@
         </td>
       </tr>
     </table>
-
   </body>
 </html>

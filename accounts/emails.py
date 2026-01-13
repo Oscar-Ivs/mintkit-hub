@@ -41,9 +41,7 @@ def _normalise_reply_to(value: Optional[object]) -> Optional[list[str]]:
 
 
 def _resolve_support_email() -> str:
-    """
-    Resolve a support/reply-to address used in plain-text fallbacks.
-    """
+    """Resolve a support/reply-to address used in plain-text fallbacks."""
     reply_to = _normalise_reply_to(getattr(settings, "DEFAULT_REPLY_TO_EMAIL", None))
     if reply_to:
         return reply_to[0]
@@ -65,9 +63,7 @@ def _resolve_site_root(request=None) -> str:
 
 
 def _build_absolute(request, path: str) -> str:
-    """
-    Convert a URL path into an absolute URL using request or SITE_URL fallback.
-    """
+    """Convert a URL path into an absolute URL using request or SITE_URL fallback."""
     site_root = _resolve_site_root(request)
     if not site_root or not path:
         return ""
@@ -120,22 +116,12 @@ def _render_plain_fallback(user_name: str, main_line: str, links: BrandedLinks) 
     if links.site_root:
         lines += ["", f"Website: {links.site_root}"]
 
-    lines += [
-        "",
-        f"Need help? Reply to this email or contact {support_email}.",
-    ]
+    lines += ["", f"Need help? Reply to this email or contact {support_email}."]
     return "\n".join(lines)
 
 
 def _resolve_from_email(from_email: Optional[str]) -> str:
-    """
-    Resolve a safe From address.
-    Preference:
-    1) Explicit from_email argument
-    2) settings.DEFAULT_FROM_EMAIL
-    3) settings.EMAIL_HOST_USER
-    4) fallback (prevents silent failure in dev)
-    """
+    """Resolve a safe From address."""
     if from_email:
         return from_email
 
@@ -169,7 +155,6 @@ def send_templated_email(
 
     resolved_from = _resolve_from_email(from_email)
 
-    # Default reply-to comes from settings unless explicitly overridden
     effective_reply_to = reply_to if reply_to is not None else getattr(settings, "DEFAULT_REPLY_TO_EMAIL", None)
     reply_to_value = _normalise_reply_to(effective_reply_to) or []
 
@@ -240,8 +225,7 @@ def send_card_received_email(
 ) -> bool:
     """
     Send a branded “card received” email with a viewer link.
-    - card_image_url is optional and may be blocked by some email clients (notably .webp).
-    - card_id is optional and shown as reference.
+    NOTE: card_image_url is optional. Many email clients dislike modern formats.
     """
     if not to_email or not viewer_url:
         return False
@@ -249,36 +233,25 @@ def send_card_received_email(
     links = _brand_links(request)
     assets = _email_asset_urls(request)
 
-    # Many email clients do not reliably render WebP.
-    # Only embed the image in email if it's not WebP.
-    email_preview_url = ""
-    if card_image_url:
-        lower = card_image_url.lower()
-        if not lower.endswith(".webp"):
-            email_preview_url = card_image_url
+    # Show preview image in email only if it's not a WebP
+    show_preview_image = bool(card_image_url) and not str(card_image_url).lower().endswith(".webp")
+
+    manual_code = f"MANUAL-{card_id}" if card_id else ""
 
     context: Dict[str, Any] = {
         "year": timezone.now().year,
         "site_root": links.site_root,
-        "dashboard_url": links.dashboard_url,
         "about_url": links.about_url,
         "pricing_url": links.pricing_url,
         "faq_url": links.faq_url,
         "viewer_url": viewer_url,
+        "card_id": card_id or "",
+        "manual_code": manual_code,
+        "card_image_url": card_image_url or "",
+        "show_preview_image": show_preview_image,
         "support_email": _resolve_support_email(),
-        "email_preview_url": email_preview_url,
         **assets,
     }
-
-    # Keep both names for template compatibility (older templates may use image_url)
-    if card_image_url:
-        context["card_image_url"] = card_image_url
-        context["image_url"] = card_image_url
-
-    # Keep both names for compatibility (older templates may use nft_id)
-    if card_id:
-        context["card_id"] = card_id
-        context["nft_id"] = card_id
 
     plain_lines = [
         "Hi,",
@@ -289,18 +262,15 @@ def send_card_received_email(
     ]
     if card_id:
         plain_lines += ["", f"Card ID: {card_id}"]
-
-    plain_lines += [
-        "",
-        f"Need help? Reply to this email or contact {_resolve_support_email()}.",
-    ]
+    if manual_code:
+        plain_lines += ["", f"Manual code: {manual_code}"]
+    plain_lines += ["", f"Need help? Reply to this email or contact {_resolve_support_email()}."]
     context["plain_text"] = "\n".join(plain_lines)
 
-    # Do not raise in production API path (prevents hard 500s on template/email issues)
     return send_templated_email(
         subject="You've received a MintKit card",
         to_email=to_email,
         template_html="emails/card_received.html",
         context=context,
-        fail_silently=True,
+        fail_silently=False,
     )
