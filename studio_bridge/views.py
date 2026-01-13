@@ -1,4 +1,5 @@
 import json
+import logging
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -10,6 +11,8 @@ from django.views.decorators.http import require_http_methods
 
 from accounts.emails import send_card_received_email
 from .models import CardLink
+
+logger = logging.getLogger(__name__)
 
 
 def _client_ip(request) -> str:
@@ -30,25 +33,32 @@ def _rate_limit_ok(request) -> bool:
     return True
 
 
-def _hostname(url: str) -> str:
-    try:
-        return (urlparse(url).hostname or "").lower()
-    except Exception:
-        return ""
-
-
 def _open_url_allowed(open_url: str) -> bool:
-    host = _hostname(open_url)
+    """
+    Allows only trusted destinations.
+    Uses hostname matching (not substring matching) to prevent abuse.
+    """
+    try:
+        host = (urlparse(open_url).hostname or "").lower()
+    except Exception:
+        return False
+
     if not host:
         return False
 
-    # Allowlist (kept intentionally tight)
+    allowed_exact = {
+        "mintkit.co.uk",
+        "mintkit-smr.caffeine.xyz",
+    }
     allowed_suffixes = (
         "caffeine.xyz",
         "ic0.app",
         "icp0.io",
-        "mintkit.co.uk",
+        "raw.icp0.io",
     )
+
+    if host in allowed_exact:
+        return True
 
     return any(host == s or host.endswith(f".{s}") for s in allowed_suffixes)
 
@@ -63,8 +73,6 @@ def card_viewer(request, token):
 def send_card_email_api(request):
     expected = (getattr(settings, "STUDIO_API_KEY", "") or "").strip()
     provided = (request.META.get("HTTP_X_STUDIO_KEY", "") or "").strip()
-
-    # Always return JSON so the frontend can parse it reliably
     if not expected or provided != expected:
         return JsonResponse({"success": False, "error": "Forbidden"}, status=403)
 
@@ -87,7 +95,6 @@ def send_card_email_api(request):
             status=400,
         )
 
-    # Safety: only allow expected destinations (prevents endpoint abuse)
     if not _open_url_allowed(open_url):
         return JsonResponse({"success": False, "error": "open_url domain not allowed"}, status=400)
 
@@ -98,17 +105,21 @@ def send_card_email_api(request):
         recipient_email=recipient_email,
     )
 
-    viewer_url = f"{(settings.SITE_URL or '').rstrip('/')}/v/{link.token}/"
+    site = (settings.SITE_URL or "").rstrip("/")
+    viewer_url = f"{site}/v/{link.token}/"
 
-    # Optional: pass preview + id into email template if helper will supports it
-    sent = send_card_received_email(
-        to_email=recipient_email,
-        viewer_url=viewer_url,
-        request=None,
-        # In case if function supports extras, keep these. If not, remove them.
-        nft_id=nft_id,
-        image_url=image_url,
-    )
+    # Return JSON even if template/email crashes (prevents HTML 500 page in the client)
+    try:
+        sent = send_card_received_email(
+            to_email=recipient_email,
+            viewer_url=viewer_url,
+            card_image_url=image_url or None,
+            card_id=nft_id,
+            request=None,
+        )
+    except Exception as exc:
+        logger.exception("Send card email failed: %s", exc)
+        return JsonResponse({"success": False, "error": "Email send failed"}, status=500)
 
     if not sent:
         return JsonResponse({"success": False, "error": "Email send failed"}, status=500)
