@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.cache import cache
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -30,38 +30,27 @@ def _rate_limit_ok(request) -> bool:
     return True
 
 
-def _host_allowed(url: str) -> bool:
-    """
-    Safety check to reduce endpoint abuse:
-    Only allow known domains for open_url (and optionally image_url).
-    """
-    url = (url or "").strip()
-    if not url:
-        return False
-
+def _hostname(url: str) -> str:
     try:
-        parsed = urlparse(url)
+        return (urlparse(url).hostname or "").lower()
     except Exception:
+        return ""
+
+
+def _open_url_allowed(open_url: str) -> bool:
+    host = _hostname(open_url)
+    if not host:
         return False
 
-    host = (parsed.hostname or "").lower()
-    scheme = (parsed.scheme or "").lower()
-
-    if not host or scheme not in ("https", "http"):
-        return False
-
-    # Allow localhost during development if needed
-    if host in ("localhost", "127.0.0.1"):
-        return True
-
+    # Allowlist (kept intentionally tight)
     allowed_suffixes = (
-        "caffeine.xyz",  # app domain
-        "ic0.app",       # ICP gateway
-        "icp0.io",       # ICP gateway (includes raw.icp0.io)
-        "mintkit.co.uk", # hub site domain
+        "caffeine.xyz",
+        "ic0.app",
+        "icp0.io",
+        "mintkit.co.uk",
     )
 
-    return any(host == s or host.endswith("." + s) for s in allowed_suffixes)
+    return any(host == s or host.endswith(f".{s}") for s in allowed_suffixes)
 
 
 def card_viewer(request, token):
@@ -70,17 +59,13 @@ def card_viewer(request, token):
 
 
 @csrf_exempt
-@require_http_methods(["POST", "OPTIONS"])
+@require_http_methods(["POST"])
 def send_card_email_api(request):
-    # Preflight
-    if request.method == "OPTIONS":
-        return HttpResponse(status=204)
-
     expected = (getattr(settings, "STUDIO_API_KEY", "") or "").strip()
-    provided = (request.headers.get("X-STUDIO-KEY", "") or "").strip()
+    provided = (request.META.get("HTTP_X_STUDIO_KEY", "") or "").strip()
 
+    # Always return JSON so the frontend can parse it reliably
     if not expected or provided != expected:
-        # Always return JSON so frontend can parse safely
         return JsonResponse({"success": False, "error": "Forbidden"}, status=403)
 
     if not _rate_limit_ok(request):
@@ -102,13 +87,9 @@ def send_card_email_api(request):
             status=400,
         )
 
-    # Allowlist open_url destinations (important for raw.icp0.io)
-    if not _host_allowed(open_url):
+    # Safety: only allow expected destinations (prevents endpoint abuse)
+    if not _open_url_allowed(open_url):
         return JsonResponse({"success": False, "error": "open_url domain not allowed"}, status=400)
-
-    # Optional: if you want to be strict with image_url too
-    if image_url and not _host_allowed(image_url):
-        return JsonResponse({"success": False, "error": "image_url domain not allowed"}, status=400)
 
     link = CardLink.objects.create(
         nft_id=nft_id,
@@ -117,13 +98,16 @@ def send_card_email_api(request):
         recipient_email=recipient_email,
     )
 
-    site_url = (getattr(settings, "SITE_URL", "") or "").rstrip("/")
-    viewer_url = f"{site_url}/v/{link.token}/"
+    viewer_url = f"{(settings.SITE_URL or '').rstrip('/')}/v/{link.token}/"
 
+    # Optional: pass preview + id into email template if helper will supports it
     sent = send_card_received_email(
         to_email=recipient_email,
         viewer_url=viewer_url,
         request=None,
+        # In case if function supports extras, keep these. If not, remove them.
+        nft_id=nft_id,
+        image_url=image_url,
     )
 
     if not sent:
