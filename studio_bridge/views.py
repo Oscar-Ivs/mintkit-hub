@@ -1,4 +1,6 @@
 import json
+from urllib.parse import urlparse
+
 from django.conf import settings
 from django.core.cache import cache
 from django.http import JsonResponse, HttpResponseForbidden
@@ -26,6 +28,46 @@ def _rate_limit_ok(request) -> bool:
         return False
     cache.set(key, count + 1, timeout=300)
     return True
+
+
+def _is_allowed_open_url(open_url: str) -> bool:
+    """
+    Allow-list for the destination URL embedded into the viewer page.
+
+    Checks hostname using URL parsing (safer than substring checks).
+    """
+    try:
+        parsed = urlparse(open_url)
+    except Exception:
+        return False
+
+    if parsed.scheme not in ("http", "https"):
+        return False
+
+    host = (parsed.hostname or "").lower().strip()
+    if not host:
+        return False
+
+    # Exact hosts allowed (internal domains / specific deployments)
+    allowed_exact_hosts = {
+        "mintkit.co.uk",
+    }
+
+    # Allow any subdomain of these base domains
+    allowed_base_domains = {
+        "caffeine.xyz",  # covers draft + live caffeine deployments
+        "ic0.app",       # ICP gateway
+        "icp0.io",       # covers raw.icp0.io and other icp0.io hosts
+    }
+
+    if host in allowed_exact_hosts:
+        return True
+
+    for base in allowed_base_domains:
+        if host == base or host.endswith(f".{base}"):
+            return True
+
+    return False
 
 
 def card_viewer(request, token):
@@ -61,8 +103,7 @@ def send_card_email_api(request):
         )
 
     # Safety: only allow expected destinations (prevents endpoint abuse)
-    allowed = ("caffeine.xyz", "ic0.app", "mintkit.co.uk")
-    if not any(d in open_url for d in allowed):
+    if not _is_allowed_open_url(open_url):
         return JsonResponse({"success": False, "error": "open_url domain not allowed"}, status=400)
 
     link = CardLink.objects.create(
