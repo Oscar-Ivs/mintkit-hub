@@ -1,39 +1,27 @@
-{% load static %}
-<!doctype html>
-<html>
-  <body style="margin:0;padding:0;background:#0b1220;font-family:Arial,sans-serif;">
-    <div style="max-width:720px;margin:0 auto;background:#0b1220;">
-      {% if header_bg_url %}
-        <div style="background:url('{{ header_bg_url }}') center/cover no-repeat;height:140px;border-radius:14px 14px 0 0;"></div>
-      {% endif %}
+{% extends "emails/base_email.html" %}
 
-      <div style="background:#0f1b33;border-radius:0 0 14px 14px;padding:28px;">
-        <h1 style="margin:0 0 12px 0;color:#ffffff;font-size:22px;">
-          You've received a MintKit card
-        </h1>
+{% block content %}
+  <h2 style="margin:0 0 10px 0; font-size:22px; line-height:1.25; color:#0b1b3a;">
+    You've received a MintKit card
+  </h2>
 
-        <p style="margin:0 0 18px 0;color:#cfe0ff;font-size:14px;line-height:1.6;">
-          Open your card using the button below.
-        </p>
+  <p style="margin:0 0 16px 0; font-size:14px; line-height:1.6; color:#2a3558;">
+    Open your card using the button below.
+  </p>
 
-        <p style="margin:0 0 22px 0;">
-          <a href="{{ viewer_url }}"
-             style="display:inline-block;padding:12px 18px;background:#2b6cff;color:#fff;text-decoration:none;border-radius:10px;font-weight:bold;">
-            View card
-          </a>
-        </p>
+  <div style="margin:18px 0 20px 0;">
+    <a href="{{ viewer_url }}"
+       style="display:inline-block; background:#1f66ff; color:#ffffff; text-decoration:none;
+              font-weight:700; padding:12px 18px; border-radius:12px; font-size:14px;">
+      View card
+    </a>
+  </div>
 
-        <p style="margin:0;color:#9fb4dd;font-size:12px;line-height:1.6;">
-          If the button doesnt work, open this link:<br>
-          <a href="{{ viewer_url }}" style="color:#9fc1ff;">{{ viewer_url }}</a>
-        </p>
+  <p style="margin:0 0 8px 0; font-size:12px; line-height:1.6; color:#5b678a;">
+    If the button doesn't work, open this link:
+  </p>
 
-        <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:22px 0;">
-
-        <p style="margin:0;color:#9fb4dd;font-size:12px;">
-          Need help? Reply to this email or contact support@mintkit.co.uk
-        </p>
-      </div>
-    </div>
-  </body>
-</html>
+  <p style="margin:0; font-size:12px; line-height:1.6;">
+    <a href="{{ viewer_url }}" style="color:#1f66ff; word-break:break-all;">{{ viewer_url }}</a>
+  </p>
+{% endblock %}
