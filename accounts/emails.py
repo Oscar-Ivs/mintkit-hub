@@ -232,9 +232,17 @@ def send_welcome_email(user, request=None) -> bool:
         fail_silently=True,
     )
 
-def send_card_received_email(*, to_email: str, viewer_url: str, request=None) -> bool:
+def send_card_received_email(
+    *,
+    to_email: str,
+    viewer_url: str,
+    card_image_url: Optional[str] = None,
+    card_id: Optional[str] = None,
+    request=None,
+) -> bool:
     """
     Send a branded “card received” email with a viewer link.
+    Optionally includes a card preview image URL and card id for template rendering.
     """
     if not to_email or not viewer_url:
         return False
@@ -253,11 +261,37 @@ def send_card_received_email(*, to_email: str, viewer_url: str, request=None) ->
         **assets,
     }
 
+    # Keep both names for template compatibility (some templates may use image_url)
+    if card_image_url:
+        context["card_image_url"] = card_image_url
+        context["image_url"] = card_image_url
+
+    # Keep both names for compatibility (some templates may use nft_id)
+    if card_id:
+        context["card_id"] = card_id
+        context["nft_id"] = card_id
+
+    plain_lines = [
+        "Hi,",
+        "",
+        "You've received a MintKit card.",
+        "",
+        f"View it here: {viewer_url}",
+    ]
+    if card_id:
+        plain_lines += ["", f"Card ID: {card_id}"]
+
+    plain_lines += [
+        "",
+        f"Need help? Reply to this email or contact {_resolve_support_email()}.",
+    ]
+
+
     context["plain_text"] = "\n".join(
         [
             "Hi,",
             "",
-            "You’ve received a MintKit card.",
+            "You've received a MintKit card.",
             "",
             f"View it here: {viewer_url}",
             "",
@@ -266,7 +300,7 @@ def send_card_received_email(*, to_email: str, viewer_url: str, request=None) ->
     )
 
     return send_templated_email(
-        subject="You’ve received a MintKit card",
+        subject="You've received a MintKit card",
         to_email=to_email,
         template_html="emails/card_received.html",
         context=context,
