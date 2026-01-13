@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.cache import cache
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -30,44 +30,38 @@ def _rate_limit_ok(request) -> bool:
     return True
 
 
-def _is_allowed_open_url(open_url: str) -> bool:
+def _host_allowed(url: str) -> bool:
     """
-    Allow-list for the destination URL embedded into the viewer page.
+    Safety check to reduce endpoint abuse:
+    Only allow known domains for open_url (and optionally image_url).
+    """
+    url = (url or "").strip()
+    if not url:
+        return False
 
-    Checks hostname using URL parsing (safer than substring checks).
-    """
     try:
-        parsed = urlparse(open_url)
+        parsed = urlparse(url)
     except Exception:
         return False
 
-    if parsed.scheme not in ("http", "https"):
+    host = (parsed.hostname or "").lower()
+    scheme = (parsed.scheme or "").lower()
+
+    if not host or scheme not in ("https", "http"):
         return False
 
-    host = (parsed.hostname or "").lower().strip()
-    if not host:
-        return False
-
-    # Exact hosts allowed (internal domains / specific deployments)
-    allowed_exact_hosts = {
-        "mintkit.co.uk",
-    }
-
-    # Allow any subdomain of these base domains
-    allowed_base_domains = {
-        "caffeine.xyz",  # covers draft + live caffeine deployments
-        "ic0.app",       # ICP gateway
-        "icp0.io",       # covers raw.icp0.io and other icp0.io hosts
-    }
-
-    if host in allowed_exact_hosts:
+    # Allow localhost during development if needed
+    if host in ("localhost", "127.0.0.1"):
         return True
 
-    for base in allowed_base_domains:
-        if host == base or host.endswith(f".{base}"):
-            return True
+    allowed_suffixes = (
+        "caffeine.xyz",  # app domain
+        "ic0.app",       # ICP gateway
+        "icp0.io",       # ICP gateway (includes raw.icp0.io)
+        "mintkit.co.uk", # hub site domain
+    )
 
-    return False
+    return any(host == s or host.endswith("." + s) for s in allowed_suffixes)
 
 
 def card_viewer(request, token):
@@ -76,12 +70,18 @@ def card_viewer(request, token):
 
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@require_http_methods(["POST", "OPTIONS"])
 def send_card_email_api(request):
+    # Preflight
+    if request.method == "OPTIONS":
+        return HttpResponse(status=204)
+
     expected = (getattr(settings, "STUDIO_API_KEY", "") or "").strip()
-    provided = (request.META.get("HTTP_X_STUDIO_KEY", "") or "").strip()
+    provided = (request.headers.get("X-STUDIO-KEY", "") or "").strip()
+
     if not expected or provided != expected:
-        return HttpResponseForbidden("Forbidden")
+        # Always return JSON so frontend can parse safely
+        return JsonResponse({"success": False, "error": "Forbidden"}, status=403)
 
     if not _rate_limit_ok(request):
         return JsonResponse({"success": False, "error": "Rate limit exceeded"}, status=429)
@@ -102,9 +102,13 @@ def send_card_email_api(request):
             status=400,
         )
 
-    # Safety: only allow expected destinations (prevents endpoint abuse)
-    if not _is_allowed_open_url(open_url):
+    # Allowlist open_url destinations (important for raw.icp0.io)
+    if not _host_allowed(open_url):
         return JsonResponse({"success": False, "error": "open_url domain not allowed"}, status=400)
+
+    # Optional: if you want to be strict with image_url too
+    if image_url and not _host_allowed(image_url):
+        return JsonResponse({"success": False, "error": "image_url domain not allowed"}, status=400)
 
     link = CardLink.objects.create(
         nft_id=nft_id,
@@ -113,9 +117,15 @@ def send_card_email_api(request):
         recipient_email=recipient_email,
     )
 
-    viewer_url = f"{(settings.SITE_URL or '').rstrip('/')}/v/{link.token}/"
+    site_url = (getattr(settings, "SITE_URL", "") or "").rstrip("/")
+    viewer_url = f"{site_url}/v/{link.token}/"
 
-    sent = send_card_received_email(to_email=recipient_email, viewer_url=viewer_url, request=None)
+    sent = send_card_received_email(
+        to_email=recipient_email,
+        viewer_url=viewer_url,
+        request=None,
+    )
+
     if not sent:
         return JsonResponse({"success": False, "error": "Email send failed"}, status=500)
 
