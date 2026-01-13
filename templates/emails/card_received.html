@@ -1,42 +1,122 @@
-{% extends "emails/base_email.html" %}
+{# templates/emails/card_received.html #}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>You've received a MintKit card</title>
+  </head>
+  <body style="margin:0;padding:0;background:#e9eef6;font-family:Arial,Helvetica,sans-serif;">
 
-{% block content %}
-  <h1 style="margin:0 0 10px;font-size:26px;line-height:1.2;color:#ffffff;">
-    You've received a card
-  </h1>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#e9eef6;">
+      <tr>
+        <td align="center" style="padding:18px 12px;">
 
-  <p style="margin:0 0 16px;color:#cbd5e1;">
-    Open your card using the button below.
-    <br>
-    <span style="font-size:13px;color:#94a3b8;">
-      The live QR code is shown inside the card viewer and refreshes automatically.
-    </span>
-  </p>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 10px 28px rgba(12,24,45,0.12);">
+            <!-- Header image -->
+            <tr>
+              <td style="background:#0b2a5b;">
+                {% if header_bg_url %}
+                  <img src="{{ header_bg_url }}" alt="MintKit" style="display:block;width:100%;max-width:560px;height:auto;" />
+                {% else %}
+                  <div style="padding:18px 18px;color:#ffffff;font-weight:700;font-size:18px;">MintKit</div>
+                {% endif %}
+              </td>
+            </tr>
 
-  {% if card_image_url %}
-    <div style="margin:14px 0 18px;">
-      <img src="{{ card_image_url }}" alt="Card preview"
-           style="width:100%;max-width:520px;height:auto;border-radius:14px;border:1px solid rgba(255,255,255,0.12);display:block;">
-    </div>
-  {% endif %}
+            <!-- Content -->
+            <tr>
+              <td style="padding:22px 20px 10px 20px;">
 
-  <div style="margin:0 0 14px;">
-    <a href="{{ viewer_url }}"
-       style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;
-              padding:12px 18px;border-radius:12px;font-weight:700;">
-      View card
-    </a>
-  </div>
+                <div style="font-size:26px;line-height:1.2;font-weight:800;color:#0b1b33;margin:0 0 10px 0;">
+                  You've received a MintKit card
+                </div>
 
-  <p style="margin:0;color:#94a3b8;font-size:12px;">
-    If the button doesn't work, open this link:
-    <br>
-    <a href="{{ viewer_url }}" style="color:#93c5fd;text-decoration:none;word-break:break-all;">{{ viewer_url }}</a>
-  </p>
+                <div style="font-size:15px;line-height:1.5;color:#4a5a73;margin:0 0 16px 0;">
+                  Open your card using the button below.
+                  <br />
+                  The live QR code is shown inside the card viewer and refreshes automatically.
+                </div>
 
-  {% if card_id %}
-    <p style="margin:14px 0 0;color:#94a3b8;font-size:12px;">
-      Card ID: <span style="color:#e5e7eb;">{{ card_id }}</span>
-    </p>
-  {% endif %}
-{% endblock %}
+                {% if email_preview_url %}
+                  <div style="margin:0 0 14px 0;border-radius:14px;overflow:hidden;border:1px solid rgba(11,27,51,0.10);">
+                    <img
+                      src="{{ email_preview_url }}"
+                      alt="Card preview"
+                      style="display:block;width:100%;max-width:520px;height:auto;"
+                    />
+                  </div>
+                {% else %}
+                  <div style="margin:0 0 14px 0;border-radius:14px;border:1px dashed rgba(11,27,51,0.18);padding:14px;color:#6a7a93;font-size:13px;">
+                    Preview will load inside the viewer (some email apps block WebP previews).
+                  </div>
+                {% endif %}
+
+                <!-- Primary CTA -->
+                <div style="margin:0 0 10px 0;">
+                  <a
+                    href="{{ viewer_url }}"
+                    style="display:inline-block;background:#1d5bd6;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View card
+                  </a>
+                  {% if site_root %}
+                    <a
+                      href="{{ site_root }}"
+                      style="display:inline-block;margin-left:10px;background:#ffffff;color:#1d5bd6;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;border:1px solid rgba(29,91,214,0.25);"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Visit site
+                    </a>
+                  {% endif %}
+                </div>
+
+                <!-- Fallback link -->
+                <div style="font-size:12px;line-height:1.5;color:#7a8aa3;margin:0 0 10px 0;word-break:break-word;">
+                  If the button doesn't work, open this link:
+                  <br />
+                  <a href="{{ viewer_url }}" target="_blank" rel="noopener noreferrer" style="color:#1d5bd6;text-decoration:underline;">
+                    {{ viewer_url }}
+                  </a>
+                </div>
+
+                {% if card_id %}
+                  <div style="font-size:12px;line-height:1.5;color:#7a8aa3;word-break:break-word;">
+                    Card ID: {{ card_id }}
+                  </div>
+                {% endif %}
+
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:16px 20px 20px 20px;background:#f7f9fd;border-top:1px solid rgba(11,27,51,0.08);">
+
+                <div style="font-size:12px;color:#6a7a93;line-height:1.5;">
+                  Need help? Reply to this email or contact <a href="mailto:{{ support_email }}" style="color:#1d5bd6;text-decoration:none;">{{ support_email }}</a>.
+                </div>
+
+                <div style="margin-top:10px;font-size:12px;line-height:1.5;">
+                  {% if about_url %}<a href="{{ about_url }}" style="color:#1d5bd6;text-decoration:none;" target="_blank" rel="noopener noreferrer">About</a>{% endif %}
+                  {% if pricing_url %} &nbsp;•&nbsp; <a href="{{ pricing_url }}" style="color:#1d5bd6;text-decoration:none;" target="_blank" rel="noopener noreferrer">Pricing</a>{% endif %}
+                  {% if faq_url %} &nbsp;•&nbsp; <a href="{{ faq_url }}" style="color:#1d5bd6;text-decoration:none;" target="_blank" rel="noopener noreferrer">FAQ</a>{% endif %}
+                </div>
+
+                <div style="margin-top:10px;font-size:11px;color:#8a9ab3;">
+                  © {{ year }} MintKit. All rights reserved.
+                </div>
+
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
+
+  </body>
+</html>

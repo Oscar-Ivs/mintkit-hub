@@ -2,6 +2,18 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+  /* Hide Hub chrome on the public viewer page (template-scoped; no CSS file edits) */
+  header, nav, .navbar, .mk-navbar {
+    display: none !important;
+  }
+
+  /* Keep safe spacing on mobile even when base.html has fixed header padding */
+  body {
+    padding-top: 0 !important;
+  }
+</style>
+
 <div class="container py-4">
   <div class="row justify-content-center">
     <div class="col-12 col-md-10 col-lg-8">
@@ -12,6 +24,8 @@
           <h1 class="h3 fw-bold mb-2">You've received a MintKit card</h1>
           <p class="text-muted mb-4">
             Open the card using the button below.
+            <br>
+            The live QR code is shown inside the card viewer and refreshes automatically.
           </p>
 
           {# Card preview (responsive, no overflow) #}

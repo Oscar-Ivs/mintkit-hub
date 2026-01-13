@@ -77,13 +77,10 @@ def _build_absolute(request, path: str) -> str:
 def _email_asset_urls(request=None) -> Dict[str, str]:
     """
     Provide absolute URLs for images used in email templates.
-    - header_bg_url: wide header image (static/img/email.webp)
-    - watermark_url: card background image (static/img/card-211.webp)
-    - logo_url: optional logo (kept for flexibility)
     """
     header_bg_path = static("img/email.webp")
     watermark_path = static("img/card-211.webp")
-    logo_path = static("img/logo-blue.webp")  # optional if templates use it
+    logo_path = static("img/logo-blue.webp")
 
     return {
         "header_bg_url": _build_absolute(request, header_bg_path),
@@ -232,6 +229,7 @@ def send_welcome_email(user, request=None) -> bool:
         fail_silently=True,
     )
 
+
 def send_card_received_email(
     *,
     to_email: str,
@@ -242,13 +240,22 @@ def send_card_received_email(
 ) -> bool:
     """
     Send a branded “card received” email with a viewer link.
-    Optionally includes a card preview image URL and card id for template rendering.
+    - card_image_url is optional and may be blocked by some email clients (notably .webp).
+    - card_id is optional and shown as reference.
     """
     if not to_email or not viewer_url:
         return False
 
     links = _brand_links(request)
     assets = _email_asset_urls(request)
+
+    # Many email clients do not reliably render WebP.
+    # Only embed the image in email if it's not WebP.
+    email_preview_url = ""
+    if card_image_url:
+        lower = card_image_url.lower()
+        if not lower.endswith(".webp"):
+            email_preview_url = card_image_url
 
     context: Dict[str, Any] = {
         "year": timezone.now().year,
@@ -258,15 +265,17 @@ def send_card_received_email(
         "pricing_url": links.pricing_url,
         "faq_url": links.faq_url,
         "viewer_url": viewer_url,
+        "support_email": _resolve_support_email(),
+        "email_preview_url": email_preview_url,
         **assets,
     }
 
-    # Keep both names for template compatibility (some templates may use image_url)
+    # Keep both names for template compatibility (older templates may use image_url)
     if card_image_url:
         context["card_image_url"] = card_image_url
         context["image_url"] = card_image_url
 
-    # Keep both names for compatibility (some templates may use nft_id)
+    # Keep both names for compatibility (older templates may use nft_id)
     if card_id:
         context["card_id"] = card_id
         context["nft_id"] = card_id
@@ -276,7 +285,7 @@ def send_card_received_email(
         "",
         "You've received a MintKit card.",
         "",
-        f"View it here: {viewer_url}",
+        f"Open it here: {viewer_url}",
     ]
     if card_id:
         plain_lines += ["", f"Card ID: {card_id}"]
@@ -285,24 +294,13 @@ def send_card_received_email(
         "",
         f"Need help? Reply to this email or contact {_resolve_support_email()}.",
     ]
+    context["plain_text"] = "\n".join(plain_lines)
 
-
-    context["plain_text"] = "\n".join(
-        [
-            "Hi,",
-            "",
-            "You've received a MintKit card.",
-            "",
-            f"View it here: {viewer_url}",
-            "",
-            f"Need help? Reply to this email or contact {_resolve_support_email()}.",
-        ]
-    )
-
+    # Do not raise in production API path (prevents hard 500s on template/email issues)
     return send_templated_email(
         subject="You've received a MintKit card",
         to_email=to_email,
         template_html="emails/card_received.html",
         context=context,
-        fail_silently=False,
+        fail_silently=True,
     )
