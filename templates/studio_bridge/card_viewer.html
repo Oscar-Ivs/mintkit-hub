@@ -1,69 +1,109 @@
-{# templates/studio_bridge/card_viewer.html #}
 {% extends "base.html" %}
+
+{% block title %}You've received a MintKit card{% endblock %}
 
 {% block content %}
 <div class="container py-4">
   <div class="row justify-content-center">
-    <div class="col-12 col-lg-10">
-
-      <div class="card shadow-sm border-0">
-        <div class="card-body p-3 p-md-4">
+    <div class="col-12 col-md-10 col-lg-8">
+      <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card-body p-4 p-md-5">
 
           <h1 class="h3 fw-bold mb-2">You've received a MintKit card</h1>
           <p class="text-muted mb-4">
-            Use the QR code below to redeem, or open the viewer link from your email.
+            Use the QR code below to redeem, or share this page link.
           </p>
 
-          <div class="row g-4 align-items-start">
-            <div class="col-12 col-md-7">
-              {% if link.image_url %}
-                <div class="rounded-4 overflow-hidden bg-light">
+          {% if link.image_url %}
+          <div class="rounded-4 overflow-hidden border mb-4" style="background:#fff;">
+            <img
+              src="{{ link.image_url }}"
+              alt="Card preview"
+              class="img-fluid w-100"
+              style="display:block;max-width:100%;height:auto;"
+            />
+          </div>
+          {% endif %}
+
+          <div class="d-flex flex-wrap gap-2 mb-4">
+            <a class="btn btn-primary px-4" href="#qr">Show QR code</a>
+            <a class="btn btn-outline-primary px-4" href="/" rel="noopener">Visit MintKit Hub</a>
+          </div>
+
+          <div class="mt-4" id="qr">
+            <h2 class="h5 fw-semibold mb-2">Redeem QR code</h2>
+
+            {% comment %}
+              Preferred: provide a server-generated QR as a data URL via qr_code_data_url.
+              Fallback: generate a QR via qrserver only if no local QR is provided.
+            {% endcomment %}
+
+            {% if qr_code_data_url %}
+              <img
+                src="{{ qr_code_data_url }}"
+                alt="QR code"
+                class="img-fluid"
+                style="max-width:320px;width:100%;height:auto;background:#fff;border-radius:12px;border:1px solid rgba(0,0,0,.08);padding:10px;image-rendering:pixelated;"
+              />
+            {% else %}
+              {% with manual_code=link.manual_code|default:"" %}
+                {% if manual_code %}
                   <img
-                    src="{{ link.image_url }}"
-                    alt="Card preview"
-                    class="img-fluid w-100 d-block"
-                    style="height:auto;"
-                  >
-                </div>
-              {% else %}
-                <div class="rounded-4 bg-light border d-flex align-items-center justify-content-center" style="min-height: 220px;">
-                  <span class="text-muted small">Preview unavailable</span>
-                </div>
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data={{ manual_code|urlencode }}&format=png&ecc=Q"
+                    alt="QR code"
+                    class="img-fluid"
+                    style="max-width:320px;width:100%;height:auto;background:#fff;border-radius:12px;border:1px solid rgba(0,0,0,.08);padding:10px;"
+                  />
+                {% elif link.nft_id %}
+                  {% with mc="MANUAL-"|add:link.nft_id %}
+                    <img
+                      src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data={{ mc|urlencode }}&format=png&ecc=Q"
+                      alt="QR code"
+                      class="img-fluid"
+                      style="max-width:320px;width:100%;height:auto;background:#fff;border-radius:12px;border:1px solid rgba(0,0,0,.08);padding:10px;"
+                    />
+                  {% endwith %}
+                {% else %}
+                  <div class="alert alert-secondary mb-0">QR code is not available for this card.</div>
+                {% endif %}
+              {% endwith %}
+            {% endif %}
+
+            <div class="mt-3 small text-muted">
+              {% if link.manual_code %}
+                Manual code: <span class="font-monospace">{{ link.manual_code }}</span><br>
+              {% elif link.nft_id %}
+                Manual code: <span class="font-monospace">MANUAL-{{ link.nft_id }}</span><br>
+              {% endif %}
+
+              {% if link.card_id %}
+                Card ID: <span class="font-monospace">{{ link.card_id }}</span><br>
+              {% elif link.nft_id %}
+                Card ID: <span class="font-monospace">{{ link.nft_id }}</span><br>
               {% endif %}
             </div>
+          </div>
 
-            <div class="col-12 col-md-5">
-              <div class="rounded-4 border bg-white p-3 text-center">
-                <div class="fw-semibold mb-2">Show this QR to redeem</div>
+          <hr class="my-4">
 
-                {% if qr_code_data_uri %}
-                  <img
-                    src="{{ qr_code_data_uri }}"
-                    alt="Redemption QR code"
-                    class="img-fluid"
-                    style="max-width: 320px; width: 100%; height: auto;"
-                  >
-                {% else %}
-                  <div class="text-muted small">
-                    QR preview unavailable (missing server dependency).
-                  </div>
-                {% endif %}
-
-                <div class="mt-3 small text-muted text-break">
-                  <div class="mb-1">Manual code:</div>
-                  <code class="d-inline-block">{{ manual_code }}</code>
-                </div>
-              </div>
-
-              <div class="mt-3 small text-muted text-break">
-                Card ID: {{ link.nft_id }}
-              </div>
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="small text-muted">
+              Need help? Contact <a href="mailto:support@mintkit.co.uk">support@mintkit.co.uk</a>
             </div>
+
+            {% if link.status %}
+              <span class="badge rounded-pill
+                {% if link.status|lower == 'active' %}bg-success
+                {% elif link.status|lower == 'sent' %}bg-primary
+                {% elif link.status|lower == 'redeemed' %}bg-danger
+                {% else %}bg-secondary{% endif %}">
+                {{ link.status|capfirst }}
+              </span>
+            {% endif %}
           </div>
 
         </div>
       </div>
-
     </div>
   </div>
 </div>
