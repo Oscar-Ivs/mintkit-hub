@@ -15,7 +15,7 @@
           </p>
 
           {% if link.image_url %}
-          <div class="rounded-4 overflow-hidden border mb-4" style="background:#fff;">
+          <div class="rounded-4 overflow-hidden border mb-5" style="background:#fff;">
             <img
               src="{{ link.image_url }}"
               alt="Card preview"
@@ -71,15 +71,39 @@
 
             <div class="mt-3 small text-muted">
               {% if link.manual_code %}
-                Manual code: <span class="font-monospace">{{ link.manual_code }}</span><br>
+                <div class="mb-2">
+                  Manual code:
+                  <span
+                    class="font-monospace d-block"
+                    style="max-width:100%; overflow-wrap:anywhere; word-break:break-word;"
+                  >{{ link.manual_code }}</span>
+                </div>
               {% elif link.nft_id %}
-                Manual code: <span class="font-monospace">MANUAL-{{ link.nft_id }}</span><br>
+                <div class="mb-2">
+                  Manual code:
+                  <span
+                    class="font-monospace d-block"
+                    style="max-width:100%; overflow-wrap:anywhere; word-break:break-word;"
+                  >MANUAL-{{ link.nft_id }}</span>
+                </div>
               {% endif %}
 
               {% if link.card_id %}
-                Card ID: <span class="font-monospace">{{ link.card_id }}</span><br>
+                <div class="mb-2">
+                  Card ID:
+                  <span
+                    class="font-monospace d-block"
+                    style="max-width:100%; overflow-wrap:anywhere; word-break:break-word;"
+                  >{{ link.card_id }}</span>
+                </div>
               {% elif link.nft_id %}
-                Card ID: <span class="font-monospace">{{ link.nft_id }}</span><br>
+                <div class="mb-2">
+                  Card ID:
+                  <span
+                    class="font-monospace d-block"
+                    style="max-width:100%; overflow-wrap:anywhere; word-break:break-word;"
+                  >{{ link.nft_id }}</span>
+                </div>
               {% endif %}
             </div>
           </div>
