@@ -684,6 +684,109 @@ Keep the **Featured card details** page compact by clamping long descriptions to
 - If the description is short, the UI stays clean (no unnecessary toggle).
 - Behaviour is controlled by the CSS clamp + `.is-expanded` override.
 
+## Quick Start (Steps A–Z) Sidebar — JavaScript (Global Onboarding)
+
+The **Quick Start** sidebar is a small global onboarding panel that appears on every page (via `base.html`). It provides step-by-step guidance for new users, from exploring MintKit Hub to linking Studio cards and adding Stripe payment links.
+
+### Where it lives
+- **Template (markup + script):** `templates/base.html`
+  - Contains the Quick Start toggle button, overlay, sidebar `<aside>`, and the inline `<script>` that powers the UI.
+- **Styles:** `static/css/style.css`
+  - Contains the `.mk-qs-*` styling block (toggle, overlay, panel, steps).
+
+### Why it exists
+- Helps first-time users complete the main journey faster:
+  **Explore → Register → Storefront → Trial → Studio → Mint → Link → Stripe**
+- Lets a tester keep the steps visible while navigating, without needing to jump between pages like “About” or “FAQ”.
+
+---
+
+## Behaviour implemented by the script
+
+### 1) Toggle open/close
+- The button `#mk-qs-toggle` opens and closes the panel by adding/removing:
+  - `.mk-qs-visible` on the panel
+  - `body.mk-qs-open` on the page
+- Updates ARIA attributes for accessibility:
+  - `aria-expanded` on the toggle button
+  - `aria-hidden` on the panel
+
+### 2) Overlay dim + outside click close
+- When the panel is **open and not pinned**, an overlay (`#mk-qs-overlay`) is shown to dim the page.
+- Clicking the overlay closes the panel (only when not pinned).
+
+### 3) Pin mode
+- Clicking the pin button (`#mk-qs-pin`) toggles pinned state:
+  - When **pinned**, the overlay is hidden and the panel stays open.
+  - When **unpinned**, overlay returns while the panel remains open.
+- The pin button uses:
+  - `.is-active` for visual state
+  - `aria-pressed` for accessibility
+- The script also toggles a body class:
+  - `body.mk-qs-pinned`
+  This allows CSS to apply pinned-only styles (e.g., different transparency).
+
+### 4) Swap side
+- Clicking the swap button (`#mk-qs-side`) flips the panel between:
+  - `.mk-qs-left` and `.mk-qs-right`
+- This helps avoid blocking UI (especially on smaller screens).
+
+### 5) Accordion steps (only one open at a time)
+- Steps use semantic HTML: `<details class="mk-qs-step">`
+- The script enforces accordion behaviour:
+  - When one step opens, all other steps close.
+- The last opened step is stored and restored on reload.
+
+### 6) Close button behaviour
+- Clicking ✕ (`#mk-qs-close`) closes the panel.
+- **Project modification:** ✕ also unpins, so the panel will not return unexpectedly.
+
+---
+
+## State persistence (localStorage)
+
+The script stores Quick Start settings under:
+
+- `localStorage` key: `mk_quickstart_state_v1`
+
+Stored values:
+- `pinned` — whether panel is pinned
+- `side` — `"left"` or `"right"`
+- `activeStep` — last opened step id
+- `open` — whether panel is currently open (see rule below)
+
+### Important rule (project modification)
+To prevent the panel auto-opening on every new page:
+- The panel should **only auto-open across page loads when pinned**.
+- Implementation approach used:
+  - On load, force: `open = pinned`
+
+This keeps onboarding available without annoying users.
+
+---
+
+## What was modified (and why)
+
+### Prevent unexpected auto-open
+**Problem:** if `open:true` is saved, the sidebar reopens after page refresh or navigation.  
+**Fix:** only pinned state is allowed to reopen on load (open follows pinned).
+
+### Pinned styling hook
+Added `body.mk-qs-pinned` toggle so CSS can easily apply pinned-only transparency changes.
+
+### Preserve user preferences
+Kept persistence of:
+- side selection (left/right)
+- last opened step
+- pinned state
+
+---
+
+## Source / attribution
+- Implemented using standard Web APIs (DOM events, class toggles, `localStorage`) and semantic HTML (`<details>`).
+- Script structure follows common UI patterns for “drawer / offcanvas” panels.
+- AI-assisted drafting was used during development, then integrated and tested manually within this project.
+
 
 ---
 
