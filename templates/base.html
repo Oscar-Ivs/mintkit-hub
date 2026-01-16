@@ -154,6 +154,160 @@
     </header>
     {% endblock %}
 
+    <!-- Steps A–Z: global onboarding panel -->
+    <button id="mkStepsToggle" class="mk-steps-toggle" type="button" aria-controls="mkStepsPanel" aria-expanded="false">
+        Steps A-Z
+    </button>
+
+    <aside id="mkStepsPanel" class="mk-steps-panel" hidden>
+        <div class="mk-steps-header">
+            <div class="mk-steps-title">Quick Start (Steps A-Z)</div>
+
+            <div class="mk-steps-actions">
+                <button id="mkStepsPin" class="mk-steps-iconbtn" type="button" aria-pressed="false" title="Pin panel">
+                    📌
+                </button>
+                <button id="mkStepsFlip" class="mk-steps-iconbtn" type="button" aria-pressed="false"
+                    title="Move panel left/right">
+                    ⇄
+                </button>
+                <button id="mkStepsClose" class="mk-steps-iconbtn" type="button" aria-label="Close">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <div class="mk-steps-body">
+            <details class="mk-step">
+                <summary>1) Explore MintKit</summary>
+                <div class="mk-step-content">
+                    Explore MintKit Hub without signing up.
+                    <div class="mk-step-kicker">
+                        Go to <a href="{% url 'explore_storefronts' %}">Explore</a> to see public storefronts.
+                    </div>
+                </div>
+            </details>
+
+            <details class="mk-step">
+                <summary>2) Register / Login</summary>
+                <div class="mk-step-content">
+                    Create a free account to build your storefront. Email is required for sending card links.
+                    <div class="mk-step-kicker">
+                        <a href="{% url 'register' %}">Register</a> · <a href="{% url 'login' %}">Login</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="mk-step">
+                <summary>3) Create your Storefront</summary>
+                <div class="mk-step-content">
+                    In <b>My Storefront</b> fill in:
+                    <ul>
+                        <li>Business Category & Region</li>
+                        <li>Logo (optional), headline, description</li>
+                        <li>Contact details</li>
+                        <li>Click <b>Save storefront</b></li>
+                    </ul>
+                    <div class="mk-step-kicker">
+                        <a href="{% url 'my_storefront' %}">My Storefront</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="mk-step">
+                <summary>4) Style your Storefront (Layout Editor)</summary>
+                <div class="mk-step-content">
+                    Best on laptop/desktop or tablet.
+                    <ul>
+                        <li>Open <b>Edit layout</b> in the preview</li>
+                        <li>Move / resize slightly / hide blocks</li>
+                        <li>Use <b>Fit</b> to preview overall page</li>
+                        <li>Click <b>Save layout</b></li>
+                    </ul>
+                </div>
+            </details>
+
+            <details class="mk-step">
+                <summary>5) Share your Storefront</summary>
+                <div class="mk-step-content">
+                    Use the Copy/Share buttons in <b>My Storefront</b>.
+                    <ul>
+                        <li>To appear in Explore, enable <b>Make my storefront public</b></li>
+                        <li>Click <b>Save storefront</b></li>
+                    </ul>
+                </div>
+            </details>
+
+            <details class="mk-step">
+                <summary>6) Start Trial</summary>
+                <div class="mk-step-content">
+                    Start a 14-day trial from Dashboard or Pricing to unlock Studio tools.
+                    <div class="mk-step-kicker">
+                        <a href="{% url 'pricing' %}">Pricing</a> · <a href="{% url 'dashboard' %}">Dashboard</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="mk-step">
+                <summary>7) Open Studio</summary>
+                <div class="mk-step-content">
+                    Studio lets you create and manage gift cards, tickets, and vouchers, send by email, and redeem via
+                    QR/manual code.
+                    <div class="mk-step-kicker">
+                        <a href="{% url 'studio' %}">Open Studio</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="mk-step">
+                <summary>8) Mint Cards in Studio</summary>
+                <div class="mk-step-content">
+                    <ul>
+                        <li><b>Style Editor</b>: create a card style</li>
+                        <li><b>Collections</b>: create a collection (max 50)</li>
+                        <li><b>Mint</b>: mint the amount you need (you can mint more later)</li>
+                        <li><b>Manager</b>: view cards, statuses, QR codes</li>
+                    </ul>
+                </div>
+            </details>
+
+            <details class="mk-step">
+                <summary>9) Send or Copy a Card</summary>
+                <div class="mk-step-content">
+                    In Studio Manager, click <b>Send by Email</b> to deliver a viewer link to the recipient.
+                    For your storefront, click <b>Copy for MintKit Hub</b>.
+                </div>
+            </details>
+
+            <details class="mk-step">
+                <summary>10) Link Cards to your Storefront</summary>
+                <div class="mk-step-content">
+                    In Hub → <b>My Storefront</b> → <b>Featured digital cards</b>:
+                    <ul>
+                        <li>Click <b>Paste from Studio</b> to auto-fill up to 3 cards</li>
+                        <li>Add a short description (optional)</li>
+                        <li>Add a Buy link (next step)</li>
+                    </ul>
+                </div>
+            </details>
+
+            <details class="mk-step">
+                <summary>11) Add a Buy Link (Stripe)</summary>
+                <div class="mk-step-content">
+                    Create a Stripe Payment Link and paste it into the card's Buy link field.
+                    <ul>
+                        <li>Stripe Dashboard → Payment Links → New</li>
+                        <li>Create product + price → Create link</li>
+                        <li>Copy the buy.stripe.com URL</li>
+                    </ul>
+                    <div class="mk-step-kicker">
+                        Tip: Use Stripe <b>Test mode</b> for demos.
+                    </div>
+                </div>
+            </details>
+        </div>
+    </aside>
+
     <main class="{% block main_class %}page-container{% endblock %}">
         {% block content %}{% endblock %}
     </main>
@@ -362,6 +516,104 @@
 
             applyVisibility();
             requestAnimationFrame(positionFloatingRightBurger);
+        })();
+    </script>
+    <script>
+        (function () {
+            const toggleBtn = document.getElementById("mkStepsToggle");
+            const panel = document.getElementById("mkStepsPanel");
+            const closeBtn = document.getElementById("mkStepsClose");
+            const pinBtn = document.getElementById("mkStepsPin");
+            const flipBtn = document.getElementById("mkStepsFlip");
+
+            if (!toggleBtn || !panel || !closeBtn || !pinBtn || !flipBtn) return;
+
+            const KEY_PINNED = "mkStepsPinned";
+            const KEY_SIDE = "mkStepsSide"; // "left" | "right"
+
+            function setExpanded(isOpen) {
+                toggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            }
+
+            function openPanel() {
+                panel.hidden = false;
+                setExpanded(true);
+            }
+
+            function closePanel() {
+                panel.hidden = true;
+                setExpanded(false);
+            }
+
+            function setPinned(pinned) {
+                pinBtn.setAttribute("aria-pressed", pinned ? "true" : "false");
+                localStorage.setItem(KEY_PINNED, pinned ? "1" : "0");
+                pinBtn.textContent = pinned ? "📌" : "📍";
+            }
+
+            function isPinned() {
+                return localStorage.getItem(KEY_PINNED) === "1";
+            }
+
+            function setSide(side) {
+                if (side === "right") panel.classList.add("is-right");
+                else panel.classList.remove("is-right");
+                localStorage.setItem(KEY_SIDE, side);
+            }
+
+            function getSide() {
+                return localStorage.getItem(KEY_SIDE) || "left";
+            }
+
+            // Make the accordion behave like a “single-open” ladder
+            panel.querySelectorAll("details").forEach((d) => {
+                d.addEventListener("toggle", () => {
+                    if (!d.open) return;
+                    panel.querySelectorAll("details").forEach((other) => {
+                        if (other !== d) other.open = false;
+                    });
+                });
+            });
+
+            // Wire buttons
+            toggleBtn.addEventListener("click", () => {
+                if (panel.hidden) openPanel();
+                else closePanel();
+            });
+
+            closeBtn.addEventListener("click", () => {
+                closePanel();
+                if (!isPinned()) {
+                    // stay closed if not pinned
+                }
+            });
+
+            pinBtn.addEventListener("click", () => {
+                setPinned(!isPinned());
+                if (isPinned()) openPanel();
+            });
+
+            flipBtn.addEventListener("click", () => {
+                const side = getSide() === "left" ? "right" : "left";
+                setSide(side);
+            });
+
+            // Close on Escape (only when not pinned)
+            document.addEventListener("keydown", (e) => {
+                if (e.key !== "Escape") return;
+                if (isPinned()) return;
+                closePanel();
+            });
+
+            // Initial state
+            setSide(getSide());
+            setPinned(isPinned());
+
+            if (isPinned()) {
+                openPanel();
+            } else {
+                closePanel();
+            }
         })();
     </script>
 
