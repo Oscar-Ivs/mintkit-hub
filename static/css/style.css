@@ -3549,7 +3549,7 @@ body.mk-qs-open .mk-qs-toggle {
   position: fixed;
   inset: 0;
   z-index: 1190;
-  background: rgba(2, 6, 23, 0.10);
+  background: rgba(2, 6, 23, 0.15);
 }
 
 .mk-qs-panel {
@@ -3562,7 +3562,7 @@ body.mk-qs-open .mk-qs-toggle {
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.08);
 
-  background: rgba(245, 247, 251, 0.01);
+  background: rgba(245, 247, 251, 0.75);
   backdrop-filter: blur(10px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
 
