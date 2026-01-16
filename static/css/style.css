@@ -3508,219 +3508,171 @@ body.sf-editor-lock {
    Steps A–Z slide-out panel
    --------------------------- */
 /* Quick Start (Steps A–Z) — MintKit Hub style */
-.mk-steps-toggle {
+
+.mk-qs-toggle {
   position: fixed;
-  top: 110px;
-  left: 14px;
-  z-index: 10050;
+  left: 12px;
+  top: 140px;
+  z-index: 1200;
   display: inline-flex;
   align-items: center;
   gap: 10px;
+
   padding: 10px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(30, 64, 175, 0.25);
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 28px rgba(2, 6, 23, 0.16);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(245, 247, 251, 0.75);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.10);
   cursor: pointer;
 }
 
-.mk-steps-toggle:hover {
-  background: rgba(255, 255, 255, 0.98);
-}
-
-.mk-steps-toggle .mk-steps-dot {
-  width: 10px;
-  height: 10px;
+.mk-qs-dot {
+  width: 12px;
+  height: 12px;
   border-radius: 999px;
-  background: rgba(37, 99, 235, 0.9);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+  background: var(--mk-btn-bg);
+  box-shadow: 0 0 0 4px rgba(47, 95, 168, 0.15);
 }
 
-.mk-steps-toggle .mk-steps-toggle-text {
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: 0.2px;
+.mk-qs-toggle-text {
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.9);
+  font-size: 0.95rem;
 }
 
-/* Backdrop (only when panel is open AND not pinned) */
-.mk-steps-backdrop {
+body.mk-qs-open .mk-qs-toggle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mk-qs-overlay {
   position: fixed;
   inset: 0;
-  z-index: 10040;
-  background: rgba(15, 23, 42, 0.20);
-  display: none;
+  z-index: 1190;
+  background: rgba(2, 6, 23, 0.25);
 }
 
-.mk-steps-backdrop.is-open {
-  display: block;
-}
-
-/* Panel */
-.mk-steps-panel {
+.mk-qs-panel {
   position: fixed;
   top: 96px;
-  left: 14px;
-  width: min(380px, 92vw);
-  max-height: calc(100vh - 120px);
-  z-index: 10045;
+  bottom: 16px;
+  z-index: 1200;
 
+  width: min(340px, 92vw);
   border-radius: 16px;
-  border: 1px solid rgba(30, 64, 175, 0.18);
-  background: rgba(241, 246, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+
+  background: rgba(245, 247, 251, 0.70);
   backdrop-filter: blur(10px);
-  box-shadow: 0 18px 46px rgba(2, 6, 23, 0.18);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
 
-  overflow: hidden;
-  transform: translateX(calc(-100% - 18px));
-  transition: transform 220ms ease;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-120%);
+  transition: transform 200ms ease;
 }
 
-.mk-steps-panel.is-open {
-  transform: translateX(0);
+.mk-qs-panel.mk-qs-right {
+  right: 12px;
+  transform: translateX(120%);
+}
+.mk-qs-panel.mk-qs-left {
+  left: 12px;
 }
 
-.mk-steps-panel.is-right {
-  left: auto;
-  right: 14px;
-  transform: translateX(calc(100% + 18px));
-}
+.mk-qs-panel.mk-qs-visible.mk-qs-left { transform: translateX(0); }
+.mk-qs-panel.mk-qs-visible.mk-qs-right { transform: translateX(0); }
 
-.mk-steps-panel.is-right.is-open {
-  transform: translateX(0);
-}
-
-.mk-steps-header {
+.mk-qs-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 10px 10px 12px;
-  background: rgba(219, 234, 254, 0.85);
-  border-bottom: 1px solid rgba(30, 64, 175, 0.12);
+  padding: 12px 12px 10px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.mk-steps-title {
-  font-weight: 800;
-  color: #0f172a;
+.mk-qs-title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-.mk-steps-toolbar {
-  display: inline-flex;
+.mk-qs-actions {
+  display: flex;
   gap: 8px;
 }
 
-.mk-steps-iconbtn {
-  width: 34px;
-  height: 34px;
+.mk-qs-icon-btn {
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
-  border: 1px solid rgba(30, 64, 175, 0.16);
-  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.6);
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.mk-steps-iconbtn:hover {
-  background: rgba(255, 255, 255, 1);
+.mk-qs-icon-btn.is-active {
+  background: rgba(47, 95, 168, 0.18);
+  border-color: rgba(47, 95, 168, 0.35);
 }
 
-.mk-steps-iconbtn.is-active {
-  border-color: rgba(37, 99, 235, 0.35);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
-}
-
-.mk-steps-body {
+.mk-qs-body {
   padding: 12px;
   overflow: auto;
-  max-height: calc(100vh - 190px);
 }
 
-/* Step cards */
-.mk-steps-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-details.mk-steps-step {
+.mk-qs-step {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(47, 95, 168, 0.20);
   border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.55);
-  background: rgba(255, 255, 255, 0.92);
-  overflow: hidden;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
-details.mk-steps-step[open] {
-  border-color: rgba(37, 99, 235, 0.35);
-}
-
-.mk-steps-step summary {
+.mk-qs-step > summary {
   list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
-  padding: 12px 12px 12px 52px;
-  position: relative;
-  font-weight: 800;
-  color: #0f172a;
+  font-weight: 600;
 }
+.mk-qs-step > summary::-webkit-details-marker { display: none; }
 
-.mk-steps-step summary::-webkit-details-marker {
-  display: none;
-}
-
-/* Number bubble — uses data-step (fixes “1 everywhere”) */
-.mk-steps-step summary::before {
-  content: attr(data-step);
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+.mk-qs-num {
   width: 30px;
   height: 30px;
   border-radius: 999px;
-  display: grid;
-  place-items: center;
-  font-weight: 900;
-  color: rgba(30, 64, 175, 0.95);
-  background: rgba(219, 234, 254, 0.9);
-  border: 1px solid rgba(30, 64, 175, 0.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+
+  background: rgba(47, 95, 168, 0.12);
+  border: 1px solid rgba(47, 95, 168, 0.25);
+  color: rgba(15, 23, 42, 0.9);
+  flex: 0 0 auto;
 }
 
-.mk-steps-content {
-  padding: 0 12px 12px 52px;
-  color: #334155;
-  font-size: 0.95rem;
-  line-height: 1.45;
+.mk-qs-step-body {
+  padding: 8px 2px 2px 2px;
+  color: rgba(15, 23, 42, 0.82);
+  font-weight: 400;
 }
 
-.mk-steps-content p {
-  margin: 8px 0;
+.mk-qs-step-body ul {
+  margin: 6px 0 0 18px;
 }
 
-.mk-steps-content ul {
-  margin: 8px 0 0 18px;
-  padding: 0;
-}
-
-.mk-steps-content li {
+.mk-qs-step-body li {
   margin: 6px 0;
 }
 
-.mk-steps-muted {
-  color: #64748b;
-  font-size: 0.9rem;
+.mk-qs-step-body a {
+  color: var(--mk-link);
+  text-decoration: underline;
 }
 
-/* Mobile tweaks */
-@media (max-width: 576px) {
-  .mk-steps-toggle {
-    top: 84px;
-    left: 10px;
-  }
-  .mk-steps-panel {
-    top: 76px;
-    left: 10px;
-    right: 10px;
-    width: auto;
-    max-height: calc(100vh - 90px);
-  }
+.mk-qs-step-body a:hover {
+  color: var(--mk-link-hover);
 }
