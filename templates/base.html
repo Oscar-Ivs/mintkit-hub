@@ -509,180 +509,163 @@
             requestAnimationFrame(positionFloatingRightBurger);
         })();
     </script>
-    <script>
-        (function () {
-            const toggleBtn = document.getElementById("mkStepsToggle");
-            const panel = document.getElementById("mkStepsPanel");
-            const closeBtn = document.getElementById("mkStepsClose");
-            const pinBtn = document.getElementById("mkStepsPin");
-            const flipBtn = document.getElementById("mkStepsFlip");
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+  const KEY = 'mk_quickstart_state_v1';
 
-            if (!toggleBtn || !panel || !closeBtn || !pinBtn || !flipBtn) return;
+  const toggleBtn = document.getElementById('mk-qs-toggle');
+  const panel = document.getElementById('mk-quickstart');
+  const overlay = document.getElementById('mk-qs-overlay');
+  const pinBtn = document.getElementById('mk-qs-pin');
+  const sideBtn = document.getElementById('mk-qs-side');
+  const closeBtn = document.getElementById('mk-qs-close');
+  const steps = panel ? Array.from(panel.querySelectorAll('.mk-qs-step')) : [];
 
-            const KEY_PINNED = "mkStepsPinned";
-            const KEY_SIDE = "mkStepsSide"; // "left" | "right"
+  if (!toggleBtn || !panel || !overlay || !pinBtn || !sideBtn || !closeBtn) return;
 
-            function setExpanded(isOpen) {
-                toggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
-            }
+  const readState = () => {
+    try {
+      const raw = localStorage.getItem(KEY);
+      return raw ? JSON.parse(raw) : { open: false, pinned: false, side: 'left', activeStep: null };
+    } catch (e) {
+      return { open: false, pinned: false, side: 'left', activeStep: null };
+    }
+  };
 
-            function openPanel() {
-                panel.hidden = false;
-                setExpanded(true);
-            }
+  const writeState = (next) => {
+    try { localStorage.setItem(KEY, JSON.stringify(next)); } catch (e) {}
+  };
 
-            function closePanel() {
-                panel.hidden = true;
-                setExpanded(false);
-            }
+  let state = readState();
 
-            function setPinned(pinned) {
-                pinBtn.setAttribute("aria-pressed", pinned ? "true" : "false");
-                localStorage.setItem(KEY_PINNED, pinned ? "1" : "0");
-                pinBtn.textContent = pinned ? "📌" : "📍";
-            }
+  const applySide = () => {
+    panel.classList.remove('mk-qs-left', 'mk-qs-right');
+    panel.classList.add(state.side === 'right' ? 'mk-qs-right' : 'mk-qs-left');
+  };
 
-            function isPinned() {
-                return localStorage.getItem(KEY_PINNED) === "1";
-            }
+  const applyPinned = () => {
+    pinBtn.classList.toggle('is-active', !!state.pinned);
+    pinBtn.setAttribute('aria-pressed', state.pinned ? 'true' : 'false');
+  };
 
-            function setSide(side) {
-                if (side === "right") panel.classList.add("is-right");
-                else panel.classList.remove("is-right");
-                localStorage.setItem(KEY_SIDE, side);
-            }
+  const openPanel = () => {
+    state.open = true;
+    panel.classList.add('mk-qs-visible');
+    panel.setAttribute('aria-hidden', 'false');
+    toggleBtn.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('mk-qs-open');
 
-            function getSide() {
-                return localStorage.getItem(KEY_SIDE) || "left";
-            }
+    if (state.pinned) {
+      overlay.hidden = true;
+    } else {
+      overlay.hidden = false;
+    }
 
-            // Make the accordion behave like a “single-open” ladder
-            panel.querySelectorAll("details").forEach((d) => {
-                d.addEventListener("toggle", () => {
-                    if (!d.open) return;
-                    panel.querySelectorAll("details").forEach((other) => {
-                        if (other !== d) other.open = false;
-                    });
-                });
-            });
+    writeState(state);
+  };
 
-            // Wire buttons
-            toggleBtn.addEventListener("click", () => {
-                if (panel.hidden) openPanel();
-                else closePanel();
-            });
+  const closePanel = (force) => {
+    if (state.pinned && !force) return;
 
-            closeBtn.addEventListener("click", () => {
-                closePanel();
-                if (!isPinned()) {
-                    // stay closed if not pinned
-                }
-            });
+    state.open = false;
+    panel.classList.remove('mk-qs-visible');
+    panel.setAttribute('aria-hidden', 'true');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('mk-qs-open');
+    overlay.hidden = true;
 
-            pinBtn.addEventListener("click", () => {
-                setPinned(!isPinned());
-                if (isPinned()) openPanel();
-            });
+    writeState(state);
+  };
 
-            flipBtn.addEventListener("click", () => {
-                const side = getSide() === "left" ? "right" : "left";
-                setSide(side);
-            });
+  const setActiveStep = (stepValue) => {
+    steps.forEach((d) => {
+      const isTarget = d.getAttribute('data-step') === stepValue;
+      d.open = isTarget;
+    });
+    state.activeStep = stepValue;
+    writeState(state);
+  };
 
-            // Close on Escape (only when not pinned)
-            document.addEventListener("keydown", (e) => {
-                if (e.key !== "Escape") return;
-                if (isPinned()) return;
-                closePanel();
-            });
+  steps.forEach((details) => {
+    details.addEventListener('toggle', function () {
+      if (!details.open) {
+        if (state.activeStep === details.getAttribute('data-step')) {
+          state.activeStep = null;
+          writeState(state);
+        }
+        return;
+      }
 
-            // Initial state
-            setSide(getSide());
-            setPinned(isPinned());
+      // Accordion: only one open at a time
+      steps.forEach((d) => {
+        if (d !== details) d.open = false;
+      });
 
-            if (isPinned()) {
-                openPanel();
-            } else {
-                closePanel();
-            }
-        })();
-        (function () {
-            const toggleBtn = document.getElementById("mkStepsToggle");
-            const panel = document.getElementById("mkStepsPanel");
-            const backdrop = document.getElementById("mkStepsBackdrop");
-            const pinBtn = document.getElementById("mkStepsPin");
-            const sideBtn = document.getElementById("mkStepsSide");
-            const closeBtn = document.getElementById("mkStepsClose");
+      state.activeStep = details.getAttribute('data-step');
+      writeState(state);
+    });
+  });
 
-            if (!toggleBtn || !panel || !backdrop || !pinBtn || !sideBtn || !closeBtn) return;
+  // Close when clicking outside (only when not pinned)
+  overlay.addEventListener('click', function () {
+    closePanel(false);
+  });
 
-            let isOpen = false;
-            let isPinned = false;
-            let side = localStorage.getItem("mkStepsSide") || "left";
+  // ESC closes (only when not pinned)
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closePanel(false);
+  });
 
-            function applyState() {
-                panel.classList.toggle("is-open", isOpen);
-                panel.classList.toggle("is-right", side === "right");
+  // Close after clicking a link inside (only when not pinned)
+  panel.querySelectorAll('a').forEach((a) => {
+    a.addEventListener('click', function () {
+      closePanel(false);
+    });
+  });
 
-                pinBtn.classList.toggle("is-active", isPinned);
+  toggleBtn.addEventListener('click', function () {
+    if (state.open) closePanel(true);
+    else openPanel();
+  });
 
-                backdrop.classList.toggle("is-open", isOpen && !isPinned);
+  closeBtn.addEventListener('click', function () {
+    closePanel(true);
+  });
 
-                // Toggle button stays visible (user can reopen easily if closed)
-                // If preferred to hide while open, swap to: toggleBtn.style.display = isOpen ? "none" : "inline-flex";
-                toggleBtn.style.display = "inline-flex";
-            }
+  pinBtn.addEventListener('click', function () {
+    state.pinned = !state.pinned;
+    applyPinned();
 
-            function openPanel() {
-                isOpen = true;
-                applyState();
-            }
+    // When pinned, keep open + remove dim
+    if (state.pinned) {
+      state.open = true;
+      overlay.hidden = true;
+      openPanel();
+    } else {
+      // Unpinned keeps open, but dim returns
+      overlay.hidden = false;
+      openPanel();
+    }
 
-            function closePanel() {
-                isOpen = false;
-                isPinned = false;
-                applyState();
-            }
+    writeState(state);
+  });
 
-            toggleBtn.addEventListener("click", function (e) {
-                e.stopPropagation();
-                openPanel();
-            });
+  sideBtn.addEventListener('click', function () {
+    state.side = state.side === 'right' ? 'left' : 'right';
+    applySide();
+    writeState(state);
+  });
 
-            closeBtn.addEventListener("click", function (e) {
-                e.stopPropagation();
-                closePanel();
-            });
+  // Init
+  applySide();
+  applyPinned();
 
-            pinBtn.addEventListener("click", function (e) {
-                e.stopPropagation();
-                isPinned = !isPinned;
-                // If pin is turned on, ensure panel is open
-                if (isPinned) isOpen = true;
-                applyState();
-            });
+  if (state.activeStep) setActiveStep(state.activeStep);
 
-            sideBtn.addEventListener("click", function (e) {
-                e.stopPropagation();
-                side = side === "left" ? "right" : "left";
-                localStorage.setItem("mkStepsSide", side);
-                applyState();
-            });
-
-            // Click outside closes only when NOT pinned
-            backdrop.addEventListener("click", function () {
-                if (!isPinned) closePanel();
-            });
-
-            document.addEventListener("keydown", function (e) {
-                if (e.key === "Escape" && isOpen && !isPinned) closePanel();
-            });
-
-            // Start closed (not pinned)
-            applyState();
-        })();
-
-    </script>
+  if (state.pinned || state.open) openPanel();
+  else closePanel(true);
+});
+</script>
 
 </body>
 
