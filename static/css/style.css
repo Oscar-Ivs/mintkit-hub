@@ -3713,3 +3713,15 @@ body.mk-qs-open .mk-qs-toggle {
 .mk-qs-links {
   margin-top: 10px;
 }
+
+body.mk-qs-mini .mk-qs-toggle {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  gap: 0;
+  justify-content: center;
+}
+
+body.mk-qs-mini .mk-qs-toggle-text {
+  display: none;
+}

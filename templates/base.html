@@ -304,7 +304,8 @@
                                 <li>Click <strong>+ New</strong> to create a product and set your price.</li>
                                 <li>Click <strong>Create Link</strong> (top right).</li>
                                 <li>Copy the URL (e.g. <code>https://buy.stripe.com/...</code>) and paste it into the
-                                    <strong>Buy / Details link</strong> field.</li>
+                                    <strong>Buy / Details link</strong> field.
+                                </li>
                             </ol>
 
                             <p class="mk-qs-links">
@@ -548,9 +549,11 @@
             const readState = () => {
                 try {
                     const raw = localStorage.getItem(KEY);
-                    return raw ? JSON.parse(raw) : { open: false, pinned: false, side: 'left', activeStep: null };
+                    return raw
+                        ? JSON.parse(raw)
+                        : { open: false, pinned: false, side: 'left', activeStep: null, mini: false };
                 } catch (e) {
-                    return { open: false, pinned: false, side: 'left', activeStep: null };
+                    return { open: false, pinned: false, side: 'left', activeStep: null, mini: false };
                 }
             };
 
@@ -571,9 +574,11 @@
             const applyPinned = () => {
                 pinBtn.classList.toggle('is-active', !!state.pinned);
                 pinBtn.setAttribute('aria-pressed', state.pinned ? 'true' : 'false');
-
-                // Enables pinned-only styling hooks in CSS (optional)
                 document.body.classList.toggle('mk-qs-pinned', !!state.pinned);
+            };
+
+            const applyMini = () => {
+                document.body.classList.toggle('mk-qs-mini', !!state.mini);
             };
 
             const openPanel = () => {
@@ -589,10 +594,14 @@
                 writeState();
             };
 
-            const closePanel = (force) => {
+            // reason: 'x' => shrink to dot, 'dismiss' => keep full pill
+            const closePanel = (force, reason) => {
                 if (state.pinned && !force) return;
 
                 state.open = false;
+
+                if (reason === 'x') state.mini = true;
+                if (reason === 'dismiss') state.mini = false;
 
                 panel.classList.remove('mk-qs-visible');
                 panel.setAttribute('aria-hidden', 'true');
@@ -600,6 +609,7 @@
                 document.body.classList.remove('mk-qs-open');
                 overlay.hidden = true;
 
+                applyMini();
                 writeState();
             };
 
@@ -636,36 +646,51 @@
 
             // Close when clicking outside (only when not pinned)
             overlay.addEventListener('click', function () {
-                closePanel(false);
+                closePanel(false, 'dismiss');
             });
 
             // ESC closes (only when not pinned)
             document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') closePanel(false);
+                if (e.key === 'Escape') closePanel(false, 'dismiss');
             });
 
             // Close after clicking a link inside (only when not pinned)
             panel.querySelectorAll('a').forEach((a) => {
                 a.addEventListener('click', function () {
-                    closePanel(false);
+                    closePanel(false, 'dismiss');
                 });
             });
 
+            // Toggle behaviour:
+            // - if mini (dot only): first click expands to full pill
+            // - otherwise: click toggles sidebar
             toggleBtn.addEventListener('click', function () {
-                if (panel.classList.contains('mk-qs-visible')) closePanel(true);
+                if (state.mini) {
+                    state.mini = false;
+                    applyMini();
+                    writeState();
+                    return;
+                }
+
+                if (panel.classList.contains('mk-qs-visible')) closePanel(true, 'dismiss');
                 else openPanel();
             });
 
-            // X closes AND unpins, so it won't auto-return on refresh
+            // X closes AND unpins, then shrinks to dot
             closeBtn.addEventListener('click', function () {
                 state.pinned = false;
                 applyPinned();
-                closePanel(true);
+                closePanel(true, 'x');
             });
 
             pinBtn.addEventListener('click', function () {
                 state.pinned = !state.pinned;
+
+                // Pinned mode should keep the full UI (mini off)
+                if (state.pinned) state.mini = false;
+
                 applyPinned();
+                applyMini();
 
                 // Pinning keeps it open and removes dim
                 if (state.pinned) {
@@ -689,15 +714,16 @@
             // Init
             applySide();
             applyPinned();
+            applyMini();
 
             if (state.activeStep) setActiveStep(state.activeStep);
 
             // Only reopen on load if pinned
             if (state.pinned) openPanel();
-            else closePanel(true);
+            else closePanel(true, 'init');
+
         });
     </script>
-
 
 </body>
 
