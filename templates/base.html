@@ -155,145 +155,145 @@
     {% endblock %}
 
     <!-- Steps A–Z: global onboarding panel -->
-    <button id="mkStepsToggle" class="mk-steps-toggle" type="button" aria-label="Open Quick Start">
-        <span class="mk-steps-dot" aria-hidden="true"></span>
-        <span class="mk-steps-toggle-text">Quick Start</span>
+    <button id="mk-qs-toggle" class="mk-qs-toggle" type="button" aria-controls="mk-quickstart" aria-expanded="false">
+        <span class="mk-qs-dot" aria-hidden="true"></span>
+        <span class="mk-qs-toggle-text">Quick Start</span>
     </button>
 
-    <div id="mkStepsBackdrop" class="mk-steps-backdrop" aria-hidden="true"></div>
+    <div id="mk-qs-overlay" class="mk-qs-overlay" hidden></div>
 
-    <aside id="mkStepsPanel" class="mk-steps-panel" aria-label="Quick Start">
-        <div class="mk-steps-header">
-            <div class="mk-steps-title">Quick Start (Steps A-Z)</div>
-            <div class="mk-steps-toolbar">
-                <button id="mkStepsPin" class="mk-steps-iconbtn" type="button" title="Pin">📌</button>
-                <button id="mkStepsSide" class="mk-steps-iconbtn" type="button" title="Swap side">⇄</button>
-                <button id="mkStepsClose" class="mk-steps-iconbtn" type="button" title="Close">✕</button>
+    <aside id="mk-quickstart" class="mk-qs-panel mk-qs-left" aria-hidden="true">
+        <div class="mk-qs-header">
+            <div class="mk-qs-title">Quick Start (Steps A-Z)</div>
+
+            <div class="mk-qs-actions">
+                <button id="mk-qs-pin" class="mk-qs-icon-btn" type="button" aria-pressed="false" title="Pin">
+                    📌
+                </button>
+                <button id="mk-qs-side" class="mk-qs-icon-btn" type="button" title="Swap side">
+                    ⇄
+                </button>
+                <button id="mk-qs-close" class="mk-qs-icon-btn" type="button" title="Close">
+                    ✕
+                </button>
             </div>
         </div>
 
-        <div class="mk-steps-body">
-            <div class="mk-steps-list">
-                <details class="mk-steps-step">
-                    <summary data-step="1">Explore MintKit</summary>
-                    <div class="mk-steps-content">
-                        <p class="mk-steps-muted">Explore MintKit Hub without signing up.</p>
-                        <ul>
-                            <li>Open <strong>Explore</strong> to see public storefronts.</li>
-                            <li>Check examples before creating one.</li>
-                        </ul>
-                    </div>
-                </details>
+        <div class="mk-qs-body">
+            <details class="mk-qs-step" data-step="1">
+                <summary><span class="mk-qs-num">1</span> Explore MintKit</summary>
+                <div class="mk-qs-step-body">
+                    <ul>
+                        <li>Browse <a href="{% url 'explore_storefronts' %}">Explore</a> without signing up.</li>
+                        <li>See what others have built.</li>
+                    </ul>
+                </div>
+            </details>
 
-                <details class="mk-steps-step">
-                    <summary data-step="2">Register / Login</summary>
-                    <div class="mk-steps-content">
-                        <ul>
-                            <li>Create an account to access storefront tools and Studio.</li>
-                            <li>After signup, go to <strong>Dashboard</strong>.</li>
-                        </ul>
-                    </div>
-                </details>
+            <details class="mk-qs-step" data-step="2">
+                <summary><span class="mk-qs-num">2</span> Register / Login</summary>
+                <div class="mk-qs-step-body">
+                    <ul>
+                        <li><a href="{% url 'account_signup' %}">Register</a> for a free account.</li>
+                        <li>Already have one? <a href="{% url 'account_login' %}">Sign in</a>.</li>
+                    </ul>
+                </div>
+            </details>
 
-                <details class="mk-steps-step">
-                    <summary data-step="3">Create your Storefront</summary>
-                    <div class="mk-steps-content">
-                        <ul>
-                            <li>Choose category + region</li>
-                            <li>Add logo (optional)</li>
-                            <li>Edit headline + description</li>
-                            <li>Add contact details</li>
-                            <li>Click <strong>Save storefront</strong></li>
-                        </ul>
-                    </div>
-                </details>
+            <details class="mk-qs-step" data-step="3">
+                <summary><span class="mk-qs-num">3</span> Create your Storefront</summary>
+                <div class="mk-qs-step-body">
+                    <ul>
+                        <li>Go to <a href="{% url 'storefront_edit' %}">My storefront</a> and fill in business details.
+                        </li>
+                        <li>Click <strong>Save storefront</strong>.</li>
+                    </ul>
+                </div>
+            </details>
 
-                <details class="mk-steps-step">
-                    <summary data-step="4">Style your Storefront (Layout Editor)</summary>
-                    <div class="mk-steps-content">
-                        <p class="mk-steps-muted">Best on laptop/desktop or tablet.</p>
-                        <ul>
-                            <li>Open <strong>Edit layout</strong> in the preview.</li>
-                            <li>Move / slightly resize / hide blocks.</li>
-                            <li>Use <strong>Fit</strong> to preview the full page.</li>
-                            <li>Click <strong>Save layout</strong>.</li>
-                        </ul>
-                    </div>
-                </details>
+            <details class="mk-qs-step" data-step="4">
+                <summary><span class="mk-qs-num">4</span> Style your Storefront</summary>
+                <div class="mk-qs-step-body">
+                    <ul>
+                        <li>Best on laptop/desktop or tablet.</li>
+                        <li>Open <strong>Edit layout</strong> in the preview.</li>
+                        <li>Move/resize/hide blocks → click <strong>Save layout</strong>.</li>
+                    </ul>
+                </div>
+            </details>
 
-                <details class="mk-steps-step">
-                    <summary data-step="5">Share your Storefront</summary>
-                    <div class="mk-steps-content">
-                        <ul>
-                            <li>Use copy/share buttons in <strong>My Storefront</strong>.</li>
-                            <li>To appear in Explore: enable <strong>Make my storefront public</strong> and save.</li>
-                        </ul>
-                    </div>
-                </details>
+            <details class="mk-qs-step" data-step="5">
+                <summary><span class="mk-qs-num">5</span> Share your Storefront</summary>
+                <div class="mk-qs-step-body">
+                    <ul>
+                        <li>Use copy/share buttons in <a href="{% url 'storefront_edit' %}">My storefront</a>.</li>
+                        <li>To appear in Explore: enable <strong>Make my storefront public</strong> →
+                            <strong>Save</strong>.</li>
+                    </ul>
+                </div>
+            </details>
 
-                <details class="mk-steps-step">
-                    <summary data-step="6">Start Trial</summary>
-                    <div class="mk-steps-content">
-                        <ul>
-                            <li>Go to <strong>Pricing</strong> or <strong>Dashboard</strong>.</li>
-                            <li>Click <strong>Start trial</strong> for Studio access.</li>
-                        </ul>
-                    </div>
-                </details>
+            <details class="mk-qs-step" data-step="6">
+                <summary><span class="mk-qs-num">6</span> Start Trial</summary>
+                <div class="mk-qs-step-body">
+                    <ul>
+                        <li>From <a href="{% url 'pricing' %}">Pricing</a> or <a
+                                href="{% url 'dashboard' %}">Dashboard</a>, click <strong>Start trial</strong>.</li>
+                    </ul>
+                </div>
+            </details>
 
-                <details class="mk-steps-step">
-                    <summary data-step="7">Open Studio</summary>
-                    <div class="mk-steps-content">
-                        <ul>
-                            <li>Open <strong>Studio</strong> from the navbar.</li>
-                            <li>Login uses <strong>Internet Identity</strong> (no password).</li>
-                        </ul>
-                    </div>
-                </details>
+            <details class="mk-qs-step" data-step="7">
+                <summary><span class="mk-qs-num">7</span> Open Studio</summary>
+                <div class="mk-qs-step-body">
+                    <ul>
+                        <li>Open <a href="{% url 'studio_redirect' %}">Studio</a>.</li>
+                        <li>Sign in with Internet Identity (no password).</li>
+                    </ul>
+                </div>
+            </details>
 
-                <details class="mk-steps-step">
-                    <summary data-step="8">Mint Cards in Studio</summary>
-                    <div class="mk-steps-content">
-                        <ul>
-                            <li>Create a <strong>Style</strong> (background + objects).</li>
-                            <li>Create a <strong>Collection</strong> (type, value, qty).</li>
-                            <li>Mint in the <strong>Mint</strong> tab.</li>
-                            <li>Manage in <strong>Manager</strong>.</li>
-                        </ul>
-                    </div>
-                </details>
+            <details class="mk-qs-step" data-step="8">
+                <summary><span class="mk-qs-num">8</span> Mint Cards in Studio</summary>
+                <div class="mk-qs-step-body">
+                    <ul>
+                        <li>Create a <strong>Style</strong>.</li>
+                        <li>Create a <strong>Collection</strong> (max 50 recommended).</li>
+                        <li>Mint in the <strong>Mint</strong> tab.</li>
+                        <li>Manage in <strong>Manager</strong>.</li>
+                    </ul>
+                </div>
+            </details>
 
-                <details class="mk-steps-step">
-                    <summary data-step="9">Send or Copy a Card</summary>
-                    <div class="mk-steps-content">
-                        <ul>
-                            <li>Use <strong>Send by Email</strong> in Manager.</li>
-                            <li>Or use <strong>Copy for MintKit Hub</strong>.</li>
-                        </ul>
-                    </div>
-                </details>
+            <details class="mk-qs-step" data-step="9">
+                <summary><span class="mk-qs-num">9</span> Send or Copy a Card</summary>
+                <div class="mk-qs-step-body">
+                    <ul>
+                        <li>Use <strong>Send by Email</strong> in Manager.</li>
+                        <li>Or use <strong>Copy for MintKit Hub</strong>.</li>
+                    </ul>
+                </div>
+            </details>
 
-                <details class="mk-steps-step">
-                    <summary data-step="10">Link Cards to your Storefront</summary>
-                    <div class="mk-steps-content">
-                        <ul>
-                            <li>Go to <strong>My Storefront</strong> → Featured digital cards.</li>
-                            <li>Click <strong>Paste from Studio</strong>.</li>
-                            <li>Add description + buy/details link.</li>
-                        </ul>
-                    </div>
-                </details>
+            <details class="mk-qs-step" data-step="10">
+                <summary><span class="mk-qs-num">10</span> Link Cards to your Storefront</summary>
+                <div class="mk-qs-step-body">
+                    <ul>
+                        <li>Go to <a href="{% url 'storefront_edit' %}">My storefront</a> → <strong>Featured digital
+                                cards</strong>.</li>
+                        <li>Click <strong>Paste from Studio</strong> → add description + buy link.</li>
+                    </ul>
+                </div>
+            </details>
 
-                <details class="mk-steps-step">
-                    <summary data-step="11">Add a Buy Link (Stripe)</summary>
-                    <div class="mk-steps-content">
-                        <ul>
-                            <li>Create Stripe Payment Link and paste the URL.</li>
-                            <li>Use Stripe <strong>Test mode</strong> while learning.</li>
-                        </ul>
-                    </div>
-                </details>
-            </div>
+            <details class="mk-qs-step" data-step="11">
+                <summary><span class="mk-qs-num">11</span> Add a Buy Link (Stripe)</summary>
+                <div class="mk-qs-step-body">
+                    <ul>
+                        <li>Create a Stripe Payment Link and paste it into the card.</li>
+                    </ul>
+                </div>
+            </details>
         </div>
     </aside>
 
