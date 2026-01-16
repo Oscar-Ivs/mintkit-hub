@@ -194,8 +194,9 @@
                 <summary><span class="mk-qs-num">2</span> Register / Login</summary>
                 <div class="mk-qs-step-body">
                     <ul>
-                        <li><a href="{% url 'account_signup' %}">Register</a> for a free account.</li>
-                        <li>Already have one? <a href="{% url 'account_login' %}">Sign in</a>.</li>
+                        <li><a href="{% url 'register' %}">Register</a> for a free account.</li>
+                        <li>Already have one? <a href="{% url 'login' %}">Sign in</a>.</li>
+
                     </ul>
                 </div>
             </details>
@@ -204,7 +205,7 @@
                 <summary><span class="mk-qs-num">3</span> Create your Storefront</summary>
                 <div class="mk-qs-step-body">
                     <ul>
-                        <li>Go to <a href="{% url 'storefront_edit' %}">My storefront</a> and fill in business details.
+                        <li>Go to <a href="{% url 'my_storefront' %}">My storefront</a> and fill in business details.
                         </li>
                         <li>Click <strong>Save storefront</strong>.</li>
                     </ul>
@@ -226,9 +227,10 @@
                 <summary><span class="mk-qs-num">5</span> Share your Storefront</summary>
                 <div class="mk-qs-step-body">
                     <ul>
-                        <li>Use copy/share buttons in <a href="{% url 'storefront_edit' %}">My storefront</a>.</li>
+                        <li>Use copy/share buttons in <a href="{% url 'my_storefront' %}">My storefront</a>.</li>
                         <li>To appear in Explore: enable <strong>Make my storefront public</strong> →
-                            <strong>Save</strong>.</li>
+                            <strong>Save</strong>.
+                        </li>
                     </ul>
                 </div>
             </details>
@@ -247,7 +249,7 @@
                 <summary><span class="mk-qs-num">7</span> Open Studio</summary>
                 <div class="mk-qs-step-body">
                     <ul>
-                        <li>Open <a href="{% url 'studio_redirect' %}">Studio</a>.</li>
+                        <li>Open <a href="{% url 'studio' %}">Studio</a>.</li>
                         <li>Sign in with Internet Identity (no password).</li>
                     </ul>
                 </div>
@@ -279,7 +281,7 @@
                 <summary><span class="mk-qs-num">10</span> Link Cards to your Storefront</summary>
                 <div class="mk-qs-step-body">
                     <ul>
-                        <li>Go to <a href="{% url 'storefront_edit' %}">My storefront</a> → <strong>Featured digital
+                        <li>Go to <a href="{% url 'my_storefront' %}">My storefront</a> → <strong>Featured digital
                                 cards</strong>.</li>
                         <li>Click <strong>Paste from Studio</strong> → add description + buy link.</li>
                     </ul>
