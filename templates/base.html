@@ -604,8 +604,82 @@
                 closePanel();
             }
         })();
+        (function () {
+            const toggleBtn = document.getElementById("mkStepsToggle");
+            const panel = document.getElementById("mkStepsPanel");
+            const backdrop = document.getElementById("mkStepsBackdrop");
+            const pinBtn = document.getElementById("mkStepsPin");
+            const sideBtn = document.getElementById("mkStepsSide");
+            const closeBtn = document.getElementById("mkStepsClose");
 
-        
+            if (!toggleBtn || !panel || !backdrop || !pinBtn || !sideBtn || !closeBtn) return;
+
+            let isOpen = false;
+            let isPinned = false;
+            let side = localStorage.getItem("mkStepsSide") || "left";
+
+            function applyState() {
+                panel.classList.toggle("is-open", isOpen);
+                panel.classList.toggle("is-right", side === "right");
+
+                pinBtn.classList.toggle("is-active", isPinned);
+
+                backdrop.classList.toggle("is-open", isOpen && !isPinned);
+
+                // Toggle button stays visible (user can reopen easily if closed)
+                // If preferred to hide while open, swap to: toggleBtn.style.display = isOpen ? "none" : "inline-flex";
+                toggleBtn.style.display = "inline-flex";
+            }
+
+            function openPanel() {
+                isOpen = true;
+                applyState();
+            }
+
+            function closePanel() {
+                isOpen = false;
+                isPinned = false;
+                applyState();
+            }
+
+            toggleBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                openPanel();
+            });
+
+            closeBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                closePanel();
+            });
+
+            pinBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                isPinned = !isPinned;
+                // If pin is turned on, ensure panel is open
+                if (isPinned) isOpen = true;
+                applyState();
+            });
+
+            sideBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                side = side === "left" ? "right" : "left";
+                localStorage.setItem("mkStepsSide", side);
+                applyState();
+            });
+
+            // Click outside closes only when NOT pinned
+            backdrop.addEventListener("click", function () {
+                if (!isPinned) closePanel();
+            });
+
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape" && isOpen && !isPinned) closePanel();
+            });
+
+            // Start closed (not pinned)
+            applyState();
+        })();
+
     </script>
 
 </body>
