@@ -509,7 +509,7 @@
             requestAnimationFrame(positionFloatingRightBurger);
         })();
     </script>
-  <script>
+<script>
 document.addEventListener('DOMContentLoaded', function () {
   const KEY = 'mk_quickstart_state_v1';
 
@@ -546,6 +546,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const applyPinned = () => {
     pinBtn.classList.toggle('is-active', !!state.pinned);
     pinBtn.setAttribute('aria-pressed', state.pinned ? 'true' : 'false');
+
+    // 🔥 Allows CSS like: body.mk-qs-pinned .mk-qs-step[open] { background: rgba(...,0.30); }
+    document.body.classList.toggle('mk-qs-pinned', !!state.pinned);
   };
 
   const openPanel = () => {
@@ -555,11 +558,7 @@ document.addEventListener('DOMContentLoaded', function () {
     toggleBtn.setAttribute('aria-expanded', 'true');
     document.body.classList.add('mk-qs-open');
 
-    if (state.pinned) {
-      overlay.hidden = true;
-    } else {
-      overlay.hidden = false;
-    }
+    overlay.hidden = !!state.pinned;
 
     writeState(state);
   };
@@ -634,6 +633,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   pinBtn.addEventListener('click', function () {
     state.pinned = !state.pinned;
+
     applyPinned();
 
     // When pinned, keep open + remove dim

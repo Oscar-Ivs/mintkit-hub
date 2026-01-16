@@ -3507,7 +3507,6 @@ body.sf-editor-lock {
 /* ---------------------------
    Steps A–Z slide-out panel
    --------------------------- */
-/* Quick Start (Steps A–Z) — MintKit Hub style */
 
 .mk-qs-toggle {
   position: fixed;
@@ -3536,7 +3535,7 @@ body.sf-editor-lock {
 }
 
 .mk-qs-toggle-text {
-  font-weight: 600;
+  font-weight: 400;
   color: rgba(15, 23, 42, 0.9);
   font-size: 0.95rem;
 }
@@ -3563,7 +3562,7 @@ body.mk-qs-open .mk-qs-toggle {
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.08);
 
-  background: rgba(245, 247, 251, 0.70);
+  background: rgba(245, 247, 251, 0.01);
   backdrop-filter: blur(10px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
 
@@ -3593,7 +3592,7 @@ body.mk-qs-open .mk-qs-toggle {
 }
 
 .mk-qs-title {
-  font-weight: 700;
+  font-weight: 660;
   letter-spacing: -0.01em;
 }
 
@@ -3607,7 +3606,7 @@ body.mk-qs-open .mk-qs-toggle {
   height: 36px;
   border-radius: 10px;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
 }
 
@@ -3622,7 +3621,7 @@ body.mk-qs-open .mk-qs-toggle {
 }
 
 .mk-qs-step {
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.25);
   border: 1px solid rgba(47, 95, 168, 0.20);
   border-radius: 14px;
   padding: 10px;
@@ -3635,7 +3634,7 @@ body.mk-qs-open .mk-qs-toggle {
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
 }
 .mk-qs-step > summary::-webkit-details-marker { display: none; }
 
@@ -3646,7 +3645,7 @@ body.mk-qs-open .mk-qs-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 600;
 
   background: rgba(47, 95, 168, 0.12);
   border: 1px solid rgba(47, 95, 168, 0.25);
@@ -3675,4 +3674,20 @@ body.mk-qs-open .mk-qs-toggle {
 
 .mk-qs-step-body a:hover {
   color: var(--mk-link-hover);
+}
+
+/* Smaller toggle (about -15% to -20%) */
+.mk-qs-toggle{
+  padding: 8px 10px;   /* was 10px 12px */
+  gap: 8px;            /* was 10px */
+}
+
+.mk-qs-dot{
+  width: 10px;         /* was 12px */
+  height: 10px;        /* was 12px */
+  box-shadow: 0 0 0 3px rgba(47, 95, 168, 0.15); /* was 4px ring */
+}
+
+.mk-qs-toggle-text{
+  font-size: 0.85rem;  /* was 0.95rem */
 }
