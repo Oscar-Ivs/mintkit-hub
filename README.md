@@ -295,6 +295,65 @@ The list below separates **core MVP features** (for this project) from **future 
 - Useful list/filter options in the admin to help with support (e.g. filter by subscription status).
 - Basic error or info messages where appropriate (e.g. when a non-subscribed user tries to access subscriber-only features).
 
+
+---
+
+### Quick Start (Steps A–Z) Sidebar (Global Onboarding Panel)
+
+A small **global onboarding sidebar** is available from every page (rendered from `base.html`).  
+It helps first-time users follow the main flow: Explore → Register → Storefront → Trial → Studio → Mint → Link cards → Stripe buy link.
+
+#### Purpose
+- Reduce onboarding friction for new users
+- Provide a “sticky” step-by-step guide while users navigate pages
+- Improve usability for assessors and non-technical testers
+
+#### Key Features
+- **Toggle button** (“Quick Start”) opens the panel
+- **Overlay dim** when the panel is open (only when not pinned)
+- **Pin mode** (📌) keeps the panel open and removes dimming
+- **Swap side** (⇄) moves the panel left/right
+- **Accordion steps** (only one step open at a time)
+- **Persists user preference** with `localStorage`:
+  - pinned state
+  - panel side
+  - last opened step
+
+#### Where it lives (project files)
+- **HTML markup (global)**: `templates/base.html`  
+  - Toggle button + overlay + `<aside>` panel with `<details>` steps
+- **CSS styling**: `static/css/style.css`  
+  - Uses translucent backgrounds + `backdrop-filter` for a modern “glass” feel
+- **JavaScript logic (vanilla JS)**: inline `<script>` in `templates/base.html`  
+  - Uses standard DOM APIs (`querySelector`, `classList`, event listeners)
+  - Uses `window.localStorage` to persist pinned/side/active step
+
+#### Implementation Notes
+- The panel markup uses IDs/classes like:
+  - `#mk-qs-toggle`, `#mk-qs-overlay`, `#mk-quickstart`
+  - `.mk-qs-panel`, `.mk-qs-step`, `.mk-qs-num`
+- The persisted state is stored under:
+  - `localStorage` key: `mk_quickstart_state_v1`
+- **Important behaviour rule:**  
+  - Only **pinned** should remain open across page changes/refreshes.  
+  - If not pinned, the panel should remain closed unless the user opens it.
+
+#### Customisation tips
+- **Overall panel transparency** is controlled by the CSS `background: rgba(...)` on:
+  - `.mk-qs-panel` (panel container)
+  - `.mk-qs-step` (each step card)
+- Pinned-only styling can be targeted via:
+  - `body.mk-qs-pinned ...` (the JS toggles this class)
+
+#### Accessibility
+- Toggle button uses `aria-controls` and `aria-expanded`
+- Panel uses `aria-hidden`
+- Pin button uses `aria-pressed`
+
+#### Source / attribution
+- Custom script written for this project using standard Web APIs and patterns.
+- Reference material: MDN Web Docs (DOM events, `classList`, `localStorage`, ARIA attributes).
+
 ---
 
 ### Future / Stretch Features (Out of Scope for MVP)
