@@ -532,11 +532,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   };
 
-  const writeState = (next) => {
-    try { localStorage.setItem(KEY, JSON.stringify(next)); } catch (e) {}
+  const writeState = () => {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
   };
 
   let state = readState();
+
+  // Only pinned should persist open across page loads
+  state.open = !!state.pinned;
 
   const applySide = () => {
     panel.classList.remove('mk-qs-left', 'mk-qs-right');
@@ -547,12 +550,13 @@ document.addEventListener('DOMContentLoaded', function () {
     pinBtn.classList.toggle('is-active', !!state.pinned);
     pinBtn.setAttribute('aria-pressed', state.pinned ? 'true' : 'false');
 
-    // 🔥 Allows CSS like: body.mk-qs-pinned .mk-qs-step[open] { background: rgba(...,0.30); }
+    // Enables pinned-only styling hooks in CSS (optional)
     document.body.classList.toggle('mk-qs-pinned', !!state.pinned);
   };
 
   const openPanel = () => {
     state.open = true;
+
     panel.classList.add('mk-qs-visible');
     panel.setAttribute('aria-hidden', 'false');
     toggleBtn.setAttribute('aria-expanded', 'true');
@@ -560,20 +564,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     overlay.hidden = !!state.pinned;
 
-    writeState(state);
+    writeState();
   };
 
   const closePanel = (force) => {
     if (state.pinned && !force) return;
 
     state.open = false;
+
     panel.classList.remove('mk-qs-visible');
     panel.setAttribute('aria-hidden', 'true');
     toggleBtn.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('mk-qs-open');
     overlay.hidden = true;
 
-    writeState(state);
+    writeState();
   };
 
   const setActiveStep = (stepValue) => {
@@ -582,15 +587,17 @@ document.addEventListener('DOMContentLoaded', function () {
       d.open = isTarget;
     });
     state.activeStep = stepValue;
-    writeState(state);
+    writeState();
   };
 
   steps.forEach((details) => {
     details.addEventListener('toggle', function () {
+      const stepId = details.getAttribute('data-step');
+
       if (!details.open) {
-        if (state.activeStep === details.getAttribute('data-step')) {
+        if (state.activeStep === stepId) {
           state.activeStep = null;
-          writeState(state);
+          writeState();
         }
         return;
       }
@@ -600,8 +607,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (d !== details) d.open = false;
       });
 
-      state.activeStep = details.getAttribute('data-step');
-      writeState(state);
+      state.activeStep = stepId;
+      writeState();
     });
   });
 
@@ -623,37 +630,38 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   toggleBtn.addEventListener('click', function () {
-    if (state.open) closePanel(true);
+    if (panel.classList.contains('mk-qs-visible')) closePanel(true);
     else openPanel();
   });
 
+  // X closes AND unpins, so it won't auto-return on refresh
   closeBtn.addEventListener('click', function () {
+    state.pinned = false;
+    applyPinned();
     closePanel(true);
   });
 
   pinBtn.addEventListener('click', function () {
     state.pinned = !state.pinned;
-
     applyPinned();
 
-    // When pinned, keep open + remove dim
+    // Pinning keeps it open and removes dim
     if (state.pinned) {
       state.open = true;
-      overlay.hidden = true;
       openPanel();
     } else {
-      // Unpinned keeps open, but dim returns
+      // Unpinned stays open, but dim returns
       overlay.hidden = false;
       openPanel();
     }
 
-    writeState(state);
+    writeState();
   });
 
   sideBtn.addEventListener('click', function () {
     state.side = state.side === 'right' ? 'left' : 'right';
     applySide();
-    writeState(state);
+    writeState();
   });
 
   // Init
@@ -662,10 +670,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (state.activeStep) setActiveStep(state.activeStep);
 
-  if (state.pinned || state.open) openPanel();
+  // Only reopen on load if pinned
+  if (state.pinned) openPanel();
   else closePanel(true);
 });
 </script>
+
 
 </body>
 

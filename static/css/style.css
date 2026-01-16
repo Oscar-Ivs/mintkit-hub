@@ -3549,7 +3549,7 @@ body.mk-qs-open .mk-qs-toggle {
   position: fixed;
   inset: 0;
   z-index: 1190;
-  background: rgba(2, 6, 23, 0.25);
+  background: rgba(2, 6, 23, 0.10);
 }
 
 .mk-qs-panel {
@@ -3558,7 +3558,7 @@ body.mk-qs-open .mk-qs-toggle {
   bottom: 16px;
   z-index: 1200;
 
-  width: min(340px, 92vw);
+  width: min(300px, 90vw);
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.08);
 
@@ -3621,7 +3621,7 @@ body.mk-qs-open .mk-qs-toggle {
 }
 
 .mk-qs-step {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(47, 95, 168, 0.20);
   border-radius: 14px;
   padding: 10px;
