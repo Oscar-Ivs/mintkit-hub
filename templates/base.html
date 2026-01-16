@@ -294,6 +294,28 @@
                     <ul>
                         <li>Create a Stripe Payment Link and paste it into the card.</li>
                     </ul>
+                    <details class="mk-qs-substep">
+                        <summary class="mk-qs-more">+ More info (Stripe Payment Link)</summary>
+                        <div class="mk-qs-step-body">
+                            <p><strong>🚀 How to get your Stripe Link:</strong></p>
+                            <ol class="mk-qs-ol">
+                                <li>Log in to your Stripe Dashboard.</li>
+                                <li>Go to <strong>More → Payment Links</strong> (or search “Payment Links”).</li>
+                                <li>Click <strong>+ New</strong> to create a product and set your price.</li>
+                                <li>Click <strong>Create Link</strong> (top right).</li>
+                                <li>Copy the URL (e.g. <code>https://buy.stripe.com/...</code>) and paste it into the
+                                    <strong>Buy / Details link</strong> field.</li>
+                            </ol>
+
+                            <p class="mk-qs-links">
+                                <strong>Official guide:</strong> <a href="https://docs.stripe.com/no-code/payment-links"
+                                    target="_blank" rel="noopener">Stripe Payment Links</a><br>
+                                <strong>Video:</strong> <a href="https://youtu.be/xDZclzTXY_8" target="_blank"
+                                    rel="noopener">YouTube walkthrough</a>
+                            </p>
+                        </div>
+                    </details>
+
                 </div>
             </details>
         </div>
@@ -509,172 +531,172 @@
             requestAnimationFrame(positionFloatingRightBurger);
         })();
     </script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const KEY = 'mk_quickstart_state_v1';
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const KEY = 'mk_quickstart_state_v1';
 
-  const toggleBtn = document.getElementById('mk-qs-toggle');
-  const panel = document.getElementById('mk-quickstart');
-  const overlay = document.getElementById('mk-qs-overlay');
-  const pinBtn = document.getElementById('mk-qs-pin');
-  const sideBtn = document.getElementById('mk-qs-side');
-  const closeBtn = document.getElementById('mk-qs-close');
-  const steps = panel ? Array.from(panel.querySelectorAll('.mk-qs-step')) : [];
+            const toggleBtn = document.getElementById('mk-qs-toggle');
+            const panel = document.getElementById('mk-quickstart');
+            const overlay = document.getElementById('mk-qs-overlay');
+            const pinBtn = document.getElementById('mk-qs-pin');
+            const sideBtn = document.getElementById('mk-qs-side');
+            const closeBtn = document.getElementById('mk-qs-close');
+            const steps = panel ? Array.from(panel.querySelectorAll('.mk-qs-step')) : [];
 
-  if (!toggleBtn || !panel || !overlay || !pinBtn || !sideBtn || !closeBtn) return;
+            if (!toggleBtn || !panel || !overlay || !pinBtn || !sideBtn || !closeBtn) return;
 
-  const readState = () => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      return raw ? JSON.parse(raw) : { open: false, pinned: false, side: 'left', activeStep: null };
-    } catch (e) {
-      return { open: false, pinned: false, side: 'left', activeStep: null };
-    }
-  };
+            const readState = () => {
+                try {
+                    const raw = localStorage.getItem(KEY);
+                    return raw ? JSON.parse(raw) : { open: false, pinned: false, side: 'left', activeStep: null };
+                } catch (e) {
+                    return { open: false, pinned: false, side: 'left', activeStep: null };
+                }
+            };
 
-  const writeState = () => {
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
-  };
+            const writeState = () => {
+                try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { }
+            };
 
-  let state = readState();
+            let state = readState();
 
-  // Only pinned should persist open across page loads
-  state.open = !!state.pinned;
+            // Only pinned should persist open across page loads
+            state.open = !!state.pinned;
 
-  const applySide = () => {
-    panel.classList.remove('mk-qs-left', 'mk-qs-right');
-    panel.classList.add(state.side === 'right' ? 'mk-qs-right' : 'mk-qs-left');
-  };
+            const applySide = () => {
+                panel.classList.remove('mk-qs-left', 'mk-qs-right');
+                panel.classList.add(state.side === 'right' ? 'mk-qs-right' : 'mk-qs-left');
+            };
 
-  const applyPinned = () => {
-    pinBtn.classList.toggle('is-active', !!state.pinned);
-    pinBtn.setAttribute('aria-pressed', state.pinned ? 'true' : 'false');
+            const applyPinned = () => {
+                pinBtn.classList.toggle('is-active', !!state.pinned);
+                pinBtn.setAttribute('aria-pressed', state.pinned ? 'true' : 'false');
 
-    // Enables pinned-only styling hooks in CSS (optional)
-    document.body.classList.toggle('mk-qs-pinned', !!state.pinned);
-  };
+                // Enables pinned-only styling hooks in CSS (optional)
+                document.body.classList.toggle('mk-qs-pinned', !!state.pinned);
+            };
 
-  const openPanel = () => {
-    state.open = true;
+            const openPanel = () => {
+                state.open = true;
 
-    panel.classList.add('mk-qs-visible');
-    panel.setAttribute('aria-hidden', 'false');
-    toggleBtn.setAttribute('aria-expanded', 'true');
-    document.body.classList.add('mk-qs-open');
+                panel.classList.add('mk-qs-visible');
+                panel.setAttribute('aria-hidden', 'false');
+                toggleBtn.setAttribute('aria-expanded', 'true');
+                document.body.classList.add('mk-qs-open');
 
-    overlay.hidden = !!state.pinned;
+                overlay.hidden = !!state.pinned;
 
-    writeState();
-  };
+                writeState();
+            };
 
-  const closePanel = (force) => {
-    if (state.pinned && !force) return;
+            const closePanel = (force) => {
+                if (state.pinned && !force) return;
 
-    state.open = false;
+                state.open = false;
 
-    panel.classList.remove('mk-qs-visible');
-    panel.setAttribute('aria-hidden', 'true');
-    toggleBtn.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('mk-qs-open');
-    overlay.hidden = true;
+                panel.classList.remove('mk-qs-visible');
+                panel.setAttribute('aria-hidden', 'true');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+                document.body.classList.remove('mk-qs-open');
+                overlay.hidden = true;
 
-    writeState();
-  };
+                writeState();
+            };
 
-  const setActiveStep = (stepValue) => {
-    steps.forEach((d) => {
-      const isTarget = d.getAttribute('data-step') === stepValue;
-      d.open = isTarget;
-    });
-    state.activeStep = stepValue;
-    writeState();
-  };
+            const setActiveStep = (stepValue) => {
+                steps.forEach((d) => {
+                    const isTarget = d.getAttribute('data-step') === stepValue;
+                    d.open = isTarget;
+                });
+                state.activeStep = stepValue;
+                writeState();
+            };
 
-  steps.forEach((details) => {
-    details.addEventListener('toggle', function () {
-      const stepId = details.getAttribute('data-step');
+            steps.forEach((details) => {
+                details.addEventListener('toggle', function () {
+                    const stepId = details.getAttribute('data-step');
 
-      if (!details.open) {
-        if (state.activeStep === stepId) {
-          state.activeStep = null;
-          writeState();
-        }
-        return;
-      }
+                    if (!details.open) {
+                        if (state.activeStep === stepId) {
+                            state.activeStep = null;
+                            writeState();
+                        }
+                        return;
+                    }
 
-      // Accordion: only one open at a time
-      steps.forEach((d) => {
-        if (d !== details) d.open = false;
-      });
+                    // Accordion: only one open at a time
+                    steps.forEach((d) => {
+                        if (d !== details) d.open = false;
+                    });
 
-      state.activeStep = stepId;
-      writeState();
-    });
-  });
+                    state.activeStep = stepId;
+                    writeState();
+                });
+            });
 
-  // Close when clicking outside (only when not pinned)
-  overlay.addEventListener('click', function () {
-    closePanel(false);
-  });
+            // Close when clicking outside (only when not pinned)
+            overlay.addEventListener('click', function () {
+                closePanel(false);
+            });
 
-  // ESC closes (only when not pinned)
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closePanel(false);
-  });
+            // ESC closes (only when not pinned)
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closePanel(false);
+            });
 
-  // Close after clicking a link inside (only when not pinned)
-  panel.querySelectorAll('a').forEach((a) => {
-    a.addEventListener('click', function () {
-      closePanel(false);
-    });
-  });
+            // Close after clicking a link inside (only when not pinned)
+            panel.querySelectorAll('a').forEach((a) => {
+                a.addEventListener('click', function () {
+                    closePanel(false);
+                });
+            });
 
-  toggleBtn.addEventListener('click', function () {
-    if (panel.classList.contains('mk-qs-visible')) closePanel(true);
-    else openPanel();
-  });
+            toggleBtn.addEventListener('click', function () {
+                if (panel.classList.contains('mk-qs-visible')) closePanel(true);
+                else openPanel();
+            });
 
-  // X closes AND unpins, so it won't auto-return on refresh
-  closeBtn.addEventListener('click', function () {
-    state.pinned = false;
-    applyPinned();
-    closePanel(true);
-  });
+            // X closes AND unpins, so it won't auto-return on refresh
+            closeBtn.addEventListener('click', function () {
+                state.pinned = false;
+                applyPinned();
+                closePanel(true);
+            });
 
-  pinBtn.addEventListener('click', function () {
-    state.pinned = !state.pinned;
-    applyPinned();
+            pinBtn.addEventListener('click', function () {
+                state.pinned = !state.pinned;
+                applyPinned();
 
-    // Pinning keeps it open and removes dim
-    if (state.pinned) {
-      state.open = true;
-      openPanel();
-    } else {
-      // Unpinned stays open, but dim returns
-      overlay.hidden = false;
-      openPanel();
-    }
+                // Pinning keeps it open and removes dim
+                if (state.pinned) {
+                    state.open = true;
+                    openPanel();
+                } else {
+                    // Unpinned stays open, but dim returns
+                    overlay.hidden = false;
+                    openPanel();
+                }
 
-    writeState();
-  });
+                writeState();
+            });
 
-  sideBtn.addEventListener('click', function () {
-    state.side = state.side === 'right' ? 'left' : 'right';
-    applySide();
-    writeState();
-  });
+            sideBtn.addEventListener('click', function () {
+                state.side = state.side === 'right' ? 'left' : 'right';
+                applySide();
+                writeState();
+            });
 
-  // Init
-  applySide();
-  applyPinned();
+            // Init
+            applySide();
+            applyPinned();
 
-  if (state.activeStep) setActiveStep(state.activeStep);
+            if (state.activeStep) setActiveStep(state.activeStep);
 
-  // Only reopen on load if pinned
-  if (state.pinned) openPanel();
-  else closePanel(true);
-});
-</script>
+            // Only reopen on load if pinned
+            if (state.pinned) openPanel();
+            else closePanel(true);
+        });
+    </script>
 
 
 </body>

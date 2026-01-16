@@ -3689,5 +3689,27 @@ body.mk-qs-open .mk-qs-toggle {
 }
 
 .mk-qs-toggle-text{
-  font-size: 0.85rem;  /* was 0.95rem */
+  font-size: 0.8rem;  /* was 0.95rem */
+}
+/* Sub-steps inside main step #11 */
+.mk-qs-more {
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.mk-qs-substep {
+  margin-top: 8px;
+  border: 1px dashed rgba(47, 95, 168, 0.25);
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.mk-qs-ol {
+  margin: 8px 0 0 18px;
+}
+
+.mk-qs-links {
+  margin-top: 10px;
 }
