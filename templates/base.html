@@ -155,156 +155,145 @@
     {% endblock %}
 
     <!-- Steps A–Z: global onboarding panel -->
-    <button id="mkStepsToggle" class="mk-steps-toggle" type="button" aria-controls="mkStepsPanel" aria-expanded="false">
-        Steps A-Z
+    <button id="mkStepsToggle" class="mk-steps-toggle" type="button" aria-label="Open Quick Start">
+        <span class="mk-steps-dot" aria-hidden="true"></span>
+        <span class="mk-steps-toggle-text">Quick Start</span>
     </button>
 
-    <aside id="mkStepsPanel" class="mk-steps-panel" hidden>
+    <div id="mkStepsBackdrop" class="mk-steps-backdrop" aria-hidden="true"></div>
+
+    <aside id="mkStepsPanel" class="mk-steps-panel" aria-label="Quick Start">
         <div class="mk-steps-header">
             <div class="mk-steps-title">Quick Start (Steps A-Z)</div>
-
-            <div class="mk-steps-actions">
-                <button id="mkStepsPin" class="mk-steps-iconbtn" type="button" aria-pressed="false" title="Pin panel">
-                    📌
-                </button>
-                <button id="mkStepsFlip" class="mk-steps-iconbtn" type="button" aria-pressed="false"
-                    title="Move panel left/right">
-                    ⇄
-                </button>
-                <button id="mkStepsClose" class="mk-steps-iconbtn" type="button" aria-label="Close">
-                    ✕
-                </button>
+            <div class="mk-steps-toolbar">
+                <button id="mkStepsPin" class="mk-steps-iconbtn" type="button" title="Pin">📌</button>
+                <button id="mkStepsSide" class="mk-steps-iconbtn" type="button" title="Swap side">⇄</button>
+                <button id="mkStepsClose" class="mk-steps-iconbtn" type="button" title="Close">✕</button>
             </div>
         </div>
 
         <div class="mk-steps-body">
-            <details class="mk-step">
-                <summary>1) Explore MintKit</summary>
-                <div class="mk-step-content">
-                    Explore MintKit Hub without signing up.
-                    <div class="mk-step-kicker">
-                        Go to <a href="{% url 'explore_storefronts' %}">Explore</a> to see public storefronts.
+            <div class="mk-steps-list">
+                <details class="mk-steps-step">
+                    <summary data-step="1">Explore MintKit</summary>
+                    <div class="mk-steps-content">
+                        <p class="mk-steps-muted">Explore MintKit Hub without signing up.</p>
+                        <ul>
+                            <li>Open <strong>Explore</strong> to see public storefronts.</li>
+                            <li>Check examples before creating one.</li>
+                        </ul>
                     </div>
-                </div>
-            </details>
+                </details>
 
-            <details class="mk-step">
-                <summary>2) Register / Login</summary>
-                <div class="mk-step-content">
-                    Create a free account to build your storefront. Email is required for sending card links.
-                    <div class="mk-step-kicker">
-                        <a href="{% url 'register' %}">Register</a> · <a href="{% url 'login' %}">Login</a>
+                <details class="mk-steps-step">
+                    <summary data-step="2">Register / Login</summary>
+                    <div class="mk-steps-content">
+                        <ul>
+                            <li>Create an account to access storefront tools and Studio.</li>
+                            <li>After signup, go to <strong>Dashboard</strong>.</li>
+                        </ul>
                     </div>
-                </div>
-            </details>
+                </details>
 
-            <details class="mk-step">
-                <summary>3) Create your Storefront</summary>
-                <div class="mk-step-content">
-                    In <b>My Storefront</b> fill in:
-                    <ul>
-                        <li>Business Category & Region</li>
-                        <li>Logo (optional), headline, description</li>
-                        <li>Contact details</li>
-                        <li>Click <b>Save storefront</b></li>
-                    </ul>
-                    <div class="mk-step-kicker">
-                        <a href="{% url 'my_storefront' %}">My Storefront</a>
+                <details class="mk-steps-step">
+                    <summary data-step="3">Create your Storefront</summary>
+                    <div class="mk-steps-content">
+                        <ul>
+                            <li>Choose category + region</li>
+                            <li>Add logo (optional)</li>
+                            <li>Edit headline + description</li>
+                            <li>Add contact details</li>
+                            <li>Click <strong>Save storefront</strong></li>
+                        </ul>
                     </div>
-                </div>
-            </details>
+                </details>
 
-            <details class="mk-step">
-                <summary>4) Style your Storefront (Layout Editor)</summary>
-                <div class="mk-step-content">
-                    Best on laptop/desktop or tablet.
-                    <ul>
-                        <li>Open <b>Edit layout</b> in the preview</li>
-                        <li>Move / resize slightly / hide blocks</li>
-                        <li>Use <b>Fit</b> to preview overall page</li>
-                        <li>Click <b>Save layout</b></li>
-                    </ul>
-                </div>
-            </details>
-
-            <details class="mk-step">
-                <summary>5) Share your Storefront</summary>
-                <div class="mk-step-content">
-                    Use the Copy/Share buttons in <b>My Storefront</b>.
-                    <ul>
-                        <li>To appear in Explore, enable <b>Make my storefront public</b></li>
-                        <li>Click <b>Save storefront</b></li>
-                    </ul>
-                </div>
-            </details>
-
-            <details class="mk-step">
-                <summary>6) Start Trial</summary>
-                <div class="mk-step-content">
-                    Start a 14-day trial from Dashboard or Pricing to unlock Studio tools.
-                    <div class="mk-step-kicker">
-                        <a href="{% url 'pricing' %}">Pricing</a> · <a href="{% url 'dashboard' %}">Dashboard</a>
+                <details class="mk-steps-step">
+                    <summary data-step="4">Style your Storefront (Layout Editor)</summary>
+                    <div class="mk-steps-content">
+                        <p class="mk-steps-muted">Best on laptop/desktop or tablet.</p>
+                        <ul>
+                            <li>Open <strong>Edit layout</strong> in the preview.</li>
+                            <li>Move / slightly resize / hide blocks.</li>
+                            <li>Use <strong>Fit</strong> to preview the full page.</li>
+                            <li>Click <strong>Save layout</strong>.</li>
+                        </ul>
                     </div>
-                </div>
-            </details>
+                </details>
 
-            <details class="mk-step">
-                <summary>7) Open Studio</summary>
-                <div class="mk-step-content">
-                    Studio lets you create and manage gift cards, tickets, and vouchers, send by email, and redeem via
-                    QR/manual code.
-                    <div class="mk-step-kicker">
-                        <a href="{% url 'studio' %}">Open Studio</a>
+                <details class="mk-steps-step">
+                    <summary data-step="5">Share your Storefront</summary>
+                    <div class="mk-steps-content">
+                        <ul>
+                            <li>Use copy/share buttons in <strong>My Storefront</strong>.</li>
+                            <li>To appear in Explore: enable <strong>Make my storefront public</strong> and save.</li>
+                        </ul>
                     </div>
-                </div>
-            </details>
+                </details>
 
-            <details class="mk-step">
-                <summary>8) Mint Cards in Studio</summary>
-                <div class="mk-step-content">
-                    <ul>
-                        <li><b>Style Editor</b>: create a card style</li>
-                        <li><b>Collections</b>: create a collection (max 50)</li>
-                        <li><b>Mint</b>: mint the amount you need (you can mint more later)</li>
-                        <li><b>Manager</b>: view cards, statuses, QR codes</li>
-                    </ul>
-                </div>
-            </details>
-
-            <details class="mk-step">
-                <summary>9) Send or Copy a Card</summary>
-                <div class="mk-step-content">
-                    In Studio Manager, click <b>Send by Email</b> to deliver a viewer link to the recipient.
-                    For your storefront, click <b>Copy for MintKit Hub</b>.
-                </div>
-            </details>
-
-            <details class="mk-step">
-                <summary>10) Link Cards to your Storefront</summary>
-                <div class="mk-step-content">
-                    In Hub → <b>My Storefront</b> → <b>Featured digital cards</b>:
-                    <ul>
-                        <li>Click <b>Paste from Studio</b> to auto-fill up to 3 cards</li>
-                        <li>Add a short description (optional)</li>
-                        <li>Add a Buy link (next step)</li>
-                    </ul>
-                </div>
-            </details>
-
-            <details class="mk-step">
-                <summary>11) Add a Buy Link (Stripe)</summary>
-                <div class="mk-step-content">
-                    Create a Stripe Payment Link and paste it into the card's Buy link field.
-                    <ul>
-                        <li>Stripe Dashboard → Payment Links → New</li>
-                        <li>Create product + price → Create link</li>
-                        <li>Copy the buy.stripe.com URL</li>
-                    </ul>
-                    <div class="mk-step-kicker">
-                        Tip: Use Stripe <b>Test mode</b> for demos.
+                <details class="mk-steps-step">
+                    <summary data-step="6">Start Trial</summary>
+                    <div class="mk-steps-content">
+                        <ul>
+                            <li>Go to <strong>Pricing</strong> or <strong>Dashboard</strong>.</li>
+                            <li>Click <strong>Start trial</strong> for Studio access.</li>
+                        </ul>
                     </div>
-                </div>
-            </details>
+                </details>
+
+                <details class="mk-steps-step">
+                    <summary data-step="7">Open Studio</summary>
+                    <div class="mk-steps-content">
+                        <ul>
+                            <li>Open <strong>Studio</strong> from the navbar.</li>
+                            <li>Login uses <strong>Internet Identity</strong> (no password).</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="mk-steps-step">
+                    <summary data-step="8">Mint Cards in Studio</summary>
+                    <div class="mk-steps-content">
+                        <ul>
+                            <li>Create a <strong>Style</strong> (background + objects).</li>
+                            <li>Create a <strong>Collection</strong> (type, value, qty).</li>
+                            <li>Mint in the <strong>Mint</strong> tab.</li>
+                            <li>Manage in <strong>Manager</strong>.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="mk-steps-step">
+                    <summary data-step="9">Send or Copy a Card</summary>
+                    <div class="mk-steps-content">
+                        <ul>
+                            <li>Use <strong>Send by Email</strong> in Manager.</li>
+                            <li>Or use <strong>Copy for MintKit Hub</strong>.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="mk-steps-step">
+                    <summary data-step="10">Link Cards to your Storefront</summary>
+                    <div class="mk-steps-content">
+                        <ul>
+                            <li>Go to <strong>My Storefront</strong> → Featured digital cards.</li>
+                            <li>Click <strong>Paste from Studio</strong>.</li>
+                            <li>Add description + buy/details link.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="mk-steps-step">
+                    <summary data-step="11">Add a Buy Link (Stripe)</summary>
+                    <div class="mk-steps-content">
+                        <ul>
+                            <li>Create Stripe Payment Link and paste the URL.</li>
+                            <li>Use Stripe <strong>Test mode</strong> while learning.</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
         </div>
     </aside>
 
@@ -615,6 +604,8 @@
                 closePanel();
             }
         })();
+
+        
     </script>
 
 </body>
