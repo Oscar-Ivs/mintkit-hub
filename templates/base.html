@@ -154,6 +154,7 @@
     </header>
     {% endblock %}
 
+    {% block quickstart_widget %}
     <!-- Steps A–Z: global onboarding panel -->
     <button id="mk-qs-toggle" class="mk-qs-toggle" type="button" aria-controls="mk-quickstart" aria-expanded="false">
         <span class="mk-qs-dot" aria-hidden="true"></span>
@@ -321,6 +322,7 @@
             </details>
         </div>
     </aside>
+    {% endblock %}
 
     <main class="{% block main_class %}page-container{% endblock %}">
         {% block content %}{% endblock %}
@@ -532,6 +534,7 @@
             requestAnimationFrame(positionFloatingRightBurger);
         })();
     </script>
+    {% block quickstart_script %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const KEY = 'mk_quickstart_state_v1';
@@ -724,7 +727,7 @@
 
         });
     </script>
-
+    {% endblock %}
 </body>
 
 </html>
