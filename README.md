@@ -1596,3 +1596,7 @@ A mapping between Code Institute learning outcomes and MintKit Hub features:
 - Testing evidence (Lighthouse / validation): `docs/testing/`
 
 </details>
+
+## License
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0). See the [LICENSE](LICENSE) file for details.
+
