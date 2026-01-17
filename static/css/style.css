@@ -3511,7 +3511,7 @@ body.sf-editor-lock {
 .mk-qs-toggle {
   position: fixed;
   left: 16px;
-  top: 104px;
+  top: 100px;
   z-index: 1200;
   display: inline-flex;
   align-items: center;
