@@ -27,10 +27,11 @@ It does three main things:
 
 The MintKit app itself lives at a separate URL (for example `studio.mintkit.co.uk`) and is treated as a **third-party integration** for this project. MintKit Hub only controls access and provides the link.
 
-> **Project status (as of 2026-01-03):**
-> - Hub is deployed and working (auth, storefronts, featured cards, emails).
-> - Stripe payments/subscriptions are **in progress** (see `docs/STRIPE_MINTKIT_INTEGRATION.md`).
-> - Studio is a separate application linked from the Hub.
+> **Project status (as of 2026-01-19):**  
+> Core Hub features are complete (auth, dashboard, storefront management, public storefront pages).  
+> Stripe subscriptions are implemented (Basic monthly + annual via Stripe Checkout) and subscription state is reflected in the Dashboard.  
+> The Hub can optionally link out to MintKit Studio (beta) for on-chain minting.
+
 
 ### How it works – simple flow
 
@@ -40,7 +41,7 @@ For a typical business owner:
 2. They fill in their **business profile** and create their **storefront** (e.g. “Beauty Salon”).  
 3. They can preview and activate their storefront, which becomes publicly visible at a URL like:
 
-   `https://mintkit.co.uk/storefront/beauty-salon/`
+   `https://mintkit.co.uk/storefront/oscars-storefront/`
 
 4. From their **dashboard** they start a **Stripe subscription** (with trial options).  
 5. Once subscribed (or during a free trial), a dedicated **“Studio” tab** becomes useful.  
@@ -111,7 +112,8 @@ MintKit Hub focuses on making the experience simple for a busy non-technical bus
 
 *A more detailed UX document (personas, wireframes, and any additional stories) can be added later in `docs/UX.md` and linked from this section.*
 
-Wireframes and UI screenshots: [docs/ux/UX.md](docs/ux/UX.md)
+Wireframes and UI screenshots: - UX: [docs/ux/UX.md](docs/ux/UX.md)
+
 
 
 </details>
@@ -899,7 +901,7 @@ This project will be built in small, focused milestones:
 <details>
   <summary>Click to expand <b>Testing summary</b></summary>
   
-If more granular test cases are required in future iterations, these may be expanded into a dedicated `docs/TESTING.md` file.
+Full test cases and evidence are documented in docs/testing/TESTING.md.
 
 ---
 
@@ -994,7 +996,6 @@ Lighthouse audits were carried out using **Chrome DevTools Lighthouse (v13.x)** 
 
 Each page was tested on **Desktop and Mobile** (14 reports total).
 
-**Evidence:**  
 **Evidence:**  
 PDF reports stored in [`docs/testing/lighthouse/`](docs/testing/lighthouse/)
 
