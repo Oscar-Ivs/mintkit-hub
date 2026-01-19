@@ -550,146 +550,155 @@
 
     </header>
 
-    <div class="sf-layout-editor-body">
+<div class="sf-layout-editor-body">
 
-      <div class="sf-layout-editor-toolbar">
-        <div class="sf-toolbar-group">
-          <label for="sf-font-family">Font</label>
-          <select id="sf-font-family">
-            <option value="">Default</option>
-            <option value="'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif">Inter</option>
-            <option value="'Roboto', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Roboto</option>
-            <option value="'Montserrat', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Montserrat</option>
-            <option value="Georgia, 'Times New Roman', serif">Georgia</option>
-            <option value="'Times New Roman', serif">Times New Roman</option>
-            <option value="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace">
-              Monospace</option>
-          </select>
-        </div>
+  {# Collapsible toolbar (CSS-only) to free space on mobile #}
+  <details class="sf-toolbar-collapsible" open>
+    <summary class="sf-toolbar-summary">
+      <span>Tools</span>
+      <span class="sf-toolbar-summary-note">tap to expand/collapse</span>
+    </summary>
 
-        <div class="sf-toolbar-group">
-          <label for="sf-font-size">Size (px)</label>
-          <input id="sf-font-size" type="number" min="10" max="96" step="1" placeholder="Default">
-        </div>
+    <div class="sf-layout-editor-toolbar">
+      <div class="sf-toolbar-group">
+        <label for="sf-font-family">Font</label>
+        <select id="sf-font-family">
+          <option value="">Default</option>
+          <option value="'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif">Inter</option>
+          <option value="'Roboto', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Roboto</option>
+          <option value="'Montserrat', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif">Montserrat</option>
+          <option value="Georgia, 'Times New Roman', serif">Georgia</option>
+          <option value="'Times New Roman', serif">Times New Roman</option>
+          <option value="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace">
+            Monospace
+          </option>
+        </select>
+      </div>
 
-        <div class="sf-toolbar-group">
-          <label>Style</label>
-          <div class="sf-toolbar-inline-buttons">
-            <button type="button" id="sf-font-bold" class="sf-toolbar-button sf-toolbar-button-toggle" title="Bold">
-              <strong>B</strong>
-            </button>
-            <button type="button" id="sf-font-italic" class="sf-toolbar-button sf-toolbar-button-toggle" title="Italic">
-              <em>I</em>
-            </button>
-            <button type="button" id="sf-font-underline" class="sf-toolbar-button sf-toolbar-button-toggle"
-              title="Underline">
-              <span style="text-decoration: underline;">U</span>
-            </button>
-          </div>
-        </div>
+      <div class="sf-toolbar-group">
+        <label for="sf-font-size">Size (px)</label>
+        <input id="sf-font-size" type="number" min="10" max="96" step="1" placeholder="Default">
+      </div>
 
-        <div class="sf-toolbar-group">
-          <label for="sf-bg-color">Page background</label>
-          <input id="sf-bg-color" type="color" value="#ffffff">
-        </div>
-
-        <div class="sf-toolbar-group sf-toolbar-actions" style="margin-left: auto;">
-          <button type="button" id="sf-fit-toggle" class="sf-toolbar-button" title="Fit page into view">
-            Fit
+      <div class="sf-toolbar-group">
+        <label>Style</label>
+        <div class="sf-toolbar-inline-buttons">
+          <button type="button" id="sf-font-bold" class="sf-toolbar-button sf-toolbar-button-toggle" title="Bold">
+            <strong>B</strong>
           </button>
+          <button type="button" id="sf-font-italic" class="sf-toolbar-button sf-toolbar-button-toggle" title="Italic">
+            <em>I</em>
+          </button>
+          <button type="button" id="sf-font-underline" class="sf-toolbar-button sf-toolbar-button-toggle" title="Underline">
+            <span style="text-decoration: underline;">U</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sf-toolbar-group">
+        <label for="sf-bg-color">Page background</label>
+        <input id="sf-bg-color" type="color" value="#ffffff">
+      </div>
+
+      {# Actions: keep same IDs (JS relies on them) #}
+      <div class="sf-toolbar-group sf-toolbar-actions">
+        <div class="sf-toolbar-actions-row">
+          <button type="button" id="sf-fit-toggle" class="sf-toolbar-button" title="Fit page into view">Fit</button>
 
           <button type="button" id="sf-hide-block" class="sf-toolbar-button sf-toolbar-button-danger" disabled>
             Hide block
           </button>
+
           <button type="button" id="sf-reset-block" class="sf-toolbar-button" disabled>
             Reset styles
           </button>
+
           <button type="button" class="btn btn-primary" id="sf-save-layout">
             Save layout
           </button>
 
-          <span id="sf-save-status" class="ms-2 text-muted" style="font-size: 0.9rem;">
-            Not saved yet
-          </span>
-
+          <span id="sf-save-status" class="sf-save-status">Not saved yet</span>
         </div>
       </div>
+    </div>
+  </details>
 
-      <div class="sf-layout-editor-canvas" id="sf-editor-canvas">
-        <div class="sf-layout-editor-surface" id="sf-editor-surface">
-          <div class="sf-preview-card sf-preview-card--editor" id="sf-editor-content">
+  {# IMPORTANT: JS relies on #sf-editor-content existing and containing [data-sf-block] elements #}
+  <div class="sf-layout-editor-canvas" id="sf-editor-canvas">
+    <div class="sf-layout-editor-surface" id="sf-editor-surface">
 
-            <div class="sf-preview-logo" data-sf-block="logo" data-sf-label="Logo">
-              {% if storefront.logo %}
-              <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo"
-                class="storefront-logo-large img-fluid">
-              {% endif %}
-            </div>
+      <div class="sf-preview-card sf-preview-card--editor" id="sf-editor-content">
 
-            <h3 class="sf-preview-headline" data-sf-block="headline" data-sf-label="Headline">
-              {{ storefront.headline|default:"Your storefront headline" }}
-            </h3>
+        <div class="sf-preview-logo" data-sf-block="logo" data-sf-label="Logo">
+          {% if storefront.logo %}
+            <img src="{{ storefront.logo.url }}" alt="{{ storefront.headline }} logo"
+                 class="storefront-logo-large img-fluid">
+          {% endif %}
+        </div>
 
-            <p class="sf-preview-body" data-sf-block="description" data-sf-label="Description">
-              {{ storefront.description|default:"Add a short description of your service or products." }}
-            </p>
+        <h3 class="sf-preview-headline" data-sf-block="headline" data-sf-label="Headline">
+          {{ storefront.headline|default:"Your storefront headline" }}
+        </h3>
 
-            <h4 class="sf-preview-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
-              Contact details
-            </h4>
+        <p class="sf-preview-body" data-sf-block="description" data-sf-label="Description">
+          {{ storefront.description|default:"Add a short description of your service or products." }}
+        </p>
 
-            <p class="sf-preview-body" data-sf-block="contact_text" data-sf-label="Contact text">
-              {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
-            </p>
+        <h4 class="sf-preview-section-title" data-sf-block="contact_title" data-sf-label="Contact title">
+          Contact details
+        </h4>
 
-            {% if has_cards %}
-            <h3 class="storefront-section-heading" data-sf-block="cards_title" data-sf-label="Featured cards title">
-              Featured digital cards
-            </h3>
+        <p class="sf-preview-body" data-sf-block="contact_text" data-sf-label="Contact text">
+          {{ storefront.contact_details|default:"Add contact details customers can use to find or reach you." }}
+        </p>
 
-            <div class="sf-card-grid" data-sf-label="Cards grid">
-              {% for card in storefront.cards.all|slice:":3" %}
+        {% if has_cards %}
+          <h3 class="storefront-section-heading" data-sf-block="cards_title" data-sf-label="Featured cards title">
+            Featured digital cards
+          </h3>
+
+          <div class="sf-card-grid" data-sf-label="Cards grid">
+            {% for card in storefront.cards.all|slice:":3" %}
               <article class="sf-card text-break" data-sf-block="card_{{ forloop.counter }}"
-                data-sf-label="Card {{ forloop.counter }}">
+                       data-sf-label="Card {{ forloop.counter }}">
                 {% if card.image_url %}
-                <div class="sf-card-image-wrap">
-                  <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
-                </div>
+                  <div class="sf-card-image-wrap">
+                    <img src="{{ card.image_url }}" alt="{{ card.title|default:'Card' }}">
+                  </div>
                 {% endif %}
 
                 <h4 class="sf-card-title">
                   {{ card.title|default:"Card " }}{% if not card.title %}{{ forloop.counter }}{% endif %}
                   {% if card.price_label %}
-                  <span class="sf-card-price">{{ card.price_label }}</span>
+                    <span class="sf-card-price">{{ card.price_label }}</span>
                   {% endif %}
                 </h4>
 
                 {% if card.description %}
-                <p class="sf-card-text">{{ card.description }}</p>
+                  <p class="sf-card-text">{{ card.description }}</p>
                 {% endif %}
 
                 {% if card.buy_url %}
-                <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
-                  class="btn btn-sm btn-primary storefront-preview-card-button text-break">
-                  Buy now
-                </a>
+                  <a href="{{ card.buy_url }}" target="_blank" rel="noopener"
+                     class="btn btn-sm btn-primary storefront-preview-card-button text-break">
+                    Buy now
+                  </a>
                 {% endif %}
               </article>
-              {% endfor %}
-            </div>
-            {% endif %}
-
+            {% endfor %}
           </div>
-        </div>
+        {% endif %}
+
       </div>
-
-      <p class="sf-layout-editor-hint text-muted">
-        Draft layout editor — drag blocks to move them, and use the small corner handle to resize.
-      </p>
-
     </div>
   </div>
+
+  <p class="sf-layout-editor-hint text-muted">
+    Draft layout editor — drag blocks to move them, and use the small corner handle to resize.
+  </p>
+
 </div>
+
 
 {# JS unchanged below #}
 <script>
