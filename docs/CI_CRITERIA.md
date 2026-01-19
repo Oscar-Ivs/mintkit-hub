@@ -58,7 +58,7 @@ Use git-based version control, document development, and deploy to a cloud hosti
 
 | Area / Criteria (summary) | How MintKit Hub addresses it |
 |---------------------------|------------------------------|
-| 5.1 Deployment | Final version deployed to Heroku with Postgres; deployment checked to match local development environment (Section 10 & [Deployment Documentation](README.md#10-deployment-and-local-development). |
+| 5.1 Deployment | Final version deployed to Heroku with Postgres; deployment checked to match local development environment (Section 10 & [Deployment Documentation](README.md#10-deployment-and-local-development)). |
 | 5.2 Clean deployed code | Deployed code free of commented-out blocks and broken internal links; navigation and URLs checked in testing. |
 | 5.3 Security & settings | Sensitive data kept in environment variables (`SECRET_KEY`, Stripe keys, database URL); `DEBUG` off in production and `ALLOWED_HOSTS` configured. |
 | 5.4 Git-based version control | Development history documented through regular, descriptive Git commits on GitHub, showing the project’s evolution. |
