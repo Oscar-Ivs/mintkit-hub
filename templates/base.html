@@ -3,50 +3,68 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <title>MintKit Hub</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
 
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
-    <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+  <title>{% block title %}MintKit Hub{% endblock %}</title>
 
-    <!-- Font Awesome (social icons + burger icons) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  <meta name="description"
+        content="{% block meta_description %}Create a polished public storefront, organise your digital products, and connect to MintKit Studio for on-chain minting.{% endblock %}">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="{% block og_title %}MintKit Hub{% endblock %}">
+  <meta property="og:description"
+        content="{% block og_description %}Create a polished public storefront, organise your digital products, and connect to MintKit Studio for on-chain minting.{% endblock %}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  <meta property="og:image"
+        content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/og-image.png' %}{% endblock %}">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% block twitter_title %}MintKit Hub{% endblock %}">
+  <meta name="twitter:description"
+        content="{% block twitter_description %}Create a polished public storefront, organise your digital products, and connect to MintKit Studio for on-chain minting.{% endblock %}">
+  <meta name="twitter:image"
+        content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/og-image.png' %}{% endblock %}">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  <!-- Favicons -->
+  <link rel="icon" href="{% static 'img/favicon.ico' %}" sizes="any">
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}" sizes="64x64">
+  <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
         referrerpolicy="no-referrer">
 
-    <!-- Primary fonts (Inter + Sora + Diplomata in one request) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=Diplomata&display=swap"
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=Diplomata&display=swap"
         rel="stylesheet">
 
-    <!-- Hotfix: show RIGHT burger earlier (<=1100px) and hide RIGHT desktop links earlier -->
-    <style>
-        @media (max-width: 1100px) {
+  <!-- Hotfix: show RIGHT burger earlier (<=1100px) and hide RIGHT desktop links earlier -->
+  <style>
+    @media (max-width: 1100px) {
+      .mk-burger-right { display: inline-flex !important; }
+      .navbar-right .mk-desktop-only { display: none !important; }
+    }
 
-            /* Force right burger visible even if global burger is hidden until 820px */
-            .mk-burger-right {
-                display: inline-flex !important;
-            }
-
-            /* Hide right-side desktop items earlier to prevent overflow */
-            .navbar-right .mk-desktop-only {
-                display: none !important;
-            }
-        }
-
-        /* Transparent burger style (both burgers) */
-        .mk-burger {
-            background: rgba(255, 255, 255, 0.35) !important;
-            border: 1px solid rgba(255, 255, 255, 0.35) !important;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            opacity: 0.85;
-        }
-    </style>
+    .mk-burger {
+      background: rgba(255, 255, 255, 0.35) !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      opacity: 0.85;
+    }
+  </style>
 </head>
+
+
 
 <body>
 
