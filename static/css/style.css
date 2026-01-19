@@ -3504,6 +3504,74 @@ body.sf-editor-lock {
   margin-top: 10px; /* keeps a small consistent gap */
 }
 
+/* Mobile: make the layout editor a true full-screen sheet (less “nested boxes”) */
+@media (max-width: 600px) {
+  .sf-layout-editor-dialog {
+    width: 100vw;
+    height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .sf-layout-editor-header {
+    padding: calc(12px + env(safe-area-inset-top)) 12px 12px;
+  }
+
+  .sf-layout-editor-body {
+    padding: 12px;
+    gap: 10px;
+    min-height: 0;
+  }
+
+  /* Toolbar: wrap neatly, reduce bulk */
+  .sf-layout-editor-toolbar {
+    padding: 10px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .sf-toolbar-group {
+    flex: 1 1 48%;
+    min-width: 140px;
+  }
+
+  /* Actions row (Fit/Hide/Reset/Save) should take full width on mobile */
+  .sf-toolbar-actions {
+    flex: 1 1 100%;
+    width: 100%;
+    margin-left: 0 !important; /* overrides the inline margin-left:auto */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .sf-toolbar-actions .sf-toolbar-button,
+  .sf-toolbar-actions .btn {
+    flex: 1 1 auto;
+  }
+
+  /* Preview area: slimmer padding, still readable */
+  .sf-layout-editor-canvas {
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .sf-layout-editor-surface {
+    padding: 14px;
+    border-radius: 12px;
+    min-height: 560px;
+  }
+
+  /* Touch: make resize handle easier to grab */
+  .sf-layout-resize-handle {
+    width: 22px;
+    height: 22px;
+    right: 8px;
+    bottom: 8px;
+  }
+}
+
 /* ---------------------------
    Steps A–Z slide-out panel
    --------------------------- */
