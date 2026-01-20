@@ -1588,7 +1588,6 @@ ul.messages li.danger {
     background: var(--mk-card-bg);
     border-radius: 18px;
     box-shadow: 0 30px 80px rgba(15, 23, 42, 0.35);
-    padding: 1.5rem 1.75rem 1.75rem;
 }
 
 .sf-layout-editor-header {
@@ -1645,6 +1644,8 @@ ul.messages li.danger {
 .sf-layout-editor-hint {
     margin-top: 0.75rem;
     font-size: 0.85rem;
+    margin: -10px;
+    text-align: center;
 }
 
 /* Wider "Customize storefront layout" editor on desktop */
@@ -1686,7 +1687,7 @@ ul.messages li.danger {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
     padding: 0.5rem 1rem;
     border-radius: 0.75rem;
     background: #f8fafc;
