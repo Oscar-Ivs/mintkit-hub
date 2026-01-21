@@ -1752,11 +1752,6 @@ ul.messages li.danger {
         0 18px 55px rgba(15, 23, 42, 0.35);
 }
 
-/* Let the whole modal body scroll, not the inner canvas box */
-.sf-layout-editor-body {
-    max-height: 80vh;          /* the dialog can scroll vertically */
-    overflow: auto;
-}
 
 /* The preview canvas itself no longer has its own scrollbar */
 .sf-layout-editor-canvas {
