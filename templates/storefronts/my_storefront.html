@@ -936,7 +936,11 @@
           editor.setAttribute("aria-hidden", isOpen ? "false" : "true");
           editor.classList.toggle("is-open", isOpen);
           document.body.classList.toggle("sf-editor-lock", isOpen);
+
+          // Force navbar/burger visibility logic to re-run immediately
+          window.dispatchEvent(new Event("resize"));
         }
+
 
         async function openEditor() {
           setEditorOpen(true);

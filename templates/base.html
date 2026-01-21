@@ -3,64 +3,78 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
+    <meta charset="utf-8">
 
-  <title>{% block title %}MintKit Hub{% endblock %}</title>
+    <title>{% block title %}MintKit Hub{% endblock %}</title>
 
-  <meta name="description"
+    <meta name="description"
         content="{% block meta_description %}Create a polished public storefront, organise your digital products, and connect to MintKit Studio for on-chain minting.{% endblock %}">
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="{% block og_title %}MintKit Hub{% endblock %}">
-  <meta property="og:description"
+    <!-- Open Graph -->
+    <meta property="og:title" content="{% block og_title %}MintKit Hub{% endblock %}">
+    <meta property="og:description"
         content="{% block og_description %}Create a polished public storefront, organise your digital products, and connect to MintKit Studio for on-chain minting.{% endblock %}">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="{{ request.build_absolute_uri }}">
-  <meta property="og:image"
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image"
         content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/og-image.png' %}{% endblock %}">
 
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="{% block twitter_title %}MintKit Hub{% endblock %}">
-  <meta name="twitter:description"
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}MintKit Hub{% endblock %}">
+    <meta name="twitter:description"
         content="{% block twitter_description %}Create a polished public storefront, organise your digital products, and connect to MintKit Studio for on-chain minting.{% endblock %}">
-  <meta name="twitter:image"
+    <meta name="twitter:image"
         content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/og-image.png' %}{% endblock %}">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
-  <!-- Favicons -->
-  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}" sizes="64x64">
-  <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}" sizes="64x64">
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
         referrerpolicy="no-referrer">
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=Diplomata&display=swap"
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=Diplomata&display=swap"
         rel="stylesheet">
 
-  <!-- Hotfix: show RIGHT burger earlier (<=1100px) and hide RIGHT desktop links earlier -->
-  <style>
-    @media (max-width: 1100px) {
-      .mk-burger-right { display: inline-flex !important; }
-      .navbar-right .mk-desktop-only { display: none !important; }
-    }
+    <!-- Hotfix: show RIGHT burger earlier (<=1100px) and hide RIGHT desktop links earlier -->
+    <style>
+        @media (max-width: 1100px) {
+            .mk-burger-right {
+                display: inline-flex !important;
+            }
 
-    .mk-burger {
-      background: rgba(255, 255, 255, 0.35) !important;
-      border: 1px solid rgba(255, 255, 255, 0.35) !important;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      opacity: 0.85;
-    }
-  </style>
+            .navbar-right .mk-desktop-only {
+                display: none !important;
+            }
+        }
+
+        .mk-burger {
+            background: rgba(255, 255, 255, 0.35) !important;
+            border: 1px solid rgba(255, 255, 255, 0.35) !important;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            opacity: 0.85;
+        }
+
+        /* Hide site burger menus while the full-screen Layout Editor is open */
+        body.sf-editor-lock #mkRightBurger,
+        body.sf-editor-lock #mkRightBurgerFloating,
+        body.sf-editor-lock #mkLeftBurger,
+        body.sf-editor-lock #mkLeftMobileMenu,
+        body.sf-editor-lock #mkRightMobileMenu {
+            display: none !important;
+        }
+    </style>
 </head>
 
 
@@ -114,9 +128,8 @@
 
         <div class="navbar-right">
             <!-- Right burger (account links) -->
-            <button class="mk-burger mk-burger-right" type="button" style="display: inline-flex !important;"
-                aria-label="Open account menu" aria-controls="mkMobileRightMenu" aria-expanded="false"
-                id="mkRightBurger">
+            <button class="mk-burger mk-burger-right" type="button" aria-label="Open account menu"
+                aria-controls="mkMobileRightMenu" aria-expanded="false" id="mkRightBurger">
                 <i class="fa-solid fa-bars"></i>
             </button>
 
@@ -463,25 +476,30 @@
 
 
             function applyVisibility() {
+                // Hide ALL burger menus while the full-screen Layout Editor is open
+                if (document.body.classList.contains("sf-editor-lock")) {
+                    floatingRightBtn.style.setProperty("display", "none", "important");
+                    rightBtn.style.setProperty("display", "none", "important");
+                    leftBtn.style.setProperty("display", "none", "important");
+
+                    // Ensure menus are closed too
+                    closeMenu(leftBtn, leftMenu);
+                    closeMenu(rightBtn, rightMenu);
+                    closeMenu(floatingRightBtn, rightMenu);
+                    return;
+                }
+
                 // RIGHT at <=1100: show floating burger, hide desktop account links
                 if (rightMenuMode()) {
                     floatingRightBtn.style.setProperty("display", "inline-flex", "important");
-                    rightDesktopItems.forEach((el) => el.style.setProperty("display", "none", "important"));
-
-                    // keep original rightBtn hidden to avoid layout issues/duplicates
                     rightBtn.style.setProperty("display", "none", "important");
-
-                    // Center floating burger after it becomes visible
-                    requestAnimationFrame(positionFloatingRightBurger);
+                    rightDesktopItems.forEach((el) => (el.style.display = "none"));
                 } else {
+                    // Desktop: hide floating, restore original rightBtn (desktop layout)
                     floatingRightBtn.style.setProperty("display", "none", "important");
-                    rightDesktopItems.forEach((el) => el.style.removeProperty("display"));
-
-                    // restore original rightBtn (desktop layout)
                     rightBtn.style.removeProperty("display");
-
+                    rightDesktopItems.forEach((el) => el.style.removeProperty("display"));
                     closeMenu(floatingRightBtn, rightMenu);
-                    closeMenu(rightBtn, rightMenu);
                 }
 
                 // LEFT behavior unchanged (uses original left burger)
