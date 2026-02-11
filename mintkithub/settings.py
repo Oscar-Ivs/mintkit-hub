@@ -149,6 +149,10 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "https://mass-crimson-2ia-draft.caffeine.xyz",
     "https://mintkit-smr.caffeine.xyz",
+    "https://planmybalance.com",
+    "https://www.planmybalance.com",
+    "https://mathematical-coral-9xd-draft.caffeine.xyz/",
+
 ] + PMB_ALLOWED_ORIGINS
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
