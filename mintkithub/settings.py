@@ -151,7 +151,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://mintkit-smr.caffeine.xyz",
     "https://planmybalance.com",
     "https://www.planmybalance.com",
-    "https://mathematical-coral-9xd-draft.caffeine.xyz/",
+    "https://mathematical-coral-9xd-draft.caffeine.xyz",
 
 ] + PMB_ALLOWED_ORIGINS
 
