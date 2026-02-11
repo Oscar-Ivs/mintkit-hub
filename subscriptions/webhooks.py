@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from accounts.models import Profile
-from .models import Subscription, SubscriptionPlan
+from .models import Subscription, SubscriptionPlan, PmbSubscription
 from .stripe_service import init_stripe
 
 logger = logging.getLogger(__name__)
@@ -416,7 +416,7 @@ def stripe_webhook(request):
 def stripe_webhook_pmb(request):
     """
     Stripe webhook for PlanMyBalance (separate Stripe account/keys).
-    Verifies signature using PMB_STRIPE_WEBHOOK_SECRET and acknowledges events.
+    Verifies signature using PMB_STRIPE_WEBHOOK_SECRET, then upserts PmbSubscription.
     """
     payload = request.body
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
@@ -426,9 +426,13 @@ def stripe_webhook_pmb(request):
         logger.error("PMB webhook called but PMB_STRIPE_WEBHOOK_SECRET is missing.")
         return HttpResponse(status=500)
 
-    # Temporarily switch Stripe key for this request only
+    pmb_key = (getattr(settings, "PMB_STRIPE_SECRET_KEY", "") or "").strip()
+    if not pmb_key:
+        logger.error("PMB webhook called but PMB_STRIPE_SECRET_KEY is missing.")
+        return HttpResponse(status=500)
+
     old_key = stripe.api_key
-    stripe.api_key = (getattr(settings, "PMB_STRIPE_SECRET_KEY", "") or "").strip()
+    stripe.api_key = pmb_key
 
     try:
         event = stripe.Webhook.construct_event(
@@ -436,13 +440,98 @@ def stripe_webhook_pmb(request):
             sig_header=sig_header,
             secret=webhook_secret,
         )
+
+        event_type = (event.get("type") or "").strip()
+        obj = (event.get("data") or {}).get("object") or {}
+
+        logger.info("PMB webhook received: %s", event_type)
+
+        def _upsert_from_subscription(subscription, principal_id=None, plan_code=None):
+            if not subscription:
+                return
+
+            sub_id = subscription.get("id")
+            customer_id = subscription.get("customer")
+            status = subscription.get("status") or ""
+            current_period_end = _utc_from_ts(subscription.get("current_period_end"))
+
+            meta = subscription.get("metadata") or {}
+            principal = principal_id or meta.get("principal_id") or meta.get("principalId") or ""
+            plan = (plan_code or meta.get("plan_code") or meta.get("plan") or "").strip().lower()
+
+            # Fallback: try to infer plan from price id if plan missing
+            if not plan:
+                try:
+                    items = (((subscription.get("items") or {}).get("data")) or [])
+                    price_id = (((items[0].get("price") or {}).get("id")) if items else "") or ""
+                except Exception:
+                    price_id = ""
+
+                if price_id:
+                    basic = (getattr(settings, "PMB_STRIPE_PRICE_BASIC", "") or "").strip()
+                    pro = (getattr(settings, "PMB_STRIPE_PRICE_PRO", "") or "").strip()
+                    supporter = (getattr(settings, "PMB_STRIPE_PRICE_SUPPORTER", "") or "").strip()
+
+                    if price_id == basic:
+                        plan = "basic"
+                    elif price_id == pro:
+                        plan = "pro"
+                    elif price_id == supporter:
+                        plan = "supporter"
+
+            if not principal:
+                logger.warning("PMB webhook: missing principal_id for subscription=%s", sub_id)
+                return
+
+            if plan not in ("basic", "pro", "supporter"):
+                # Keep existing tier if unknown; otherwise default free-like
+                existing = PmbSubscription.objects.filter(principal_id=principal).first()
+                plan = existing.tier if existing else "free"
+
+            rec, _ = PmbSubscription.objects.update_or_create(
+                principal_id=principal,
+                defaults={
+                    "tier": plan,
+                    "status": status,
+                    "stripe_customer_id": customer_id or "",
+                    "stripe_subscription_id": sub_id or "",
+                    "current_period_end": current_period_end,
+                },
+            )
+            logger.info("PMB subscription upserted: principal=%s tier=%s status=%s", rec.principal_id, rec.tier, rec.status)
+
+        if event_type == "checkout.session.completed":
+            # Best event for capturing principal + plan metadata
+            principal_id = (obj.get("client_reference_id") or "").strip()
+            meta = obj.get("metadata") or {}
+            plan_code = (meta.get("plan_code") or meta.get("plan") or "").strip().lower()
+
+            subscription_id = obj.get("subscription")
+            if subscription_id:
+                subscription = stripe.Subscription.retrieve(subscription_id)
+                _upsert_from_subscription(subscription, principal_id=principal_id, plan_code=plan_code)
+            else:
+                logger.warning("PMB checkout.session.completed had no subscription id")
+
+        elif event_type in ("customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted"):
+            _upsert_from_subscription(obj)
+
+        elif event_type == "invoice.payment_failed":
+            # Often indicates past_due; update subscription status
+            subscription_id = obj.get("subscription")
+            if subscription_id:
+                subscription = stripe.Subscription.retrieve(subscription_id)
+                _upsert_from_subscription(subscription)
+
+        # Always acknowledge to Stripe
+        return HttpResponse(status=200)
+
     except ValueError:
         return HttpResponse(status=400)
     except stripe.error.SignatureVerificationError:
         return HttpResponse(status=400)
+    except Exception as e:
+        logger.exception("PMB webhook error: %s", e)
+        return HttpResponse(status=500)
     finally:
         stripe.api_key = old_key
-
-    event_type = event.get("type", "")
-    logger.info("PMB webhook received: %s", event_type)
-    return HttpResponse(status=200)
