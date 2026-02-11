@@ -158,6 +158,7 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "x-studio-key",
     "x-pmb-api-key",
+    "X-Pmb-Api-Key",
 ]
 
 # -------------------------
