@@ -2,6 +2,7 @@
 from django.urls import path
 from . import views
 from .webhooks import stripe_webhook
+import subscriptions
 
 urlpatterns = [
     path("start-trial/", views.start_trial, name="start_trial"),
@@ -13,4 +14,6 @@ urlpatterns = [
 
     path("portal/", views.billing_portal, name="subscriptions_billing_portal"),
     path("webhook/", stripe_webhook, name="subscriptions_stripe_webhook"),
+    path("webhooks/stripe/pmb/", subscriptions.webhooks.stripe_webhook_pmb)
+
 ]

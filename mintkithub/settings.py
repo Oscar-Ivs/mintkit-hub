@@ -253,6 +253,19 @@ STRIPE_PRICE_BASIC_ANNUAL = os.getenv("STRIPE_PRICE_BASIC_ANNUAL", "")
 STRIPE_PRICE_PRO = os.getenv("STRIPE_PRICE_PRO", "")
 
 # -------------------------
+# Stripe (PlanMyBalance / separate Stripe account)
+# -------------------------
+PMB_STRIPE_SECRET_KEY = os.getenv("PMB_STRIPE_SECRET_KEY", "")
+PMB_STRIPE_WEBHOOK_SECRET = os.getenv("PMB_STRIPE_WEBHOOK_SECRET", "")
+
+PMB_STRIPE_PRICE_BASIC = os.getenv("PMB_STRIPE_PRICE_BASIC", "")
+PMB_STRIPE_PRICE_PRO = os.getenv("PMB_STRIPE_PRICE_PRO", "")
+PMB_STRIPE_PRICE_SUPPORTER = os.getenv("PMB_STRIPE_PRICE_SUPPORTER", "")
+
+PMB_ALLOWED_ORIGINS = os.getenv("PMB_ALLOWED_ORIGINS", "")
+
+
+# -------------------------
 # Logging
 # -------------------------
 LOGGING = {

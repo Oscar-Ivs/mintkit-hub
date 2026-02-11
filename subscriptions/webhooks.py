@@ -407,3 +407,42 @@ def stripe_webhook(request):
         logger.exception("Stripe webhook processing failed for event=%s", event_type)
 
     return HttpResponse(status=200)
+# -------------------------
+# PlanMyBalance Stripe webhook (separate Stripe account/keys)
+# -------------------------
+
+@csrf_exempt
+@require_POST
+def stripe_webhook_pmb(request):
+    """
+    Stripe webhook for PlanMyBalance (separate Stripe account/keys).
+    Verifies signature using PMB_STRIPE_WEBHOOK_SECRET and acknowledges events.
+    """
+    payload = request.body
+    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
+
+    webhook_secret = (getattr(settings, "PMB_STRIPE_WEBHOOK_SECRET", "") or "").strip()
+    if not webhook_secret:
+        logger.error("PMB webhook called but PMB_STRIPE_WEBHOOK_SECRET is missing.")
+        return HttpResponse(status=500)
+
+    # Temporarily switch Stripe key for this request only
+    old_key = stripe.api_key
+    stripe.api_key = (getattr(settings, "PMB_STRIPE_SECRET_KEY", "") or "").strip()
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload=payload,
+            sig_header=sig_header,
+            secret=webhook_secret,
+        )
+    except ValueError:
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError:
+        return HttpResponse(status=400)
+    finally:
+        stripe.api_key = old_key
+
+    event_type = event.get("type", "")
+    logger.info("PMB webhook received: %s", event_type)
+    return HttpResponse(status=200)
