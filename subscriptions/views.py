@@ -412,14 +412,9 @@ def billing_portal(request):
 
 # ---- PMB API helpers ----
 
-def _pmb_preflight_response():
-    # Let django-cors-headers add the CORS headers; just return 200 for OPTIONS
-    return HttpResponse(status=200)
-
 def _require_pmb_api_key(request):
     expected = (getattr(settings, "PMB_API_KEY", "") or "").strip()
 
-    # Django's request.headers is case-insensitive, but this keeps it extra robust
     provided = (
         (request.headers.get("X-Pmb-Api-Key") or "").strip()
         or (request.headers.get("X-PMB-API-KEY") or "").strip()
@@ -453,10 +448,6 @@ def _pmb_price_id_for_plan(plan: str) -> str:
 @csrf_exempt
 @require_http_methods(["POST", "OPTIONS"])
 def pmb_checkout(request):
-    """
-    Creates a Stripe Checkout Session for PMB and returns the hosted URL.
-    Expects JSON: { "plan": "...", "principalId": "...", "returnUrl": "https://..." }
-    """
     if request.method == "OPTIONS":
         return JsonResponse({"ok": True})
 
@@ -469,11 +460,9 @@ def pmb_checkout(request):
         data = json.loads(request.body.decode("utf-8") or "{}")
 
         plan = (data.get("plan") or "").strip().lower()
-
-        # Accept both key styles just in case
         principal_id = (data.get("principalId") or data.get("principal_id") or "").strip()
-
         return_url = (data.get("returnUrl") or data.get("return_url") or "").strip().rstrip("/")
+
         if not plan or not principal_id or not return_url:
             return JsonResponse({"error": "Missing plan/principalId/returnUrl"}, status=400)
 
@@ -504,10 +493,6 @@ def pmb_checkout(request):
 @csrf_exempt
 @require_http_methods(["POST", "OPTIONS"])
 def pmb_portal(request):
-    """
-    Returns Stripe Billing Portal URL for the PMB principal.
-    Expects JSON: { "principalId": "...", "returnUrl": "https://..." }
-    """
     if request.method == "OPTIONS":
         return JsonResponse({"ok": True})
 
@@ -544,18 +529,13 @@ def pmb_portal(request):
 
 @require_http_methods(["GET"])
 def pmb_status(request):
-    """
-    Returns current PMB tier/status for a principal.
-    Query: ?principalId=... OR ?principal_id=...
-    """
     err = _require_pmb_api_key(request)
     if err:
         return err
 
-    principal_id = (request.GET.get("principal_id") or request.GET.get("principalId") or "").strip()
+    principal_id = (request.GET.get("principalId") or request.GET.get("principal_id") or "").strip()
     if not principal_id:
-        return JsonResponse({"error": "Missing principal_id"}, status=400)
-
+        return JsonResponse({"error": "Missing principalId"}, status=400)
 
     sub = PmbSubscription.objects.filter(principal_id=principal_id).first()
     if not sub:
