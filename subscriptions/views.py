@@ -2,6 +2,7 @@
 import datetime
 import logging
 
+from operator import sub
 from urllib.parse import urlsplit
 import stripe
 import json
@@ -542,4 +543,13 @@ def pmb_status(request):
         return JsonResponse({"tier": "free", "status": "none", "currentPeriodEnd": None})
 
     cpe = sub.current_period_end.isoformat() if sub.current_period_end else None
-    return JsonResponse({"tier": sub.tier, "status": sub.status or "", "currentPeriodEnd": cpe})
+    status = (sub.status or "").strip().lower()
+
+    is_paid = status in ("active", "trialing")
+
+    return JsonResponse({
+         "tier": sub.tier if is_paid else "free",
+         "status": status or "none",
+         "currentPeriodEnd": cpe,
+})
+
