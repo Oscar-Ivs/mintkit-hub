@@ -1,7 +1,6 @@
 # subscriptions/admin.py
 from django.contrib import admin
-
-from .models import MintKitAccess, Subscription, SubscriptionPlan
+from .models import MintKitAccess, Subscription, SubscriptionPlan, PmbSubscription
 
 
 @admin.register(SubscriptionPlan)
@@ -60,3 +59,20 @@ class MintKitAccessAdmin(admin.ModelAdmin):
     )
     ordering = ("-updated_at",)
     readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(PmbSubscription)
+class PmbSubscriptionAdmin(admin.ModelAdmin):
+    list_display = (
+        "principal_id",
+        "tier",
+        "status",
+        "stripe_customer_id",
+        "stripe_subscription_id",
+        "current_period_end",
+        "updated_at",
+    )
+    list_filter = ("tier", "status")
+    search_fields = ("principal_id", "stripe_customer_id", "stripe_subscription_id")
+    ordering = ("-updated_at",)
+    readonly_fields = ("updated_at",)
