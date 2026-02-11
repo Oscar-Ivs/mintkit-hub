@@ -45,9 +45,6 @@ urlpatterns = [
 
     # Studio bridge
     path("", include("studio_bridge.urls")),
-
-    #PlanMyBalance Stripe webhook (root-level, matches what you tested)
-    path("webhooks/stripe/pmb/", stripe_webhook_pmb, name="stripe_webhook_pmb"),
 ]
 
 # Serve media files (like uploaded logos) in development
