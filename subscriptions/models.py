@@ -167,3 +167,34 @@ class MintKitAccess(models.Model):
 
     def __str__(self) -> str:
         return f"{self.profile} ↔ {self.principal_id}"
+
+class PmbSubscription(models.Model):
+    """
+    Stores PlanMyBalance subscription state keyed by Internet Identity principal.
+    Kept separate from MintKit's own Subscription model to avoid mixing concerns.
+    """
+
+    TIER_FREE = "free"
+    TIER_BASIC = "basic"
+    TIER_PRO = "pro"
+    TIER_SUPPORTER = "supporter"
+
+    TIER_CHOICES = [
+        (TIER_FREE, "Free"),
+        (TIER_BASIC, "Basic"),
+        (TIER_PRO, "Pro"),
+        (TIER_SUPPORTER, "Supporter"),
+    ]
+
+    principal_id = models.CharField(max_length=128, unique=True)
+    tier = models.CharField(max_length=20, choices=TIER_CHOICES, default=TIER_FREE)
+
+    status = models.CharField(max_length=40, blank=True)  # active, canceled, past_due, etc.
+    stripe_customer_id = models.CharField(max_length=120, blank=True)
+    stripe_subscription_id = models.CharField(max_length=120, blank=True)
+
+    current_period_end = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"PMB {self.principal_id} ({self.tier})"

@@ -17,6 +17,13 @@ from accounts.models import Profile
 from .models import Subscription, SubscriptionPlan
 from .stripe_service import init_stripe, get_stripe_price_id
 
+from django.http import JsonResponse
+from .models import PmbSubscription
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -400,3 +407,134 @@ def billing_portal(request):
         return_url=f"{settings.SITE_URL}{reverse('dashboard')}",
     )
     return redirect(portal_session.url, permanent=False)
+
+def _require_pmb_api_key(request):
+    expected = (getattr(settings, "PMB_API_KEY", "") or "").strip()
+    provided = (request.headers.get("X-PMB-API-KEY") or "").strip()
+
+    if not expected:
+        return JsonResponse({"error": "PMB_API_KEY not configured"}, status=500)
+    if provided != expected:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+    return None
+
+
+def _pmb_price_id_for_plan(plan: str) -> str:
+    plan = (plan or "").strip().lower()
+    mapping = {
+        "basic": "PMB_STRIPE_PRICE_BASIC",
+        "pro": "PMB_STRIPE_PRICE_PRO",
+        "supporter": "PMB_STRIPE_PRICE_SUPPORTER",
+    }
+    setting_name = mapping.get(plan)
+    if not setting_name:
+        raise ValueError("Invalid plan")
+    price_id = (getattr(settings, setting_name, "") or "").strip()
+    if not price_id:
+        raise ValueError(f"Missing {setting_name}")
+    return price_id
+
+
+@require_POST
+def pmb_checkout(request):
+    """
+    Creates a Stripe Checkout Session for PMB and returns the hosted URL.
+    Expects JSON: { "plan": "...", "principalId": "...", "returnUrl": "https://..." }
+    """
+    err = _require_pmb_api_key(request)
+    if err:
+        return err
+
+    try:
+        import json
+        data = json.loads(request.body.decode("utf-8") or "{}")
+        plan = (data.get("plan") or "").strip().lower()
+        principal_id = (data.get("principalId") or "").strip()
+        return_url = (data.get("returnUrl") or "").strip().rstrip("/")
+        if not plan or not principal_id or not return_url:
+            return JsonResponse({"error": "Missing plan/principalId/returnUrl"}, status=400)
+
+        price_id = _pmb_price_id_for_plan(plan)
+    except Exception:
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    # Use PMB Stripe account
+    stripe.api_key = (getattr(settings, "PMB_STRIPE_SECRET_KEY", "") or "").strip()
+    if not stripe.api_key:
+        return JsonResponse({"error": "PMB_STRIPE_SECRET_KEY not configured"}, status=500)
+
+    success_url = f"{return_url}/?plan={plan}&session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = f"{return_url}/?plan={plan}&canceled=1"
+
+    session = stripe.checkout.Session.create(
+        mode="subscription",
+        line_items=[{"price": price_id, "quantity": 1}],
+        success_url=success_url,
+        cancel_url=cancel_url,
+        client_reference_id=principal_id,
+        metadata={
+            "principal_id": principal_id,
+            "plan_code": plan,
+        },
+        subscription_data={
+            "metadata": {
+                "principal_id": principal_id,
+                "plan_code": plan,
+            }
+        },
+    )
+
+    return JsonResponse({"url": session.url})
+
+
+@require_POST
+def pmb_portal(request):
+    """
+    Returns Stripe Billing Portal URL for the PMB principal.
+    Expects JSON: { "principalId": "...", "returnUrl": "https://..." }
+    """
+    err = _require_pmb_api_key(request)
+    if err:
+        return err
+
+    try:
+        import json
+        data = json.loads(request.body.decode("utf-8") or "{}")
+        principal_id = (data.get("principalId") or "").strip()
+        return_url = (data.get("returnUrl") or "").strip()
+        if not principal_id or not return_url:
+            return JsonResponse({"error": "Missing principalId/returnUrl"}, status=400)
+    except Exception:
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    sub = PmbSubscription.objects.filter(principal_id=principal_id).first()
+    if not sub or not sub.stripe_customer_id:
+        return JsonResponse({"error": "No Stripe customer for this principal"}, status=404)
+
+    stripe.api_key = (getattr(settings, "PMB_STRIPE_SECRET_KEY", "") or "").strip()
+    portal = stripe.billing_portal.Session.create(
+        customer=sub.stripe_customer_id,
+        return_url=return_url,
+    )
+    return JsonResponse({"url": portal.url})
+
+
+def pmb_status(request):
+    """
+    Returns current PMB tier/status for a principal.
+    Query: ?principalId=...
+    """
+    err = _require_pmb_api_key(request)
+    if err:
+        return err
+
+    principal_id = (request.GET.get("principalId") or "").strip()
+    if not principal_id:
+        return JsonResponse({"error": "Missing principalId"}, status=400)
+
+    sub = PmbSubscription.objects.filter(principal_id=principal_id).first()
+    if not sub:
+        return JsonResponse({"tier": "free", "status": "none", "currentPeriodEnd": None})
+
+    cpe = sub.current_period_end.isoformat() if sub.current_period_end else None
+    return JsonResponse({"tier": sub.tier, "status": sub.status or "", "currentPeriodEnd": cpe})

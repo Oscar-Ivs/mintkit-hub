@@ -83,6 +83,23 @@ STUDIO_API_KEY = os.getenv("STUDIO_API_KEY", "").strip()
 SITE_URL = os.getenv("SITE_URL", "https://mintkit.co.uk").rstrip("/")
 
 # -------------------------
+# PlanMyBalance (PMB) bridge config
+# -------------------------
+PMB_API_KEY = os.getenv("PMB_API_KEY", "").strip()
+
+PMB_STRIPE_SECRET_KEY = os.getenv("PMB_STRIPE_SECRET_KEY", "").strip()
+PMB_STRIPE_WEBHOOK_SECRET = os.getenv("PMB_STRIPE_WEBHOOK_SECRET", "").strip()
+
+PMB_STRIPE_PRICE_BASIC = os.getenv("PMB_STRIPE_PRICE_BASIC", "").strip()
+PMB_STRIPE_PRICE_PRO = os.getenv("PMB_STRIPE_PRICE_PRO", "").strip()
+PMB_STRIPE_PRICE_SUPPORTER = os.getenv("PMB_STRIPE_PRICE_SUPPORTER", "").strip()
+
+# Comma-separated full origins, e.g.:
+# https://planmybalance.com, https://mathematical-coral-9xd-draft.caffeine.xyz
+PMB_ALLOWED_ORIGINS = [o.strip() for o in os.getenv("PMB_ALLOWED_ORIGINS", "").split(",") if o.strip()]
+
+
+# -------------------------
 # Apps
 # -------------------------
 INSTALLED_APPS = [
@@ -132,10 +149,11 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "https://mass-crimson-2ia-draft.caffeine.xyz",
     "https://mintkit-smr.caffeine.xyz",
-]
+] + PMB_ALLOWED_ORIGINS
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "x-studio-key",
+    "x-pmb-api-key",
 ]
 
 # -------------------------
