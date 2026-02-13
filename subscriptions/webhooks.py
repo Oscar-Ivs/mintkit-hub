@@ -452,14 +452,14 @@ def stripe_webhook_pmb(request):
 
             sub_id = subscription.get("id")
             customer_id = subscription.get("customer")
-            status = subscription.get("status") or ""
+            status = (subscription.get("status") or "").strip()
             current_period_end = _utc_from_ts(subscription.get("current_period_end"))
 
             meta = subscription.get("metadata") or {}
-            principal = principal_id or meta.get("principal_id") or meta.get("principalId") or ""
+            principal = (principal_id or meta.get("principal_id") or meta.get("principalId") or "").strip()
             plan = (plan_code or meta.get("plan_code") or meta.get("plan") or "").strip().lower()
 
-            # Fallback: try to infer plan from price id if plan missing
+            # Fallback: infer plan from price id if plan missing
             if not plan:
                 try:
                     items = (((subscription.get("items") or {}).get("data")) or [])
@@ -479,40 +479,52 @@ def stripe_webhook_pmb(request):
                     elif price_id == supporter:
                         plan = "supporter"
 
+            # --- principal fallback (Billing Portal updates may lose metadata) ---
             if not principal:
-                 # Billing Portal updates may not include metadata anymore.
-                 # Fall back to existing local record using Stripe IDs.
                 existing = None
-                if sub_id:
-                    existing = PmbSubscription.objects.filter(stripe_subscription_id=sub_id).first()
-                    if not existing and customer_id:
-                        existing = PmbSubscription.objects.filter(stripe_customer_id=customer_id).first()
-                    
-            if existing:
-                principal = existing.principal_id
-            else:
-                logger.warning(
-            "PMB webhook: missing principal_id and no local match (sub=%s customer=%s)",
-            sub_id, customer_id
-        )
-                return
 
+                if sub_id:
+                    existing = PmbSubscription.objects.filter(
+                        stripe_subscription_id=sub_id
+                    ).first()
+
+                if not existing and customer_id:
+                    existing = PmbSubscription.objects.filter(
+                        stripe_customer_id=customer_id
+                    ).first()
+
+                if existing:
+                    principal = (existing.principal_id or "").strip()
+                else:
+                    logger.warning(
+                        "PMB webhook: missing principal_id and no local match (sub=%s customer=%s)",
+                        sub_id,
+                        customer_id,
+                    )
+                    return
+
+            # If plan still unknown, keep existing tier, else default to free
             if plan not in ("basic", "pro", "supporter"):
-                # Keep existing tier if unknown; otherwise default free-like
-                existing = PmbSubscription.objects.filter(principal_id=principal).first()
-                plan = existing.tier if existing else "free"
+                prior = PmbSubscription.objects.filter(principal_id=principal).first()
+                plan = prior.tier if prior else "free"
 
             rec, _ = PmbSubscription.objects.update_or_create(
                 principal_id=principal,
                 defaults={
                     "tier": plan,
                     "status": status,
-                    "stripe_customer_id": customer_id or "",
-                    "stripe_subscription_id": sub_id or "",
+                    "stripe_customer_id": (customer_id or ""),
+                    "stripe_subscription_id": (sub_id or ""),
                     "current_period_end": current_period_end,
                 },
             )
-            logger.info("PMB subscription upserted: principal=%s tier=%s status=%s", rec.principal_id, rec.tier, rec.status)
+
+            logger.info(
+                "PMB subscription upserted: principal=%s tier=%s status=%s",
+                rec.principal_id,
+                rec.tier,
+                rec.status,
+            )
 
         if event_type == "checkout.session.completed":
             # Best event for capturing principal + plan metadata
@@ -527,7 +539,11 @@ def stripe_webhook_pmb(request):
             else:
                 logger.warning("PMB checkout.session.completed had no subscription id")
 
-        elif event_type in ("customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted"):
+        elif event_type in (
+            "customer.subscription.created",
+            "customer.subscription.updated",
+            "customer.subscription.deleted",
+        ):
             _upsert_from_subscription(obj)
 
         elif event_type == "invoice.payment_failed":
