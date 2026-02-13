@@ -480,7 +480,21 @@ def stripe_webhook_pmb(request):
                         plan = "supporter"
 
             if not principal:
-                logger.warning("PMB webhook: missing principal_id for subscription=%s", sub_id)
+                 # Billing Portal updates may not include metadata anymore.
+                 # Fall back to existing local record using Stripe IDs.
+                existing = None
+                if sub_id:
+                    existing = PmbSubscription.objects.filter(stripe_subscription_id=sub_id).first()
+                    if not existing and customer_id:
+                        existing = PmbSubscription.objects.filter(stripe_customer_id=customer_id).first()
+                    
+            if existing:
+                principal = existing.principal_id
+            else:
+                logger.warning(
+            "PMB webhook: missing principal_id and no local match (sub=%s customer=%s)",
+            sub_id, customer_id
+        )
                 return
 
             if plan not in ("basic", "pro", "supporter"):
