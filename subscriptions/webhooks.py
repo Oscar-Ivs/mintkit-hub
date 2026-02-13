@@ -416,6 +416,11 @@ def stripe_webhook_pmb(request):
     """
     Stripe webhook for PlanMyBalance (separate Stripe account/keys).
     Verifies signature using PMB_STRIPE_WEBHOOK_SECRET, then upserts PmbSubscription.
+
+    Important:
+    - Billing Portal plan changes often DO NOT update subscription.metadata.
+    - So we MUST infer the plan from the active subscription item price IDs
+      and prefer that over metadata if it matches known prices.
     """
     payload = request.body
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
@@ -433,6 +438,107 @@ def stripe_webhook_pmb(request):
     old_key = stripe.api_key
     stripe.api_key = pmb_key
 
+    def _utc_from_ts(ts):
+        if not ts:
+            return None
+        try:
+            return datetime.fromtimestamp(int(ts), tz=timezone.utc)
+        except Exception:
+            return None
+
+    def _infer_plan_from_subscription(subscription):
+        """
+        Return 'basic'/'pro'/'supporter' if we can match by price id, else ''.
+        Prefer higher tiers if multiple items exist during proration transitions.
+        """
+        basic_price = (getattr(settings, "PMB_STRIPE_PRICE_BASIC", "") or "").strip()
+        pro_price = (getattr(settings, "PMB_STRIPE_PRICE_PRO", "") or "").strip()
+        supporter_price = (getattr(settings, "PMB_STRIPE_PRICE_SUPPORTER", "") or "").strip()
+
+        price_ids = []
+
+        try:
+            items = ((subscription.get("items") or {}).get("data")) or []
+            for it in items:
+                pid = (((it.get("price") or {}).get("id")) or "").strip()
+                if pid:
+                    price_ids.append(pid)
+        except Exception:
+            pass
+
+        # Priority: supporter > pro > basic
+        if supporter_price and supporter_price in price_ids:
+            return "supporter"
+        if pro_price and pro_price in price_ids:
+            return "pro"
+        if basic_price and basic_price in price_ids:
+            return "basic"
+
+        return ""
+
+    def _upsert_from_subscription(subscription, principal_id=None, plan_code=None):
+        if not subscription:
+            return
+
+        sub_id = (subscription.get("id") or "").strip()
+        customer_id = (subscription.get("customer") or "").strip()
+        status = (subscription.get("status") or "").strip()
+        current_period_end = _utc_from_ts(subscription.get("current_period_end"))
+
+        meta = subscription.get("metadata") or {}
+        principal = (principal_id or meta.get("principal_id") or meta.get("principalId") or "").strip()
+
+        # Plan from metadata / session
+        plan_meta = (plan_code or meta.get("plan_code") or meta.get("plan") or "").strip().lower()
+
+        # Plan from Stripe subscription items (this is what changes on Billing Portal upgrades)
+        plan_price = _infer_plan_from_subscription(subscription)
+
+        # Prefer price-derived plan when it matches a known tier
+        plan = plan_price if plan_price in ("basic", "pro", "supporter") else plan_meta
+
+        # --- principal fallback (Billing Portal updates may lose metadata) ---
+        if not principal:
+            existing = None
+            if sub_id:
+                existing = PmbSubscription.objects.filter(stripe_subscription_id=sub_id).first()
+            if not existing and customer_id:
+                existing = PmbSubscription.objects.filter(stripe_customer_id=customer_id).first()
+
+            if existing:
+                principal = (existing.principal_id or "").strip()
+            else:
+                logger.warning(
+                    "PMB webhook: missing principal_id and no local match (sub=%s customer=%s)",
+                    sub_id,
+                    customer_id,
+                )
+                return
+
+        # If plan still unknown, keep existing tier, else default to free
+        if plan not in ("basic", "pro", "supporter"):
+            prior = PmbSubscription.objects.filter(principal_id=principal).first()
+            plan = prior.tier if prior else "free"
+
+        rec, _ = PmbSubscription.objects.update_or_create(
+            principal_id=principal,
+            defaults={
+                "tier": plan,
+                "status": status,
+                "stripe_customer_id": customer_id,
+                "stripe_subscription_id": sub_id,
+                "current_period_end": current_period_end,
+            },
+        )
+
+        logger.info(
+            "PMB subscription upserted: principal=%s tier=%s status=%s sub=%s",
+            rec.principal_id,
+            rec.tier,
+            rec.status,
+            rec.stripe_subscription_id,
+        )
+
     try:
         event = stripe.Webhook.construct_event(
             payload=payload,
@@ -445,95 +551,13 @@ def stripe_webhook_pmb(request):
 
         logger.info("PMB webhook received: %s", event_type)
 
-        def _upsert_from_subscription(subscription, principal_id=None, plan_code=None):
-            if not subscription:
-                return
-
-            sub_id = (subscription.get("id") or "").strip()
-            customer_id = (subscription.get("customer") or "").strip()
-            status = (subscription.get("status") or "").strip()
-            current_period_end = _utc_from_ts(subscription.get("current_period_end"))
-
-            meta = subscription.get("metadata") or {}
-            principal = (principal_id or meta.get("principal_id") or meta.get("principalId") or "").strip()
-            plan = (plan_code or meta.get("plan_code") or meta.get("plan") or "").strip().lower()
-
-            # Fallback: infer plan from price id if plan missing
-            if not plan:
-                price_id = ""
-                try:
-                    items = (((subscription.get("items") or {}).get("data")) or [])
-                    price_id = (((items[0].get("price") or {}).get("id")) if items else "") or ""
-                    price_id = (price_id or "").strip()
-                except Exception:
-                    price_id = ""
-
-                if price_id:
-                    basic = (getattr(settings, "PMB_STRIPE_PRICE_BASIC", "") or "").strip()
-                    pro = (getattr(settings, "PMB_STRIPE_PRICE_PRO", "") or "").strip()
-                    supporter = (getattr(settings, "PMB_STRIPE_PRICE_SUPPORTER", "") or "").strip()
-
-                    if price_id == basic:
-                        plan = "basic"
-                    elif price_id == pro:
-                        plan = "pro"
-                    elif price_id == supporter:
-                        plan = "supporter"
-
-            # --- principal fallback (Billing Portal updates may lose metadata) ---
-            if not principal:
-                existing = None
-
-                if sub_id:
-                    existing = PmbSubscription.objects.filter(stripe_subscription_id=sub_id).first()
-
-                if not existing and customer_id:
-                    existing = PmbSubscription.objects.filter(stripe_customer_id=customer_id).first()
-
-                if existing:
-                    principal = (existing.principal_id or "").strip()
-                else:
-                    logger.warning(
-                        "PMB webhook: missing principal_id and no local match (sub=%s customer=%s)",
-                        sub_id,
-                        customer_id,
-                    )
-                    return
-
-            # If plan still unknown, keep existing tier, else default free
-            if plan not in ("basic", "pro", "supporter"):
-                prior = PmbSubscription.objects.filter(principal_id=principal).first()
-                plan = prior.tier if prior else "free"
-
-            rec, _ = PmbSubscription.objects.update_or_create(
-                principal_id=principal,
-                defaults={
-                    "tier": plan,
-                    "status": status,
-                    "stripe_customer_id": customer_id,
-                    "stripe_subscription_id": sub_id,
-                    "current_period_end": current_period_end,
-                },
-            )
-
-            logger.info(
-                "PMB subscription upserted: principal=%s tier=%s status=%s sub=%s customer=%s",
-                rec.principal_id,
-                rec.tier,
-                rec.status,
-                rec.stripe_subscription_id,
-                rec.stripe_customer_id,
-            )
-
-        # ---- Event routing ----
-
         if event_type == "checkout.session.completed":
             # Best event for capturing principal + plan metadata
             principal_id = (obj.get("client_reference_id") or "").strip()
             meta = obj.get("metadata") or {}
             plan_code = (meta.get("plan_code") or meta.get("plan") or "").strip().lower()
 
-            subscription_id = (obj.get("subscription") or "").strip()
+            subscription_id = obj.get("subscription")
             if subscription_id:
                 subscription = stripe.Subscription.retrieve(subscription_id)
                 _upsert_from_subscription(subscription, principal_id=principal_id, plan_code=plan_code)
@@ -545,17 +569,15 @@ def stripe_webhook_pmb(request):
             "customer.subscription.updated",
             "customer.subscription.deleted",
         ):
-            # obj is already a Subscription object
+            # Billing Portal upgrades show up here; metadata may be stale -> price inference fixes it
             _upsert_from_subscription(obj)
 
-        elif event_type in ("invoice.paid", "invoice.payment_failed"):
-            # These can indicate status transitions; retrieve the subscription for full fields
-            subscription_id = (obj.get("subscription") or "").strip()
+        elif event_type == "invoice.payment_failed":
+            subscription_id = obj.get("subscription")
             if subscription_id:
                 subscription = stripe.Subscription.retrieve(subscription_id)
                 _upsert_from_subscription(subscription)
 
-        # Always acknowledge to Stripe if signature verified and handler ran
         return HttpResponse(status=200)
 
     except ValueError:
