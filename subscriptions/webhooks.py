@@ -442,7 +442,8 @@ def stripe_webhook_pmb(request):
         if not ts:
             return None
         try:
-            return datetime.fromtimestamp(int(ts), tz=timezone.utc)
+            import datetime as dt
+            return dt.datetime.fromtimestamp(int(ts), tz=dt.timezone.utc)
         except Exception:
             return None
 
