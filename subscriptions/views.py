@@ -413,6 +413,31 @@ def billing_portal(request):
 
 # ---- PMB API helpers ----
 
+def _normalize_origin(url: str) -> str:
+    """
+    Return scheme://netloc for a URL, or empty string if invalid.
+    """
+    try:
+        parts = urlsplit((url or "").strip())
+        if parts.scheme not in ("http", "https") or not parts.netloc:
+            return ""
+        return f"{parts.scheme}://{parts.netloc}".lower()
+    except Exception:
+        return ""
+
+
+def _is_allowed_pmb_return_url(url: str) -> bool:
+    """
+    Only allow return URLs whose origin is in PMB_ALLOWED_ORIGINS.
+    """
+    origin = _normalize_origin(url)
+    allowed = {
+        (item or "").strip().lower()
+        for item in getattr(settings, "PMB_ALLOWED_ORIGINS", []) or []
+        if (item or "").strip()
+    }
+    return bool(origin and origin in allowed)
+
 def _require_pmb_api_key(request):
     expected = (getattr(settings, "PMB_API_KEY", "") or "").strip()
 
@@ -466,6 +491,8 @@ def pmb_checkout(request):
 
         if not plan or not principal_id or not return_url:
             return JsonResponse({"error": "Missing plan/principalId/returnUrl"}, status=400)
+        if not _is_allowed_pmb_return_url(return_url):
+            return JsonResponse({"error": "Invalid returnUrl origin"}, status=400)
 
         price_id = _pmb_price_id_for_plan(plan)
     except Exception:
@@ -510,6 +537,10 @@ def pmb_portal(request):
 
         if not principal_id or not return_url:
             return JsonResponse({"error": "Missing principalId/returnUrl"}, status=400)
+
+        if not _is_allowed_pmb_return_url(return_url):
+            return JsonResponse({"error": "Invalid returnUrl origin"}, status=400)
+
     except Exception:
         return JsonResponse({"error": "Invalid request"}, status=400)
 
