@@ -447,6 +447,36 @@ def stripe_webhook_pmb(request):
         except Exception:
             return None
 
+    def _extract_current_period_end(subscription):
+        """
+        Support both older Stripe shapes (top-level current_period_end)
+        and newer shapes where billing periods live on subscription items.
+        For mixed/proration cases, keep the latest item end date.
+        """
+        try:
+            top_level = subscription.get("current_period_end")
+            if top_level:
+                return _utc_from_ts(top_level)
+        except Exception:
+            pass
+
+        try:
+            items = ((subscription.get("items") or {}).get("data")) or []
+            ends = []
+
+            for it in items:
+                ts = it.get("current_period_end")
+                dt_value = _utc_from_ts(ts)
+                if dt_value:
+                    ends.append(dt_value)
+
+            if ends:
+                return max(ends)
+        except Exception:
+            pass
+
+        return None
+
     def _infer_plan_from_subscription(subscription):
         """
         Return 'basic'/'pro'/'supporter' if we can match by price id, else ''.
@@ -484,7 +514,7 @@ def stripe_webhook_pmb(request):
         sub_id = (subscription.get("id") or "").strip()
         customer_id = (subscription.get("customer") or "").strip()
         status = (subscription.get("status") or "").strip()
-        current_period_end = _utc_from_ts(subscription.get("current_period_end"))
+        current_period_end = _extract_current_period_end(subscription)
 
         meta = subscription.get("metadata") or {}
         principal = (principal_id or meta.get("principal_id") or meta.get("principalId") or "").strip()
@@ -533,11 +563,12 @@ def stripe_webhook_pmb(request):
         )
 
         logger.info(
-            "PMB subscription upserted: principal=%s tier=%s status=%s sub=%s",
+            "PMB subscription upserted: principal=%s tier=%s status=%s sub=%s period_end=%s",
             rec.principal_id,
             rec.tier,
             rec.status,
             rec.stripe_subscription_id,
+            rec.current_period_end,
         )
 
     try:
@@ -553,7 +584,6 @@ def stripe_webhook_pmb(request):
         logger.info("PMB webhook received: %s", event_type)
 
         if event_type == "checkout.session.completed":
-            # Best event for capturing principal + plan metadata
             principal_id = (obj.get("client_reference_id") or "").strip()
             meta = obj.get("metadata") or {}
             plan_code = (meta.get("plan_code") or meta.get("plan") or "").strip().lower()
@@ -570,7 +600,6 @@ def stripe_webhook_pmb(request):
             "customer.subscription.updated",
             "customer.subscription.deleted",
         ):
-            # Billing Portal upgrades show up here; metadata may be stale -> price inference fixes it
             _upsert_from_subscription(obj)
 
         elif event_type == "invoice.payment_failed":
