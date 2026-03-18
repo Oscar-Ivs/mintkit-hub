@@ -285,8 +285,11 @@ PMB_STRIPE_PRICE_BASIC = os.getenv("PMB_STRIPE_PRICE_BASIC", "")
 PMB_STRIPE_PRICE_PRO = os.getenv("PMB_STRIPE_PRICE_PRO", "")
 PMB_STRIPE_PRICE_SUPPORTER = os.getenv("PMB_STRIPE_PRICE_SUPPORTER", "")
 
-PMB_ALLOWED_ORIGINS = os.getenv("PMB_ALLOWED_ORIGINS", "")
-
+PMB_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("PMB_ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 
 # -------------------------
 # Logging
